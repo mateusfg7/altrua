@@ -12,7 +12,7 @@ DIM    = \033[2m
 -include .env
 export
 
-.PHONY: help run build test dev clean docker-up docker-down logs setup
+.PHONY: help run build test dev clean docker-up docker-down logs setup migration
 
 ## Exibe esta mensagem de ajuda
 help:
@@ -30,6 +30,9 @@ help:
 	@printf "  $(GREEN)make build$(RESET)       $(DIM)Compila o projeto (sem rodar testes)$(RESET)\n"
 	@printf "  $(GREEN)make test$(RESET)        $(DIM)Executa os testes automatizados$(RESET)\n"
 	@printf "  $(GREEN)make clean$(RESET)       $(DIM)Remove arquivos de build gerados$(RESET)\n"
+	@printf "\n"
+	@printf "$(BOLD)$(WHITE)  BANCO DE DADOS$(RESET)\n"
+	@printf "  $(GREEN)make migration$(RESET)   $(DIM)Cria um novo arquivo de migration Flyway$(RESET)\n"
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  DOCKER$(RESET)\n"
 	@printf "  $(GREEN)make docker-up$(RESET)   $(DIM)Sobe os containers em background$(RESET)\n"
@@ -89,3 +92,20 @@ docker-down:
 logs:
 	@printf "$(CYAN)📋 Logs do PostgreSQL (Ctrl+C para sair)...$(RESET)\n"
 	@docker compose logs -f postgres
+
+## Cria um novo arquivo de migration Flyway
+migration:
+	@printf "$(CYAN)📝 Nova migration$(RESET)\n"
+	@printf "$(BOLD)$(WHITE)  Nome da migration: $(RESET)"; \
+	read NAME; \
+	TIMESTAMP=$$(date +"%Y%m%d%H%M%S"); \
+	SNAKE=$$(echo "$$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:]]\+/_/g' | sed 's/[^a-z0-9_]//g'); \
+	if [ -z "$$SNAKE" ]; then \
+		printf "$(RED)❌ Nome de migration inválido. Use pelo menos um caractere alfanumérico.$(RESET)\n"; \
+		exit 1; \
+	fi; \
+	MIGRATION_DIR="src/main/resources/db/migration"; \
+	FILENAME="V$${TIMESTAMP}__$${SNAKE}.sql"; \
+	mkdir -p "$$MIGRATION_DIR"; \
+	touch "$$MIGRATION_DIR/$$FILENAME"; \
+	printf "$(GREEN)✅ Migration criada: $(RESET)$(BOLD)$$MIGRATION_DIR/$$FILENAME$(RESET)\n"
