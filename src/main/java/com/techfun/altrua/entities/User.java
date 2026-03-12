@@ -50,7 +50,7 @@ public class User {
   private String password;
 
   /** URL do avatar do usuário. Campo opcional. */
-  @Column(name = "avatar_url")
+  @Column(name = "avatar_url", length = 500)
   @Getter
   private String avatarUrl;
 
