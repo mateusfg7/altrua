@@ -98,7 +98,7 @@ migration:
 	@printf "$(CYAN)📝 Nova migration$(RESET)\n"
 	@printf "$(BOLD)$(WHITE)  Nome da migration: $(RESET)"; \
 	read NAME; \
-	TIMESTAMP=$$(date +"%Y%m%d%H%M"); \
+	TIMESTAMP=$$(date +"%Y%m%d%H%M%S"); \
 	SNAKE=$$(echo "$$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:]]\+/_/g' | sed 's/[^a-z0-9_]//g'); \
 	if [ -z "$$SNAKE" ]; then \
 		printf "$(RED)❌ Nome de migration inválido. Use pelo menos um caractere alfanumérico.$(RESET)\n"; \
