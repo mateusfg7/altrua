@@ -13,6 +13,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
+import lombok.Getter;
+
 /**
  * Entidade que representa um usuário no sistema.
  *
@@ -29,14 +31,17 @@ public class User {
   /** Identificador único do usuário, gerado automaticamente como UUID. */
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Getter
   private UUID id;
 
   /** Nome completo do usuário. */
   @Column(nullable = false)
+  @Getter
   private String name;
 
   /** Endereço de e-mail do usuário. Deve ser único no sistema. */
   @Column(nullable = false, unique = true)
+  @Getter
   private String email;
 
   /**
@@ -44,10 +49,12 @@ public class User {
    * caracteres.
    */
   @Column(nullable = false, length = 500)
+  @Getter
   private String password;
 
   /** URL do avatar do usuário. Campo opcional. */
   @Column(name = "avatar_url")
+  @Getter
   private String avatarUrl;
 
   /**
@@ -56,6 +63,7 @@ public class User {
    */
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
+  @Getter
   private Instant createdAt;
 
   /**
@@ -64,6 +72,7 @@ public class User {
    */
   @LastModifiedDate
   @Column(name = "updated_at", nullable = false)
+  @Getter
   private Instant updatedAt;
 
   /**
@@ -155,69 +164,6 @@ public class User {
   public static User create(String name, String email, String password, String avatarUrl, Instant createdAt,
       Instant updatedAt) {
     return new User(name, email, password, avatarUrl, createdAt, updatedAt);
-  }
-
-  /**
-   * Retorna o identificador único do usuário.
-   *
-   * @return UUID do usuário
-   */
-  public UUID getId() {
-    return id;
-  }
-
-  /**
-   * Retorna o nome do usuário.
-   *
-   * @return nome do usuário
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * Retorna o e-mail do usuário.
-   *
-   * @return e-mail do usuário
-   */
-  public String getEmail() {
-    return email;
-  }
-
-  /**
-   * Retorna a senha do usuário em formato hash.
-   *
-   * @return senha em hash
-   */
-  public String getPassword() {
-    return password;
-  }
-
-  /**
-   * Retorna a URL do avatar do usuário.
-   *
-   * @return URL do avatar ou {@code null} se não definido
-   */
-  public String getAvatarUrl() {
-    return avatarUrl;
-  }
-
-  /**
-   * Retorna a data e hora de criação do registro.
-   *
-   * @return instante de criação
-   */
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  /**
-   * Retorna a data e hora da última atualização do registro.
-   *
-   * @return instante da última atualização
-   */
-  public Instant getUpdatedAt() {
-    return updatedAt;
   }
 
   /**
