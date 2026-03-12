@@ -98,7 +98,7 @@ migration:
 	@printf "$(CYAN)📝 Nova migration$(RESET)\n"
 	@printf "$(BOLD)$(WHITE)  Nome da migration: $(RESET)"; \
 	read NAME; \
-	TIMESTAMP=$$(date +"%Y%m%d%H%M"); \
+	TIMESTAMP=$$(date +"%Y%m%d%H%M%S"); \
 	SNAKE=$$(echo "$$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:]]\+/_/g' | sed 's/[^a-z0-9_]//g'); \
 	MIGRATION_DIR="src/main/resources/db/migration"; \
 	FILENAME="V$${TIMESTAMP}__$${SNAKE}.sql"; \
