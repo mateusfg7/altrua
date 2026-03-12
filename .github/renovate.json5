@@ -1,0 +1,31 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:recommended'],
+  commitBodyTable: true,
+  branchPrefix: 'deps/',
+  minimumReleaseAge: '3 days',
+  packageRules: [
+    {
+      matchDepTypes: ['*'],
+      rangeStrategy: 'pin',
+    },
+    {
+      matchUpdateTypes: ['major'],
+      addLabels: ['deps:major'],
+      minimumReleaseAge: '15 days',
+    },
+    {
+      matchUpdateTypes: ['minor'],
+      addLabels: ['deps:minor'],
+    },
+    {
+      matchUpdateTypes: ['patch'],
+      addLabels: ['deps:patch'],
+      automerge: true,
+    },
+    {
+      matchUpdateTypes: ['pin'],
+      addLabels: ['deps:pin'],
+    },
+  ],
+}
