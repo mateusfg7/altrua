@@ -3,9 +3,6 @@ package com.techfun.altrua.entities;
 import java.time.Instant;
 import java.util.UUID;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -61,7 +58,6 @@ public class User {
    * Data e hora de criação do registro. Definida automaticamente e não pode ser
    * alterada.
    */
-  @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
   @Getter
   private Instant createdAt;
@@ -70,7 +66,6 @@ public class User {
    * Data e hora da última atualização do registro. Atualizada automaticamente a
    * cada modificação.
    */
-  @LastModifiedDate
   @Column(name = "updated_at", nullable = false)
   @Getter
   private Instant updatedAt;
@@ -93,6 +88,9 @@ public class User {
     this.name = name;
     this.email = email;
     this.password = password;
+
+    this.createdAt = Instant.now();
+    this.updatedAt = Instant.now();
   }
 
   /**
