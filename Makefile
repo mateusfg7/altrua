@@ -100,6 +100,10 @@ migration:
 	read NAME; \
 	TIMESTAMP=$$(date +"%Y%m%d%H%M"); \
 	SNAKE=$$(echo "$$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[[:space:]]\+/_/g' | sed 's/[^a-z0-9_]//g'); \
+	if [ -z "$$SNAKE" ]; then \
+		printf "$(RED)❌ Nome de migration inválido. Use pelo menos um caractere alfanumérico.$(RESET)\n"; \
+		exit 1; \
+	fi; \
 	MIGRATION_DIR="src/main/resources/db/migration"; \
 	FILENAME="V$${TIMESTAMP}__$${SNAKE}.sql"; \
 	mkdir -p "$$MIGRATION_DIR"; \
