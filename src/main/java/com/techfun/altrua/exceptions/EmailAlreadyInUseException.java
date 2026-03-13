@@ -11,11 +11,9 @@ package com.techfun.altrua.exceptions;
 public class EmailAlreadyInUseException extends RuntimeException {
 
     /**
-     * Constrói a exceção com uma mensagem padrão formatada com o e-mail duplicado.
-     *
-     * @param email o e-mail que causou o conflito
+     * Constrói a exceção com uma mensagem de erro genérica para e-mail já cadastrado.
      */
-    public EmailAlreadyInUseException(String email) {
-        super("E-mail já cadastrado: " + email);
+    public EmailAlreadyInUseException() {
+        super("E-mail já cadastrado");
     }
 }

@@ -36,9 +36,10 @@ public class AuthService {
     @Transactional
     public void register(RegisterRequestDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new EmailAlreadyInUseException(dto.getEmail());
+            throw new EmailAlreadyInUseException();
         }
 
+        // TO DO: Criar tratamento para evitar condições de corrida (duas requisições ao mesmo tempo)
         User user = User.create(dto.getName(), dto.getEmail(), passwordEncoder.encode(dto.getPassword()));
         userRepository.save(user);
     }
