@@ -16,13 +16,13 @@ import lombok.Getter;
  * Entidade que representa um usuário no sistema.
  *
  * <p>
- * Mapeada para a tabela {@code user} no banco de dados. Os campos
+ * Mapeada para a tabela {@code users} no banco de dados. Os campos
  * {@code createdAt} e {@code updatedAt} são gerenciados automaticamente
  * pelo Spring Data e pelo método {@link #touch()}, respectivamente.
  * </p>
  */
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Getter
 public class User {
 
