@@ -16,29 +16,27 @@ import lombok.Getter;
  * Entidade que representa um usuário no sistema.
  *
  * <p>
- * Mapeada para a tabela {@code user} no banco de dados. Os campos
+ * Mapeada para a tabela {@code users} no banco de dados. Os campos
  * {@code createdAt} e {@code updatedAt} são gerenciados automaticamente
  * pelo Spring Data e pelo método {@link #touch()}, respectivamente.
  * </p>
  */
 @Entity
-@Table(name = "user")
+@Table(name = "users")
+@Getter
 public class User {
 
   /** Identificador único do usuário, gerado automaticamente como UUID. */
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
-  @Getter
   private UUID id;
 
   /** Nome completo do usuário. */
   @Column(nullable = false)
-  @Getter
   private String name;
 
   /** Endereço de e-mail do usuário. Deve ser único no sistema. */
   @Column(nullable = false, unique = true)
-  @Getter
   private String email;
 
   /**
@@ -46,12 +44,10 @@ public class User {
    * caracteres.
    */
   @Column(nullable = false, length = 500)
-  @Getter
   private String password;
 
   /** URL do avatar do usuário. Campo opcional. */
   @Column(name = "avatar_url", length = 500)
-  @Getter
   private String avatarUrl;
 
   /**
@@ -59,7 +55,6 @@ public class User {
    * alterada.
    */
   @Column(name = "created_at", nullable = false, updatable = false)
-  @Getter
   private Instant createdAt;
 
   /**
@@ -67,7 +62,6 @@ public class User {
    * cada modificação.
    */
   @Column(name = "updated_at", nullable = false)
-  @Getter
   private Instant updatedAt;
 
   /**
