@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(EmailAlreadyInUseException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponseDTO handleEmailAlreadyInUser(EmailAlreadyInUseException ex, HttpServletRequest request) {
+    public ErrorResponseDTO handleEmailAlreadyInUse(EmailAlreadyInUseException ex, HttpServletRequest request) {
         return ErrorResponseDTO.of(ex.getMessage(), HttpStatus.CONFLICT, request.getRequestURI());
     }
 }
