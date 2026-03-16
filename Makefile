@@ -12,7 +12,8 @@ DIM    = \033[2m
 -include .env
 export
 
-.PHONY: help run build test dev clean docker-up docker-down logs setup migration
+.PHONY: help run build test dev clean docker-up docker-down logs setup migration \
+        db-clean db-reset db-migrate db-migrate-info db-migrate-repair db-migrate-validate
 
 ## Exibe esta mensagem de ajuda
 help:
@@ -22,22 +23,28 @@ help:
 	@printf "$(BOLD)$(CYAN)╚══════════════════════════════════════════╝$(RESET)\n"
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  DESENVOLVIMENTO$(RESET)\n"
-	@printf "  $(GREEN)make setup$(RESET)       $(DIM)Configura o projeto pela primeira vez$(RESET)\n"
-	@printf "  $(GREEN)make dev$(RESET)         $(DIM)Sobe o banco e inicia a aplicação$(RESET)\n"
-	@printf "  $(GREEN)make run$(RESET)         $(DIM)Inicia apenas a aplicação$(RESET)\n"
+	@printf "  $(GREEN)make setup$(RESET)              $(DIM)Configura o projeto pela primeira vez$(RESET)\n"
+	@printf "  $(GREEN)make dev$(RESET)                $(DIM)Sobe o banco e inicia a aplicação$(RESET)\n"
+	@printf "  $(GREEN)make run$(RESET)                $(DIM)Inicia apenas a aplicação$(RESET)\n"
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  BUILD & TESTES$(RESET)\n"
-	@printf "  $(GREEN)make build$(RESET)       $(DIM)Compila o projeto (sem rodar testes)$(RESET)\n"
-	@printf "  $(GREEN)make test$(RESET)        $(DIM)Executa os testes automatizados$(RESET)\n"
-	@printf "  $(GREEN)make clean$(RESET)       $(DIM)Remove arquivos de build gerados$(RESET)\n"
+	@printf "  $(GREEN)make build$(RESET)              $(DIM)Compila o projeto (sem rodar testes)$(RESET)\n"
+	@printf "  $(GREEN)make test$(RESET)               $(DIM)Executa os testes automatizados$(RESET)\n"
+	@printf "  $(GREEN)make clean$(RESET)              $(DIM)Remove arquivos de build gerados$(RESET)\n"
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  BANCO DE DADOS$(RESET)\n"
-	@printf "  $(GREEN)make migration$(RESET)   $(DIM)Cria um novo arquivo de migration Flyway$(RESET)\n"
+	@printf "  $(GREEN)make migration$(RESET)          $(DIM)Cria um novo arquivo de migration Flyway$(RESET)\n"
+	@printf "  $(GREEN)make db-migrate$(RESET)         $(DIM)Executa as migrations pendentes via Flyway$(RESET)\n"
+	@printf "  $(GREEN)make db-migrate-info$(RESET)    $(DIM)Exibe o status de todas as migrations$(RESET)\n"
+	@printf "  $(GREEN)make db-migrate-validate$(RESET)$(DIM)Valida as migrations aplicadas$(RESET)\n"
+	@printf "  $(GREEN)make db-migrate-repair$(RESET)  $(DIM)Repara o histórico de migrations com falha$(RESET)\n"
+	@printf "  $(GREEN)make db-clean$(RESET)           $(DIM)Remove volumes do banco (dados apagados!)$(RESET)\n"
+	@printf "  $(GREEN)make db-reset$(RESET)           $(DIM)Derruba tudo, recria e roda as migrations$(RESET)\n"
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  DOCKER$(RESET)\n"
-	@printf "  $(GREEN)make docker-up$(RESET)   $(DIM)Sobe os containers em background$(RESET)\n"
-	@printf "  $(GREEN)make docker-down$(RESET) $(DIM)Para e remove os containers$(RESET)\n"
-	@printf "  $(GREEN)make logs$(RESET)        $(DIM)Exibe os logs do PostgreSQL em tempo real$(RESET)\n"
+	@printf "  $(GREEN)make docker-up$(RESET)          $(DIM)Sobe os containers em background$(RESET)\n"
+	@printf "  $(GREEN)make docker-down$(RESET)        $(DIM)Para e remove os containers$(RESET)\n"
+	@printf "  $(GREEN)make logs$(RESET)               $(DIM)Exibe os logs do PostgreSQL em tempo real$(RESET)\n"
 	@printf "\n"
 
 ## Configura o projeto: cria o .env a partir do .env.example
@@ -109,3 +116,51 @@ migration:
 	mkdir -p "$$MIGRATION_DIR"; \
 	touch "$$MIGRATION_DIR/$$FILENAME"; \
 	printf "$(GREEN)✅ Migration criada: $(RESET)$(BOLD)$$MIGRATION_DIR/$$FILENAME$(RESET)\n"
+
+# ─────────────────────────────────────────────
+#  BANCO DE DADOS — Flyway & Cleanup
+# ─────────────────────────────────────────────
+
+## Executa as migrations pendentes via Flyway (Maven)
+db-migrate:
+	@printf "$(CYAN)🛠️  Rodando migrations Flyway...$(RESET)\n"
+	@./mvnw flyway:migrate -Dflyway.url=jdbc:postgresql://$${DB_HOST:-localhost}:$${DB_PORT:-5432}/$${DB_NAME} \
+	                       -Dflyway.user=$${DB_USER} \
+	                       -Dflyway.password=$${DB_PASSWORD}
+	@printf "$(GREEN)✅ Migrations aplicadas com sucesso.$(RESET)\n"
+
+## Exibe o status de todas as migrations (aplicadas, pendentes, com falha)
+db-migrate-info:
+	@printf "$(CYAN)📊 Status das migrations Flyway...$(RESET)\n"
+	@./mvnw flyway:info -Dflyway.url=jdbc:postgresql://$${DB_HOST:-localhost}:$${DB_PORT:-5432}/$${DB_NAME} \
+	                    -Dflyway.user=$${DB_USER} \
+	                    -Dflyway.password=$${DB_PASSWORD}
+
+## Valida se as migrations aplicadas correspondem às locais
+db-migrate-validate:
+	@printf "$(CYAN)🔍 Validando migrations Flyway...$(RESET)\n"
+	@./mvnw flyway:validate -Dflyway.url=jdbc:postgresql://$${DB_HOST:-localhost}:$${DB_PORT:-5432}/$${DB_NAME} \
+	                        -Dflyway.user=$${DB_USER} \
+	                        -Dflyway.password=$${DB_PASSWORD}
+	@printf "$(GREEN)✅ Validação concluída.$(RESET)\n"
+
+## Repara o histórico de migrations com falha (checksums e registros quebrados)
+db-migrate-repair:
+	@printf "$(YELLOW)🔧 Reparando histórico de migrations Flyway...$(RESET)\n"
+	@./mvnw flyway:repair -Dflyway.url=jdbc:postgresql://$${DB_HOST:-localhost}:$${DB_PORT:-5432}/$${DB_NAME} \
+	                      -Dflyway.user=$${DB_USER} \
+	                      -Dflyway.password=$${DB_PASSWORD}
+	@printf "$(GREEN)✅ Reparo concluído.$(RESET)\n"
+
+## Remove containers + volumes do banco (⚠️  TODOS OS DADOS SERÃO APAGADOS)
+db-clean:
+	@printf "$(RED)$(BOLD)⚠️  ATENÇÃO: todos os dados do banco serão apagados!$(RESET)\n"
+	@printf "$(YELLOW)   Pressione ENTER para continuar ou Ctrl+C para cancelar...$(RESET)"; \
+	read _CONFIRM
+	@printf "$(YELLOW)🗑️  Removendo containers e volumes do PostgreSQL...$(RESET)\n"
+	@docker compose down -v --remove-orphans
+	@printf "$(GREEN)✅ Containers e volumes removidos.$(RESET)\n"
+
+## Derruba tudo, recria o banco e executa todas as migrations do zero
+db-reset: db-clean docker-up db-migrate
+	@printf "$(GREEN)$(BOLD)✅ Banco resetado e migrations aplicadas com sucesso!$(RESET)\n"
