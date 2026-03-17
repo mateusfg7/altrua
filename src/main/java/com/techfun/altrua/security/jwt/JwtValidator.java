@@ -48,6 +48,10 @@ public class JwtValidator {
         logger.debug("Validando token: {}", token);
         
         final String subject = extractSubject(token);
+        if (subject == null) {
+            logger.warn("Token inválido: subject ausente ou nulo");
+            return false;
+        }
         return subject.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
