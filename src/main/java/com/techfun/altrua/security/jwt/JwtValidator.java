@@ -40,8 +40,7 @@ public class JwtValidator {
      * @return {@code true} se o token for válido, {@code false} caso contrário
      */
     public boolean validateToken(String token, UserDetails userDetails) {
-        logger.debug("Validando token: {}", token);
-        
+        // TO DO: implementação de um request-id futuramente e adicionar um logger aqui
         final String subject = extractSubject(token);
         if (subject == null) {
             logger.warn("Token inválido: subject ausente ou nulo");
