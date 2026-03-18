@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.techfun.altrua.dto.ErrorResponseDTO;
+import com.techfun.altrua.dto.common.ErrorResponseDTO;
 import com.techfun.altrua.exceptions.EmailAlreadyInUseException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,11 +20,11 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    
+
     /**
      * Trata a exceção {@link EmailAlreadyInUseException}.
      *
-     * @param ex a exceção capturada
+     * @param ex      a exceção capturada
      * @param request a requisição HTTP onde a exceção ocorreu
      * @return um objeto {@link ErrorResponseDTO} contendo os detalhes do erro
      * @see HttpStatus#CONFLICT
