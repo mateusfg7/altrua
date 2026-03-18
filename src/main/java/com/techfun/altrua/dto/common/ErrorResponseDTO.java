@@ -1,4 +1,4 @@
-package com.techfun.altrua.dto;
+package com.techfun.altrua.dto.common;
 
 import java.time.Instant;
 

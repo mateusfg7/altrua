@@ -1,5 +1,6 @@
 package com.techfun.altrua.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,4 +24,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * @return {@code true} se um usuário com o e-mail existir, {@code false} caso contrário
      */
     public boolean existsByEmail(String email);
+
+    /**
+     * Busca um usuário pelo seu endereço de e-mail.
+     *
+     * @param email o e-mail do usuário a ser buscado
+     * @return um {@link Optional} contendo o usuário se encontrado, ou vazio caso contrário
+     */
+    public Optional<User> findByEmail(String email);
 }
