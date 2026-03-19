@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.techfun.altrua.dto.auth.AuthResponseDTO;
+import com.techfun.altrua.dto.auth.LoginRequestDTO;
 import com.techfun.altrua.dto.auth.RegisterRequestDTO;
 import com.techfun.altrua.service.AuthService;
 
@@ -22,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    
+
     private final AuthService authService;
 
     /**
@@ -36,4 +37,14 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(dto));
     }
 
+    /**
+     * Endpoint para autenticação de usuários (Login).
+     *
+     * @param dto objeto contendo as credenciais (e-mail e senha) para autenticação
+     * @return {@link ResponseEntity} contendo o token JWT de acesso
+     */
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid LoginRequestDTO dto) {
+        return ResponseEntity.ok(authService.login(dto));
+    }
 }
