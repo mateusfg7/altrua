@@ -9,8 +9,8 @@ import { Button } from "~/components/ui/button";
 
 export function HeroSection() {
   return (
-    <section>
-      <div className="container mx-auto px-4">
+    <section className="px-3">
+      <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 font-medium text-muted-foreground text-sm">
             <HugeiconsIcon
