@@ -3,6 +3,7 @@ package com.techfun.altrua.service;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -83,24 +84,19 @@ public class AuthService {
      *
      * @param dto objeto contendo as credenciais de acesso (e-mail e senha)
      * @return {@link AuthResponseDTO} contendo o token JWT gerado
-     * @throws AuthenticationException     se a autenticação falhar por credenciais
+     * @throws InvalidCredentialsException se a autenticação falhar por credenciais
      *                                     inválidas ou usuário inexistente
-     * @throws InvalidCredentialsException se ocorrer qualquer outro erro inesperado
-     *                                     durante o processo de autenticação
      */
     public AuthResponseDTO login(LoginRequestDTO dto) {
         try {
-            authenticationManager.authenticate(
+            Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
 
-            User user = userRepository.findByEmail(dto.getEmail())
-                    .orElseThrow();
+            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+            String token = jwtProvider.generateToken(userPrincipal);
 
-            String token = jwtProvider.generateToken(new UserPrincipal(user));
             return new AuthResponseDTO(token);
         } catch (AuthenticationException ex) {
-            throw ex;
-        } catch (Exception ex) {
             throw new InvalidCredentialsException();
         }
     }
