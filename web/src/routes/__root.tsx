@@ -47,9 +47,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="wrap-anywhere font-sans antialiased">
         <TanStackQueryProvider>
-          <Header />
-
-          {children}
+          <div className="flex min-h-dvh flex-col gap-20">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <footer />
+          </div>
 
           <TanStackDevtools
             config={{
