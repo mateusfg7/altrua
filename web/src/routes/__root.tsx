@@ -6,6 +6,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { Footer } from "~/components/footer";
 import { Header } from "~/components/header";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
@@ -50,7 +51,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <div className="flex min-h-dvh flex-col gap-20">
             <Header />
             <main className="flex-1">{children}</main>
-            <footer>footer</footer>
+            <Footer />
           </div>
 
           <TanStackDevtools
