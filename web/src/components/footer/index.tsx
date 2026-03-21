@@ -1,11 +1,3 @@
-// import {
-//   FavouriteIcon,
-//   InstagramIcon,
-//   Linkedin01Icon,
-//   Mail01Icon,
-//   NewTwitterIcon,
-// } from "hugeicons-react";
-
 import {
   FavouriteIcon,
   InstagramIcon,
