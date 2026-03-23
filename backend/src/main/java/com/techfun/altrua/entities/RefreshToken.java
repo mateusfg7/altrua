@@ -66,13 +66,6 @@ public class RefreshToken {
     private Instant createdAt;
 
     /**
-     * Indica se o token foi revogado. Um token revogado não pode ser
-     * utilizado para renovar o access token.
-     */
-    @Column(nullable = false)
-    private boolean revoked = false;
-
-    /**
      * Construtor padrão exigido pelo JPA. Não deve ser utilizado diretamente.
      */
     protected RefreshToken() {

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 
 import com.techfun.altrua.entities.RefreshToken;
+import com.techfun.altrua.entities.User;
 
 import jakarta.persistence.LockModeType;
 
@@ -29,6 +30,17 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
      *         existir
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<RefreshToken> findByToken(String token);
+    public Optional<RefreshToken> findByToken(String token);
 
+    /**
+     * Remove todos os refresh tokens vinculados ao usuário informado.
+     *
+     * <p>
+     * Utilizado antes da criação de um novo token para garantir
+     * que apenas um refresh token ativo por usuário exista no banco.
+     * </p>
+     *
+     * @param user usuário cujos refresh tokens serão removidos
+     */
+    public void deleteAllByUser(User user);
 }

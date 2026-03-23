@@ -56,6 +56,8 @@ public class RefreshTokenService {
      */
     @Transactional
     public String create(User user) {
+        refreshTokenRepository.deleteAllByUser(user);
+        
         UserDetails userDetails = userLookupService.loadById(user.getId());
         String token = jwtProvider.generateRefreshToken(userDetails);
         Instant expiration = Instant.now().plusMillis(refreshTokenExpiration);
@@ -69,7 +71,7 @@ public class RefreshTokenService {
     }
 
     /**
-     * Valida um refresh token verificando sua existência, revogação e expiração.
+     * Valida um refresh token verificando sua existência e expiração.
      *
      * <p>
      * A busca é realizada pelo hash SHA-256 do token recebido.
@@ -77,16 +79,12 @@ public class RefreshTokenService {
      *
      * @param token o valor original do refresh token a ser validado
      * @return o {@link RefreshToken} encontrado e válido
-     * @throws RefreshTokenException se o token não for encontrado, estiver revogado
-     *                               ou expirado
+     * @throws RefreshTokenException se o token não for encontrado ou estiver
+     *                               expirado
      */
     public RefreshToken validate(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(hashToken(token))
                 .orElseThrow(() -> new RefreshTokenException("Refresh token não encontrado"));
-
-        if (refreshToken.isRevoked()) {
-            throw new RefreshTokenException("Refresh token revogado");
-        }
 
         if (refreshToken.getExpiresAt().isBefore(Instant.now())) {
             throw new RefreshTokenException("Refresh token expirado");
@@ -96,10 +94,10 @@ public class RefreshTokenService {
     }
 
     /**
-     * Rotaciona o refresh token, revogando o atual e gerando um novo.
+     * Rotaciona o refresh token, deletando o atual e gerando um novo.
      *
      * <p>
-     * Operação atômica — se a criação do novo token falhar, a revogação
+     * Operação atômica — se a criação do novo token falhar, a deleção
      * do token atual também é revertida pelo {@link Transactional}.
      * O novo token é armazenado em formato hash SHA-256.
      * </p>
@@ -107,15 +105,14 @@ public class RefreshTokenService {
      * @param token o valor original do refresh token a ser rotacionado
      * @return {@link RotateResult} contendo o novo token original e o usuário
      *         vinculado
-     * @throws RefreshTokenException se o token for inválido, revogado, expirado
+     * @throws RefreshTokenException se o token for inválido, expirado
      *                               ou houver erro ao persistir o novo token
      */
     @Transactional
     public RotateResult rotate(String token) {
         RefreshToken refreshToken = validate(token);
 
-        refreshToken.setRevoked(true);
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.delete(refreshToken);
 
         String newToken = jwtProvider.generateRefreshToken(new UserPrincipal(refreshToken.getUser()));
         Instant expiration = Instant.now().plusMillis(refreshTokenExpiration);
@@ -129,14 +126,14 @@ public class RefreshTokenService {
     }
 
     /**
-     * Revoga um refresh token, impedindo seu uso futuro.
+     * Remove o refresh token do banco, encerrando a sessão do usuário.
      *
      * <p>
      * Utilizado no logout para invalidar a sessão do usuário.
      * A busca é realizada pelo hash SHA-256 do token recebido.
      * </p>
      *
-     * @param token o valor original do refresh token a ser revogado
+     * @param token o valor original do refresh token a ser removido
      * @throws RefreshTokenException se o token não for encontrado
      */
     @Transactional
@@ -144,8 +141,7 @@ public class RefreshTokenService {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(hashToken(token))
                 .orElseThrow(() -> new RefreshTokenException("Refresh token não encontrado"));
 
-        refreshToken.setRevoked(true);
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenRepository.delete(refreshToken);
     }
 
     /**
