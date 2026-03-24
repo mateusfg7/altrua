@@ -1,4 +1,4 @@
-package com.techfun.altrua.dto.auth;
+package com.techfun.altrua.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

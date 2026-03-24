@@ -1,13 +1,13 @@
-package com.techfun.altrua.service;
+package com.techfun.altrua.auth.refresh;
 
-import com.techfun.altrua.entities.User;
+import com.techfun.altrua.user.User;
 
 /**
  * Resultado da operação de rotação de refresh token.
  *
  * <p>
  * Encapsula o novo refresh token gerado e o usuário vinculado,
- * permitindo que o {@link com.techfun.altrua.service.AuthService}
+ * permitindo que o {@link com.techfun.altrua.auth.AuthService}
  * gere um novo access token sem consultas adicionais ao banco.
  * </p>
  *

@@ -1,4 +1,4 @@
-package com.techfun.altrua.controller;
+package com.techfun.altrua.user;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.techfun.altrua.dto.common.UserResponseDTO;
 import com.techfun.altrua.security.userdetails.UserPrincipal;
-import com.techfun.altrua.service.UserService;
+import com.techfun.altrua.user.dto.UserResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,11 +29,13 @@ public class UserController {
      * Retorna os dados do usuário autenticado.
      *
      * <p>
-     * Extrai o usuário diretamente do {@link UserPrincipal} populado pelo filtro JWT,
+     * Extrai o usuário diretamente do {@link UserPrincipal} populado pelo filtro
+     * JWT,
      * evitando consulta adicional ao banco de dados.
      * </p>
      *
-     * @param userPrincipal o principal do usuário autenticado extraído do contexto de segurança
+     * @param userPrincipal o principal do usuário autenticado extraído do contexto
+     *                      de segurança
      * @return {@link ResponseEntity} contendo os dados do usuário sem a senha
      */
     @GetMapping("/me")

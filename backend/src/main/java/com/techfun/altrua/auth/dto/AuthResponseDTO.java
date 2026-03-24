@@ -1,4 +1,4 @@
-package com.techfun.altrua.dto.auth;
+package com.techfun.altrua.auth.dto;
 
 /**
  * DTO de resposta para operações de autenticação.

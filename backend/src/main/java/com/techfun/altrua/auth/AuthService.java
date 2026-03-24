@@ -1,4 +1,4 @@
-package com.techfun.altrua.service;
+package com.techfun.altrua.auth;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,16 +8,18 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.techfun.altrua.dto.auth.AuthResponseDTO;
-import com.techfun.altrua.dto.auth.LoginRequestDTO;
-import com.techfun.altrua.dto.auth.RegisterRequestDTO;
-import com.techfun.altrua.entities.User;
-import com.techfun.altrua.exceptions.EmailAlreadyInUseException;
-import com.techfun.altrua.exceptions.InvalidCredentialsException;
-import com.techfun.altrua.exceptions.RefreshTokenException;
-import com.techfun.altrua.repository.UserRepository;
+import com.techfun.altrua.auth.dto.AuthResponseDTO;
+import com.techfun.altrua.auth.dto.LoginRequestDTO;
+import com.techfun.altrua.auth.dto.RegisterRequestDTO;
+import com.techfun.altrua.auth.refresh.RefreshTokenService;
+import com.techfun.altrua.auth.refresh.RotateResult;
+import com.techfun.altrua.common.exceptions.EmailAlreadyInUseException;
+import com.techfun.altrua.common.exceptions.InvalidCredentialsException;
+import com.techfun.altrua.common.exceptions.RefreshTokenException;
 import com.techfun.altrua.security.jwt.JwtProvider;
 import com.techfun.altrua.security.userdetails.UserPrincipal;
+import com.techfun.altrua.user.User;
+import com.techfun.altrua.user.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -1,15 +1,16 @@
-package com.techfun.altrua.dto.common;
+package com.techfun.altrua.user.dto;
 
 import java.time.Instant;
 import java.util.UUID;
 
-import com.techfun.altrua.entities.User;
+import com.techfun.altrua.user.User;
 
 /**
  * DTO de resposta com os dados públicos do usuário.
  *
  * <p>
- * Expõe apenas os campos necessários, omitindo informações sensíveis como a senha.
+ * Expõe apenas os campos necessários, omitindo informações sensíveis como a
+ * senha.
  * </p>
  *
  * @param id        identificador único do usuário

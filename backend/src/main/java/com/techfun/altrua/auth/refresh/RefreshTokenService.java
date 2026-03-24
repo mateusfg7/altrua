@@ -1,4 +1,4 @@
-package com.techfun.altrua.service;
+package com.techfun.altrua.auth.refresh;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -11,13 +11,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.techfun.altrua.entities.RefreshToken;
-import com.techfun.altrua.entities.User;
-import com.techfun.altrua.exceptions.RefreshTokenException;
-import com.techfun.altrua.repository.RefreshTokenRepository;
+import com.techfun.altrua.common.exceptions.RefreshTokenException;
 import com.techfun.altrua.security.jwt.JwtProvider;
 import com.techfun.altrua.security.userdetails.UserLookupService;
 import com.techfun.altrua.security.userdetails.UserPrincipal;
+import com.techfun.altrua.user.User;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +55,7 @@ public class RefreshTokenService {
     @Transactional
     public String create(User user) {
         refreshTokenRepository.deleteAllByUser(user);
-        
+
         UserDetails userDetails = userLookupService.loadById(user.getId());
         String token = jwtProvider.generateRefreshToken(userDetails);
         Instant expiration = Instant.now().plusMillis(refreshTokenExpiration);

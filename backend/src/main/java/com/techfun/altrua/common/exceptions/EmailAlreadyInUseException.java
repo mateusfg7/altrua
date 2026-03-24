@@ -1,4 +1,4 @@
-package com.techfun.altrua.exceptions;
+package com.techfun.altrua.common.exceptions;
 
 /**
  * Exceção lançada quando ocorre uma tentativa de registro com um e-mail já existente.

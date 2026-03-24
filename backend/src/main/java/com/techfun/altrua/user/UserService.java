@@ -1,9 +1,8 @@
-package com.techfun.altrua.service;
+package com.techfun.altrua.user;
 
 import org.springframework.stereotype.Service;
 
-import com.techfun.altrua.dto.common.UserResponseDTO;
-import com.techfun.altrua.entities.User;
+import com.techfun.altrua.user.dto.UserResponseDTO;
 
 /**
  * Serviço responsável pelas regras de negócio relacionadas aos usuários.

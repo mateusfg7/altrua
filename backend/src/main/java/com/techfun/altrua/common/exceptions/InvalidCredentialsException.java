@@ -1,4 +1,4 @@
-package com.techfun.altrua.exceptions;
+package com.techfun.altrua.common.exceptions;
 
 /**
  * Exceção lançada quando as credenciais fornecidas (e-mail ou senha) são

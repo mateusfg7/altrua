@@ -1,4 +1,4 @@
-package com.techfun.altrua.exceptions.handler;
+package com.techfun.altrua.common.exceptions.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.techfun.altrua.dto.common.ErrorResponseDTO;
-import com.techfun.altrua.exceptions.EmailAlreadyInUseException;
-import com.techfun.altrua.exceptions.InvalidCredentialsException;
-import com.techfun.altrua.exceptions.RefreshTokenException;
+import com.techfun.altrua.common.dto.ErrorResponseDTO;
+import com.techfun.altrua.common.exceptions.EmailAlreadyInUseException;
+import com.techfun.altrua.common.exceptions.InvalidCredentialsException;
+import com.techfun.altrua.common.exceptions.RefreshTokenException;
 
 import jakarta.servlet.http.HttpServletRequest;
 

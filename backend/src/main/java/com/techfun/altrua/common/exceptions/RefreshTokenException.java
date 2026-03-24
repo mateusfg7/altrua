@@ -1,4 +1,4 @@
-package com.techfun.altrua.exceptions;
+package com.techfun.altrua.common.exceptions;
 
 /**
  * Exceção lançada quando ocorre um erro relacionado ao refresh token,

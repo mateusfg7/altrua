@@ -1,4 +1,4 @@
-package com.techfun.altrua.entities;
+package com.techfun.altrua.user;
 
 import java.time.Instant;
 import java.util.UUID;

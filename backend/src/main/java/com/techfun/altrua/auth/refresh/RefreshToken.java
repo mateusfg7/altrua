@@ -1,7 +1,9 @@
-package com.techfun.altrua.entities;
+package com.techfun.altrua.auth.refresh;
 
 import java.time.Instant;
 import java.util.UUID;
+
+import com.techfun.altrua.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,10 +14,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.AccessLevel;
 
 /**
  * Entidade que representa um refresh token no sistema.

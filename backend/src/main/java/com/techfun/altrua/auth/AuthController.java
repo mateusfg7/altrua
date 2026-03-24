@@ -1,4 +1,4 @@
-package com.techfun.altrua.controller;
+package com.techfun.altrua.auth;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,11 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.techfun.altrua.dto.auth.AuthResponseDTO;
-import com.techfun.altrua.dto.auth.LoginRequestDTO;
-import com.techfun.altrua.dto.auth.RefreshTokenRequestDTO;
-import com.techfun.altrua.dto.auth.RegisterRequestDTO;
-import com.techfun.altrua.service.AuthService;
+import com.techfun.altrua.auth.dto.AuthResponseDTO;
+import com.techfun.altrua.auth.dto.LoginRequestDTO;
+import com.techfun.altrua.auth.dto.RefreshTokenRequestDTO;
+import com.techfun.altrua.auth.dto.RegisterRequestDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

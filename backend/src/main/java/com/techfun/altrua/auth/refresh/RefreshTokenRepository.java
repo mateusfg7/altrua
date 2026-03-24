@@ -1,4 +1,4 @@
-package com.techfun.altrua.repository;
+package com.techfun.altrua.auth.refresh;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -6,8 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 
-import com.techfun.altrua.entities.RefreshToken;
-import com.techfun.altrua.entities.User;
+import com.techfun.altrua.user.User;
 
 import jakarta.persistence.LockModeType;
 

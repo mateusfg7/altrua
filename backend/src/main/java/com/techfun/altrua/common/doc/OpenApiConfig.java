@@ -1,4 +1,4 @@
-package com.techfun.altrua.doc;
+package com.techfun.altrua.common.doc;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
