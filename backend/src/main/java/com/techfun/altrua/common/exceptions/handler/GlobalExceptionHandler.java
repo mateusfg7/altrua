@@ -1,75 +1,154 @@
 package com.techfun.altrua.common.exceptions.handler;
 
+import java.time.Instant;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.techfun.altrua.common.dto.ErrorResponseDTO;
-import com.techfun.altrua.common.exceptions.EmailAlreadyInUseException;
+import com.techfun.altrua.common.exceptions.BusinessException;
+import com.techfun.altrua.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.common.exceptions.InvalidCredentialsException;
-import com.techfun.altrua.common.exceptions.RefreshTokenException;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Manipulador global de exceções para a API.
+ * Manipulador global de exceções da API.
  * 
  * <p>
- * Intercepta exceções lançadas pelos controllers e serviços, retornando
- * respostas HTTP padronizadas com mensagens de erro adequadas.
+ * Centraliza o tratamento de erros disparados pelos Controllers, convertendo
+ * exceções
+ * em respostas padronizadas no formato {@link ProblemDetail} (RFC 7807).
+ * Garante que o cliente receba sempre uma estrutura consistente,
+ * independentemente do erro.
+ * </p>
+ * 
+ * <p>
+ * Estrutura padrão da resposta:
+ * <ul>
+ * <li><b>status:</b> Código HTTP.</li>
+ * <li><b>title:</b> Resumo legível do tipo de erro.</li>
+ * <li><b>detail:</b> Explicação específica do erro.</li>
+ * <li><b>timestamp:</b> Instante exato da ocorrência.</li>
+ * <li><b>invalid_params:</b> (Opcional) Mapa de erros de validação de
+ * campos.</li>
+ * </ul>
  * </p>
  */
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
-     * Trata a exceção {@link EmailAlreadyInUseException}.
-     *
-     * @param ex      a exceção capturada
-     * @param request a requisição HTTP onde a exceção ocorreu
-     * @return {@link ErrorResponseDTO} com status 409 e mensagem de conflito
+     * Trata exceções genéricas de regras de negócio.
+     * 
+     * @param ex A exceção de negócio capturada.
+     * @return {@link ProblemDetail} com o status e mensagem definidos na exceção.
      */
-    @ExceptionHandler(EmailAlreadyInUseException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponseDTO handleEmailAlreadyInUse(EmailAlreadyInUseException ex, HttpServletRequest request) {
-        return ErrorResponseDTO.of(ex.getMessage(), HttpStatus.CONFLICT, request.getRequestURI());
+    @ExceptionHandler(BusinessException.class)
+    public ProblemDetail handleBusinessException(BusinessException ex) {
+        return buildProblemDetail(ex.getStatus(), ex.getMessage(), "Erro de Regra de Negócio");
     }
 
     /**
-     * Trata exceções de credenciais inválidas no processo de autenticação.
-     *
+     * Trata falhas de autenticação e acesso negado.
+     * 
      * <p>
-     * Retorna mensagem genérica para não revelar se o erro foi no e-mail
-     * ou na senha, prevenindo ataques de enumeração de usuários.
+     * Captura tanto exceções nativas do Spring Security quanto a exceção
+     * customizada
+     * de credenciais, retornando sempre uma mensagem genérica por segurança.
      * </p>
-     *
-     * @param ex      a exceção capturada
-     * @param request a requisição HTTP onde a exceção ocorreu
-     * @return {@link ErrorResponseDTO} com status 401 e mensagem genérica
+     * 
+     * @param ex Exceção de autenticação.
+     * @return {@link ProblemDetail} com status 401 Unauthorized.
      */
     @ExceptionHandler({ BadCredentialsException.class, InvalidCredentialsException.class })
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponseDTO handleBadCredentials(Exception ex, HttpServletRequest request) {
-        return ErrorResponseDTO.of("Credenciais inválidas", HttpStatus.UNAUTHORIZED, request.getRequestURI());
+    public ProblemDetail handleAuthentication(Exception ex) {
+        return buildProblemDetail(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", "Falha na Autenticação");
     }
 
     /**
-     * Trata exceções relacionadas ao refresh token.
-     *
-     * <p>
-     * Cobre casos de token não encontrado, revogado ou expirado,
-     * retornando status 401 para que o cliente realize novo login.
-     * </p>
-     *
-     * @param ex      a exceção capturada
-     * @param request a requisição HTTP onde a exceção ocorreu
-     * @return {@link ErrorResponseDTO} com status 401 e descrição do erro
+     * Trata tentativas de criação de recursos duplicados (ex: e-mail ou CNPJ já
+     * cadastrado).
+     * 
+     * @param ex Exceção de conflito de recurso.
+     * @return {@link ProblemDetail} com status 409 Conflict.
      */
-    @ExceptionHandler(RefreshTokenException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponseDTO handleRefreshTokenException(RefreshTokenException ex, HttpServletRequest request) {
-        return ErrorResponseDTO.of(ex.getMessage(), HttpStatus.UNAUTHORIZED, request.getRequestURI());
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ProblemDetail handleDuplicateResource(DuplicateResourceException ex) {
+        return buildProblemDetail(ex.getStatus(), ex.getMessage(), "Recurso Duplicado");
+    }
+
+    /**
+     * Sobrescreve o tratamento de erros de validação do Bean Validation (@Valid).
+     * 
+     * <p>
+     * Extrai os erros de campos específicos e os agrupa no campo customizado
+     * 'invalid_params'.
+     * </p>
+     * 
+     * @return {@link ResponseEntity} contendo o ProblemDetail com status 400 Bad
+     *         Request.
+     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        ProblemDetail problem = buildProblemDetail(status, "Erro de validação nos campos", "Requisição Inválida");
+
+        var fields = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        FieldError::getDefaultMessage,
+                        (existingMessage, newMessage) -> existingMessage));
+
+        problem.setProperty("invalid_params", fields);
+        return ResponseEntity.status(status).body(problem);
+    }
+
+    /**
+     * Interceptor de segurança para qualquer exceção não tratada explicitamente.
+     * 
+     * <p>
+     * Evita o vazamento de stacktraces e detalhes de infraestrutura para o cliente,
+     * retornando uma mensagem genérica de erro interno.
+     * </p>
+     * 
+     * @param ex A exceção inesperada.
+     * @return {@link ProblemDetail} com status 500 Internal Server Error.
+     */
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleUncaught(Exception ex) {
+        // Sugestão: log.error("Unhandled Exception: ", ex);
+        return buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Ocorreu um erro interno inesperado.", "Erro de Servidor");
+    }
+
+    /**
+     * Método auxiliar para construção do objeto {@link ProblemDetail}.
+     * 
+     * <p>
+     * Configura os campos base, remove o 'type' (about:blank) e injeta o
+     * 'timestamp'.
+     * </p>
+     * 
+     * @param status Código de status HTTP.
+     * @param detail Mensagem detalhada.
+     * @param title  Título do erro.
+     * @return Instância configurada de ProblemDetail.
+     */
+    private ProblemDetail buildProblemDetail(HttpStatusCode status, String detail, String title) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
+        problem.setType(null);
+        problem.setTitle(title);
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
     }
 }
