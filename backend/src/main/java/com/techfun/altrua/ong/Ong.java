@@ -65,13 +65,19 @@ public class Ong {
     @Column(nullable = false)
     private String name;
 
-    /** Identificador amigável e único para compor URLs. */
-    @Column(nullable = false, unique = true)
+    /**
+     * Identificador amigável para compor URLs. Único entre registros ativos (índice
+     * parcial WHERE deleted_at IS NULL).
+     */
+    @Column(nullable = false)
     @Setter(AccessLevel.NONE)
     private String slug;
 
-    /** CNPJ da organização (apenas números, 14 dígitos). */
-    @Column(unique = true, length = 14)
+    /**
+     * CNPJ da organização (apenas números, 14 dígitos). Único entre registros
+     * ativos (índice parcial WHERE deleted_at IS NULL).
+     */
+    @Column(length = 14)
     private String cnpj;
 
     /** Texto descritivo sobre a missão e atividades da ONG. */
