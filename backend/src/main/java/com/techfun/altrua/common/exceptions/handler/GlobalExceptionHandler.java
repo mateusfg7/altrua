@@ -20,6 +20,8 @@ import com.techfun.altrua.common.exceptions.BusinessException;
 import com.techfun.altrua.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.common.exceptions.InvalidCredentialsException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Manipulador global de exceções da API.
  * 
@@ -44,6 +46,7 @@ import com.techfun.altrua.common.exceptions.InvalidCredentialsException;
  * </ul>
  * </p>
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -127,7 +130,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUncaught(Exception ex) {
-        // Sugestão: log.error("Unhandled Exception: ", ex);
+        log.error("Erro não tratado.", ex);
         return buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Ocorreu um erro interno inesperado.", "Erro de Servidor");
     }
