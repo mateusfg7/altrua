@@ -3,6 +3,8 @@ package com.techfun.altrua.ong;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
 /**
  * Repositório Spring Data JPA para a entidade {@link Ong}.
@@ -12,7 +14,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * de integridade como a existência de CNPJ duplicado.
  * </p>
  */
-public interface OngRepository extends JpaRepository<Ong, UUID> {
+@Repository
+public interface OngRepository extends JpaRepository<Ong, UUID>, JpaSpecificationExecutor<Ong> {
 
     /**
      * Verifica se já existe uma ONG cadastrada com o slug fornecido.
