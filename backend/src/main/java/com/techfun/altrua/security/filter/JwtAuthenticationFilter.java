@@ -23,11 +23,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Filtro de segurança executado uma vez por requisição para autenticação via JWT.
+ * Filtro de segurança executado uma vez por requisição para autenticação via
+ * JWT.
  *
  * <p>
- * Intercepta requisições HTTP, verifica a presença e validade do token JWT no cabeçalho
- * 'Authorization' e, se válido, configura a autenticação no contexto de segurança do Spring.
+ * Intercepta requisições HTTP, verifica a presença e validade do token JWT no
+ * cabeçalho
+ * 'Authorization' e, se válido, configura a autenticação no contexto de
+ * segurança do Spring.
  * </p>
  */
 @Component
@@ -41,7 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * Executa a lógica de filtragem interna da requisição.
      * 
      * <p>
-     * Extrai o token, valida sua assinatura e expiração, carrega os dados do usuário
+     * Extrai o token, valida sua assinatura e expiração, carrega os dados do
+     * usuário
      * e autentica a requisição no {@link SecurityContextHolder}.
      * </p>
      *
@@ -71,24 +75,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (JwtException ex) {
             sendError(response, "Token inválido");
             return;
-        }   
+        }
 
         if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 UUID userId = UUID.fromString(subject);
                 UserDetails userDetails = userLookupService.loadById(userId);
 
-                if (jwtValidator.validateToken(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails, 
-                                    null, 
-                                    userDetails.getAuthorities()
-                            );
-                    
+                if (jwtValidator.validateToken(token, userDetails) && jwtValidator.isAccessToken(token)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
+
                     authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
+                            new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
@@ -103,7 +104,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * Método utilitário para enviar uma resposta de erro em formato JSON.
-     * Utilizado quando falhas específicas de JWT (expiração, formato inválido) ocorrem dentro do filtro.
+     * Utilizado quando falhas específicas de JWT (expiração, formato inválido)
+     * ocorrem dentro do filtro.
      *
      * @param response a resposta HTTP
      * @param message  a mensagem de erro a ser enviada no corpo da resposta
