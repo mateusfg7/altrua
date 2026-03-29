@@ -1,5 +1,7 @@
 package com.techfun.altrua.ong;
 
+import java.util.Locale;
+
 import org.springframework.data.jpa.domain.Specification;
 
 import com.techfun.altrua.ong.dto.OngFilterDTO;
@@ -49,7 +51,8 @@ public final class OngSpecification {
      */
     private static Specification<Ong> withName(String name) {
         return (root, query, criteriaBuilder) -> name == null || name.isBlank() ? null
-                : criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+                : criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),
+                        "%" + name.toLowerCase(Locale.ROOT) + "%");
     }
 
     /**
@@ -66,6 +69,6 @@ public final class OngSpecification {
      */
     private static Specification<Ong> withSlug(String slug) {
         return (root, query, criteriaBuilder) -> slug == null || slug.isBlank() ? null
-                : criteriaBuilder.equal(root.get("slug"), slug.toLowerCase());
+                : criteriaBuilder.equal(root.get("slug"), slug.toLowerCase(Locale.ROOT));
     }
 }

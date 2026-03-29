@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.stereotype.Repository;
 
 /**
  * Repositório Spring Data JPA para a entidade {@link Ong}.
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Repository;
  * de integridade como a existência de CNPJ duplicado.
  * </p>
  */
-@Repository
 public interface OngRepository extends JpaRepository<Ong, UUID>, JpaSpecificationExecutor<Ong> {
 
     /**
