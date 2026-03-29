@@ -16,11 +16,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Controlador REST responsável pelos endpoints de autenticação.
+ * Controlador REST responsável pelos endpoints de autenticação e gestão de
+ * sessão.
  *
  * <p>
- * Disponibiliza rotas para registro, login, renovação de token e logout.
- * Todos os endpoints são públicos e não exigem autenticação prévia.
+ * Os endpoints de registro (signup) e autenticação (login) são públicos.
+ * Os endpoints de renovação de token (refresh) e encerramento de sessão
+ * (logout)
+ * exigem autenticação e o envio dos tokens correspondentes para processamento.
  * </p>
  */
 @RestController
@@ -41,7 +44,7 @@ public class AuthController {
      * @param dto dados do usuário a ser registrado, validados automaticamente
      * @return {@link ResponseEntity} com status 201 e os tokens de autenticação
      */
-    @PostMapping("/signin")
+    @PostMapping("/signup")
     public ResponseEntity<AuthResponseDTO> register(@RequestBody @Valid RegisterUserRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(dto));
     }

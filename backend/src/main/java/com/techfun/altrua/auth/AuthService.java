@@ -17,10 +17,12 @@ import com.techfun.altrua.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.common.exceptions.InvalidCredentialsException;
 import com.techfun.altrua.common.exceptions.RefreshTokenException;
 import com.techfun.altrua.security.jwt.JwtProvider;
+import com.techfun.altrua.security.jwt.JwtValidator;
 import com.techfun.altrua.security.userdetails.UserPrincipal;
 import com.techfun.altrua.user.User;
 import com.techfun.altrua.user.UserRepository;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +43,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final JwtValidator jwtValidator;
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
 
@@ -119,39 +122,73 @@ public class AuthService {
     }
 
     /**
-     * Renova o access token a partir de um refresh token válido.
+     * Renova o par de tokens (Access e Refresh) a partir de um Refresh Token
+     * válido.
      *
      * <p>
-     * O refresh token atual é rotacionado — invalidado e substituído por um novo.
-     * O cliente deve armazenar ambos os tokens retornados para as próximas
-     * requisições.
+     * Esta operação realiza as seguintes etapas:
+     * 1. Valida a integridade estrutural, assinatura e expiração do token via
+     * {@link JwtValidator#validateTokenIntegrity(String)}.
+     * 2. Verifica se o token possui o claim específico de tipo 'refresh'.
+     * 3. Executa a rotação do token (invalidação do antigo e geração de um novo)
+     * via {@link RefreshTokenService}.
+     * 4. Gera um novo Access Token baseado no usuário recuperado da rotação.
      * </p>
      *
-     * @param token o refresh token a ser utilizado na renovação
-     * @return {@link AuthResponseDTO} contendo o novo access token e novo refresh
-     *         token
-     * @throws RefreshTokenException se o token for inválido, revogado ou expirado
+     * @param token O Refresh Token enviado no corpo da requisição.
+     * @return {@link AuthResponseDTO} contendo o novo Access Token e o novo Refresh
+     *         Token.
+     * @throws RefreshTokenException Se o token for estruturalmente inválido,
+     *                               expirado,
+     *                               de tipo incorreto ou falhar na rotação da
+     *                               persistência.
      */
     @Transactional
     public AuthResponseDTO refresh(String token) {
-        RotateResult current = refreshTokenService.rotate(token);
-        String newAccessToken = jwtProvider.generateToken(new UserPrincipal(current.user()));
-        return new AuthResponseDTO(newAccessToken, current.newToken());
+        try {
+            jwtValidator.validateTokenIntegrity(token);
+
+            if (!jwtValidator.isRefreshToken(token)) {
+                throw new RefreshTokenException("Refresh Token inválido");
+            }
+
+            RotateResult current = refreshTokenService.rotate(token);
+            String newAccessToken = jwtProvider.generateToken(new UserPrincipal(current.user()));
+            return new AuthResponseDTO(newAccessToken, current.newToken());
+        } catch (JwtException | IllegalArgumentException ex) {
+            throw new RefreshTokenException("Refresh Token inválido ou expirado");
+        }
     }
 
     /**
-     * Encerra a sessão do usuário revogando o refresh token informado.
+     * Encerra a sessão ativa do usuário através da revogação do Refresh Token.
      *
      * <p>
-     * Após o logout, o refresh token não poderá ser utilizado para
-     * renovar o access token.
+     * O processo consiste em validar a autenticidade do token antes de delegar a
+     * revogação
+     * à camada de persistência. Uma vez revogado, o token não poderá mais ser
+     * utilizado
+     * para gerar novos Access Tokens.
      * </p>
      *
-     * @param token o refresh token a ser revogado
-     * @throws RefreshTokenException se o token não for encontrado
+     * @param token O Refresh Token a ser invalidado.
+     * @throws RefreshTokenException Se o token for inválido, expirado, não for do
+     *                               tipo 'refresh'
+     *                               ou não for encontrado no registro de sessões
+     *                               ativas.
      */
     @Transactional
     public void logout(String token) {
-        refreshTokenService.revoke(token);
+        try {
+            jwtValidator.validateTokenIntegrity(token);
+
+            if (!jwtValidator.isRefreshToken(token)) {
+                throw new RefreshTokenException("Refresh Token inválido");
+            }
+
+            refreshTokenService.revoke(token);
+        } catch (JwtException | IllegalArgumentException ex) {
+            throw new RefreshTokenException("Refresh Token inválido ou expirado");
+        }
     }
 }
