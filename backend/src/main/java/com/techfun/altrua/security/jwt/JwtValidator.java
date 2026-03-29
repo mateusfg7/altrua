@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,30 @@ public class JwtValidator {
             return false;
         }
         return subject.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    /**
+     * Valida a integridade estrutural, a assinatura e a expiração de um token JWT.
+     *
+     * <p>
+     * Este método realiza o parsing do token utilizando a chave de assinatura da
+     * aplicação.
+     * Se o token estiver malformado, com assinatura inválida ou expirado, uma
+     * exceção
+     * em tempo de execução será lançada.
+     * </p>
+     *
+     * @param token A string do JWT a ser validada.
+     * @throws JwtException             Se o token for inválido, expirado ou
+     *                                  adulterado.
+     * @throws IllegalArgumentException Se a string do token for nula, vazia ou
+     *                                  apenas espaços.
+     */
+    public void validateTokenIntegrity(String token) {
+        Jwts.parser()
+                .verifyWith(jwtKeyProvider.getSigningKey())
+                .build()
+                .parseSignedClaims(token);
     }
 
     /**
