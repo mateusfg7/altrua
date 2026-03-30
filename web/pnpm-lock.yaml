@@ -45,8 +45,8 @@ importers:
         specifier: latest
         version: 1.167.13(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))
       '@tanstack/router-plugin':
-        specifier: 1.167.5
-        version: 1.167.5(@tanstack/react-router@1.168.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))
+        specifier: 1.167.8
+        version: 1.167.8(@tanstack/react-router@1.168.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -1823,8 +1823,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/router-core@1.168.4':
-    resolution: {integrity: sha512-dhkan3B1KPDNT90UDSNtMbtedIbtI+WpYReE4d2GlgtA9m1w3FkrXe8az2UOIwKAtDea2Qlc8yv3st4Jro/gNQ==}
+  '@tanstack/router-core@1.168.6':
+    resolution: {integrity: sha512-okCno3pImpLFQMJ/4zqEIGjIV5yhxLGj0JByrzQDQehORN1y1q6lJUezT0KPK5qCQiKUApeWaboLPjgBVx1kaQ==}
     engines: {node: '>=20.19'}
     hasBin: true
 
@@ -1843,21 +1843,21 @@ packages:
       csstype:
         optional: true
 
-  '@tanstack/router-generator@1.166.18':
-    resolution: {integrity: sha512-6zqp8LFRyCtBFEkRv7TCkmql6I8y9c+deTivbZwJZyl4DYULsmg4eh+Du4j11grEIG1atHxLONfmkKmzCp0a3w==}
+  '@tanstack/router-generator@1.166.21':
+    resolution: {integrity: sha512-pJWsP6HaGrkIkfkcg6vzKyCBMbf1vV1BrQH+bFAVzXj3T/afmix3IPV2hiAj4zzjMxuddJD1on0Hn5+WDYA7zQ==}
     engines: {node: '>=20.19'}
 
   '@tanstack/router-generator@1.166.22':
     resolution: {integrity: sha512-wQ7H8/Q2rmSPuaxWnurJ3DATNnqWV2tajxri9TSiW4QHsG7cWPD34+goeIinKG+GajJyEdfVpz6w/gRJXfbAPw==}
     engines: {node: '>=20.19'}
 
-  '@tanstack/router-plugin@1.167.5':
-    resolution: {integrity: sha512-0VLmmCn5qKyohfTxsJjgY4fKI7FaPAmSgpRctslasIb3FpwFFlYkpDw+jyAJ8Pbcc/ri+FZpa3JaHkL8ZTuMsw==}
+  '@tanstack/router-plugin@1.167.8':
+    resolution: {integrity: sha512-/X4ACYsSX4bRmomj5X2TBU75cHuIVI99Fsax6DWnP6hPb4PaSjPUHVBfHhk2NemJzEOZu1L31UQ9QDlbHU4ZTQ==}
     engines: {node: '>=20.19'}
     hasBin: true
     peerDependencies:
       '@rsbuild/core': '>=1.0.2'
-      '@tanstack/react-router': ^1.168.4
+      '@tanstack/react-router': ^1.168.7
       vite: '>=5.0.0 || >=6.0.0 || >=7.0.0'
       vite-plugin-solid: ^2.11.10
       webpack: '>=5.92.0'
@@ -5556,7 +5556,7 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
       use-sync-external-store: 1.6.0(react@19.2.4)
 
-  '@tanstack/router-core@1.168.4':
+  '@tanstack/router-core@1.168.6':
     dependencies:
       '@tanstack/history': 1.161.6
       cookie-es: 2.0.0
@@ -5578,9 +5578,9 @@ snapshots:
     optionalDependencies:
       csstype: 3.2.3
 
-  '@tanstack/router-generator@1.166.18':
+  '@tanstack/router-generator@1.166.21':
     dependencies:
-      '@tanstack/router-core': 1.168.4
+      '@tanstack/router-core': 1.168.6
       '@tanstack/router-utils': 1.161.6
       '@tanstack/virtual-file-routes': 1.161.7
       prettier: 3.8.1
@@ -5604,7 +5604,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.167.5(@tanstack/react-router@1.168.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))':
+  '@tanstack/router-plugin@1.167.8(@tanstack/react-router@1.168.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@7.3.1(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-syntax-jsx': 7.28.6(@babel/core@7.29.0)
@@ -5612,8 +5612,8 @@ snapshots:
       '@babel/template': 7.28.6
       '@babel/traverse': 7.29.0
       '@babel/types': 7.29.0
-      '@tanstack/router-core': 1.168.4
-      '@tanstack/router-generator': 1.166.18
+      '@tanstack/router-core': 1.168.6
+      '@tanstack/router-generator': 1.166.21
       '@tanstack/router-utils': 1.161.6
       '@tanstack/virtual-file-routes': 1.161.7
       chokidar: 3.6.0
