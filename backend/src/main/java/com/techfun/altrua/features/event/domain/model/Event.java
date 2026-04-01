@@ -77,7 +77,7 @@ public class Event {
     @JoinColumn(name = "created_by_user_id", nullable = false, updatable = false)
     @Setter(AccessLevel.NONE)
     /** Usuário administrador que realizou o cadastro inicial do evento. */
-    private User createBy;
+    private User createdByUser;
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
