@@ -1,5 +1,6 @@
 package com.techfun.altrua.features.ong.api;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -76,8 +77,8 @@ public class OngController {
      */
     @GetMapping
     public ResponseEntity<Page<OngResponseDTO>> list(
-            OngFilterDTO filter,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @ParameterObject OngFilterDTO filter,
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(ongService.listOngs(filter, pageable));
     }
 }
