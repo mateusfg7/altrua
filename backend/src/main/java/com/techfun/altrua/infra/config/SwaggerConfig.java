@@ -18,9 +18,9 @@ public class SwaggerConfig {
 	@Bean
 	public OpenAPI customOpenAPI() {
 		return new OpenAPI()
-				.addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+				.addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
 				.components(new Components()
-						.addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()))
+						.addSecuritySchemes("bearerAuth", createAPIKeyScheme()))
 				.info(new Info()
 						.title("Altrua API")
 						.version("1.0.0")
