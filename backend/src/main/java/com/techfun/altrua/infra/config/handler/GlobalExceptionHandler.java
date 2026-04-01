@@ -140,6 +140,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Manipula exceções de argumentos inválidos passados para os métodos de
+     * serviço.
+     * <p>
+     * Este handler é disparado quando uma regra de negócio básica (como a
+     * obrigatoriedade
+     * de ao menos uma tag) é violada antes ou durante o processamento. Ele traduz a
+     * {@link IllegalArgumentException} em uma resposta padronizada para o cliente.
+     * </p>
+     *
+     * @param ex A exceção capturada contendo a descrição do erro de validação.
+     * @return Um objeto {@link ProblemDetail} com o status HTTP 400 (Bad Request),
+     *         informando o motivo específico da rejeição da requisição.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
+        return buildProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "Requisição Inválida");
+    }
+
+    /**
      * Interceptor de segurança para qualquer exceção não tratada explicitamente.
      * 
      * <p>
