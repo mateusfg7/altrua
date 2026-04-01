@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -115,6 +116,27 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         problem.setProperty("invalid_params", fields);
         return ResponseEntity.status(status).body(problem);
+    }
+
+    /**
+     * Manipula exceções de acesso negado quando um usuário autenticado tenta
+     * realizar
+     * uma operação para a qual não possui permissões suficientes.
+     * <p>
+     * Este método intercepta a {@link AccessDeniedException} lançada pela camada de
+     * serviço
+     * ou pelo Spring Security e a traduz em um formato de erro padronizado (RFC
+     * 7807).
+     * </p>
+     *
+     * @param ex A exceção de acesso negado capturada, contendo a mensagem de erro
+     *           específica.
+     * @return Um objeto {@link ProblemDetail} com o status HTTP 403 (Forbidden),
+     *         detalhando a violação de segurança para o cliente.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        return buildProblemDetail(HttpStatus.FORBIDDEN, ex.getMessage(), "Acesso Negado");
     }
 
     /**
