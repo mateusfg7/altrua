@@ -2,6 +2,9 @@ package com.techfun.altrua.features.ong.api.dto;
 
 import java.math.BigDecimal;
 
+import com.techfun.altrua.features.ong.domain.enums.OngStatusEnum;
+import com.techfun.altrua.features.ong.domain.model.Ong;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -40,4 +43,22 @@ public record RegisterOngRequestDTO(
         String donationInfo,
         BigDecimal latitude,
         BigDecimal longitude) {
+
+    public Ong toEntity(String slug) {
+        return Ong.builder()
+                .name(this.name)
+                .slug(slug)
+                .status(OngStatusEnum.ACTIVE)
+                .cnpj(this.cnpj)
+                .email(this.email)
+                .category(this.category)
+                .description(this.description)
+                .phone(this.phone)
+                .logoUrl(this.logoUrl)
+                .bannerUrl(this.bannerUrl)
+                .donationInfo(this.donationInfo)
+                .latitude(this.latitude)
+                .longitude(this.longitude)
+                .build();
+    }
 }
