@@ -33,7 +33,7 @@ public class SwaggerConfig {
 								"### 🔒 Segurança e Acesso\n" +
 								"Esta API utiliza **JWT (JSON Web Token)** para autenticação. Para testar os endpoints protegidos, "
 								+
-								"obtenha o token via endpoint de login (ou signup) e utilize o botão **Authorize** abaixo.\n\n"
+								"obtenha o token via endpoints `/auth/login` ou `/auth/signup` (e utilize `/auth/refresh` para renovar) e utilize o botão **Authorize** abaixo.\n\n"
 								+
 								"--- \n" +
 								"**Desenvolvido por:**\n" +
