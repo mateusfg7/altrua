@@ -1,42 +1,51 @@
 package com.techfun.altrua.infra.security.handler;
 
-import java.io.IOException;
-
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Ponto de entrada de autenticação personalizado.
+ * Ponto de entrada de autenticação que delega o tratamento de erros para o
+ * controlador global.
  *
  * <p>
- * É acionado pelo Spring Security quando um usuário não autenticado tenta
- * acessar
- * um recurso protegido. Inicia o processo de autenticação, que neste caso
- * significa retornar uma resposta HTTP 401 (Unauthorized) com uma mensagem de
- * erro
- * padronizada em JSON.
+ * Este componente é acionado pelo Spring Security quando uma requisição não
+ * autenticada
+ * tenta acessar um recurso protegido. Em vez de manipular a resposta HTTP
+ * diretamente,
+ * ele encaminha a {@link AuthenticationException} para o
+ * {@link HandlerExceptionResolver},
+ * permitindo que o erro seja processado e padronizado pelo Exception Handler
+ * global da aplicação.
  * </p>
  */
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+    private final HandlerExceptionResolver resolver;
+
+    public CustomAuthenticationEntryPoint(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.resolver = resolver;
+    }
+
     /**
-     * Inicia o fluxo de autenticação ou, neste caso, rejeita a requisição não
-     * autenticada.
+     * Intercepta a falha de autenticação e a delega ao resolvedor de exceções do
+     * Spring MVC.
      *
-     * @param request       a requisição que precisa de autenticação
-     * @param response      a resposta para modificar
-     * @param authException a exceção que causou a invocação deste ponto de entrada
+     * @param request       A requisição que originou a falha de autenticação.
+     * @param response      A resposta HTTP (não modificada diretamente aqui).
+     * @param authException A exceção de autenticação lançada pelos filtros de
+     *                      segurança.
      */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException authException) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.getWriter().write("{\"error\": \"Não autenticado\"}");
+            AuthenticationException authException) {
+        // Redireciona a exceção da Filter Chain para o @ControllerAdvice
+        resolver.resolveException(request, response, null, authException);
     }
 }

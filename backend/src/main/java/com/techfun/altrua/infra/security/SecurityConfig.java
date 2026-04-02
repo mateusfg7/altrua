@@ -17,7 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.techfun.altrua.infra.security.filter.JwtAuthenticationFilter;
-import com.techfun.altrua.infra.security.handler.CustomAccessDeniedHandler;
 import com.techfun.altrua.infra.security.handler.CustomAuthenticationEntryPoint;
 
 import lombok.RequiredArgsConstructor;
@@ -34,9 +33,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
-
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
-    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     /**
      * Configura a cadeia de filtros de segurança (Security Filter Chain).
@@ -67,8 +64,7 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authenticationEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler))
+                        .authenticationEntryPoint(authenticationEntryPoint))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
