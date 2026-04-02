@@ -26,7 +26,6 @@ import com.techfun.altrua.features.ong.domain.model.Ong;
  * @param latitude     Coordenada geográfica de latitude para o mapa
  * @param longitude    Coordenada geográfica de longitude para o mapa
  * @param createdAt    Instante em que a ONG foi registrada no sistema
- * @param updatedAt    Instante da última atualização dos dados
  */
 public record OngResponseDTO(
         UUID id,
@@ -43,8 +42,7 @@ public record OngResponseDTO(
         String donationInfo,
         BigDecimal latitude,
         BigDecimal longitude,
-        Instant createdAt,
-        Instant updatedAt) {
+        Instant createdAt) {
 
     /**
      * Converte uma instância da entidade {@link Ong} para {@link OngResponseDTO}.
@@ -68,8 +66,7 @@ public record OngResponseDTO(
                 ong.getDonationInfo(),
                 ong.getLatitude(),
                 ong.getLongitude(),
-                ong.getCreatedAt(),
-                ong.getUpdatedAt());
+                ong.getCreatedAt());
     }
 
 }

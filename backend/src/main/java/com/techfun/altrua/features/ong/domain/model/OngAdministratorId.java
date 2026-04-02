@@ -3,6 +3,7 @@ package com.techfun.altrua.features.ong.domain.model;
 import java.io.Serializable;
 import java.util.UUID;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,8 +25,10 @@ import lombok.NoArgsConstructor;
 public class OngAdministratorId implements Serializable {
 
     /** Identificador do usuário vinculado. */
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
 
     /** Identificador da ONG vinculada. */
+    @Column(name = "ong_id", nullable = false)
     private UUID ongId;
 }

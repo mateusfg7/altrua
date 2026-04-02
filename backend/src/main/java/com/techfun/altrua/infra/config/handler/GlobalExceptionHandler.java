@@ -3,12 +3,15 @@ package com.techfun.altrua.infra.config.handler;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,7 +21,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.techfun.altrua.core.common.exceptions.BusinessException;
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
+import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
 import com.techfun.altrua.core.common.exceptions.InvalidCredentialsException;
+import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
+import com.techfun.altrua.infra.security.handler.CustomAuthenticationEntryPoint;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,8 +80,53 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @return {@link ProblemDetail} com status 401 Unauthorized.
      */
     @ExceptionHandler({ BadCredentialsException.class, InvalidCredentialsException.class })
-    public ProblemDetail handleAuthentication(Exception ex) {
+    public ProblemDetail handleInvalidCredencials(Exception ex) {
         return buildProblemDetail(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", "Falha na Autenticação");
+    }
+
+    /**
+     * Manipula falhas específicas durante a renovação do token de acesso (Refresh
+     * Token).
+     * <p>
+     * Este método é acionado quando um {@code Refresh Token} é inválido, foi
+     * revogado
+     * ou expirou. Ao retornar {@code 401 Unauthorized}, a API sinaliza ao cliente
+     * (ex: Frontend ou Mobile) que a sessão encerrou completamente e que uma nova
+     * autenticação via credenciais (login) é estritamente necessária.
+     * </p>
+     *
+     * @param ex A exceção contendo os detalhes da falha na renovação do token.
+     * @return Um objeto {@link ProblemDetail} com status 401 (Unauthorized) e
+     *         orientações sobre a falha na sessão.
+     */
+    @ExceptionHandler(RefreshTokenException.class)
+    public ProblemDetail handleRefreshToken(RefreshTokenException ex) {
+        log.warn("Falha no Refresh Token: {}", ex.getMessage());
+        return buildProblemDetail(HttpStatus.UNAUTHORIZED, ex.getMessage(), "Falha na Autenticação");
+    }
+
+    /**
+     * Manipula falhas de autenticação ocorridas durante o processamento da
+     * requisição.
+     * <p>
+     * Este método intercepta exceções do tipo {@link AuthenticationException}, que
+     * geralmente
+     * são originadas nos filtros de segurança (ex: JWT) e delegadas a este handler
+     * pelo
+     * {@link CustomAuthenticationEntryPoint}. Retorna um erro padronizado
+     * informando que
+     * as credenciais são inválidas, expiraram ou não foram fornecidas.
+     * </p>
+     *
+     * @param ex A exceção de autenticação capturada.
+     * @return Um objeto {@link ProblemDetail} com status 401 (Unauthorized) e
+     *         detalhes da falha.
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthentication(AuthenticationException ex) {
+        log.error("Falha de autenticação: {}", ex.getMessage());
+        return buildProblemDetail(HttpStatus.UNAUTHORIZED, "Token de acesso inválido, expirado ou ausente.",
+                "Falha na Autenticação");
     }
 
     /**
@@ -115,6 +166,98 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         problem.setProperty("invalid_params", fields);
         return ResponseEntity.status(status).body(problem);
+    }
+
+    /**
+     * Manipula violações de regras de negócio relacionadas a permissões de acesso.
+     * <p>
+     * Este método intercepta a {@link ForbiddenActionException} lançada pela camada
+     * de
+     * serviço quando um usuário, embora autenticado, tenta realizar uma operação
+     * que viola as regras de domínio (ex: editar uma ONG da qual não é
+     * administrador).
+     * A mensagem detalhada é retornada ao cliente para fornecer feedback claro
+     * sobre
+     * o motivo da rejeição.
+     * </p>
+     *
+     * @param ex A exceção de regra de negócio contendo o status HTTP e a mensagem
+     *           específica.
+     * @return Um objeto {@link ProblemDetail} formatado com o status da exceção e a
+     *         mensagem de erro de negócio.
+     */
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ProblemDetail handleForbiddenAction(ForbiddenActionException ex) {
+        return buildProblemDetail(ex.getStatus(), ex.getMessage(), "Ação Proibida");
+    }
+
+    /**
+     * Manipula exceções de segurança lançadas pelo Spring Security
+     * (infraestrutura).
+     * <p>
+     * Este método intercepta a {@link AccessDeniedException} quando o framework
+     * barra o acesso
+     * com base em roles, permissões de rota ou anotações de segurança
+     * (ex: @PreAuthorize).
+     * Por motivos de segurança, a mensagem detalhada da exceção é ocultada do
+     * cliente final
+     * e apenas registrada em log para auditoria.
+     * </p>
+     *
+     * @param ex A exceção de acesso negado original capturada pelo framework.
+     * @return Um objeto {@link ProblemDetail} com status 403 e mensagem genérica
+     *         padronizada.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        log.error("Segurança: Acesso negado via Spring Security - {}", ex.getMessage());
+        return buildProblemDetail(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso.",
+                "Acesso Negado");
+    }
+
+    /**
+     * Manipula exceções de argumentos inválidos passados para os métodos de
+     * serviço.
+     * <p>
+     * Este handler é disparado quando uma regra de negócio básica (como a
+     * obrigatoriedade
+     * de ao menos uma tag) é violada antes ou durante o processamento. Ele traduz a
+     * {@link IllegalArgumentException} em uma resposta padronizada para o cliente.
+     * </p>
+     *
+     * @param ex A exceção capturada contendo a descrição do erro de validação.
+     * @return Um objeto {@link ProblemDetail} com o status HTTP 400 (Bad Request),
+     *         informando o motivo específico da rejeição da requisição.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
+        return buildProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "Requisição Inválida");
+    }
+
+    /**
+     * Manipula violações de integridade de dados que não foram tratadas na camada
+     * de serviço.
+     * *
+     * <p>
+     * Este handler atua como uma rede de segurança para erros de banco de dados
+     * (ex: violações
+     * de chaves estrangeiras ou restrições de nulidade) que escaparam do tratamento
+     * de regra de negócio.
+     * Por segurança, os detalhes técnicos da exceção são omitidos na resposta ao
+     * cliente e
+     * registrados apenas nos logs do servidor.
+     * </p>
+     *
+     * @param ex A exceção {@link DataIntegrityViolationException} lançada durante a
+     *           persistência.
+     * @return Um {@link ProblemDetail} com status 500 (Internal Server Error) e uma
+     *         mensagem genérica.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.error("Conflito de integridade de dados não capturado no service", ex);
+        return buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro de consistência de dados.", "Erro de Integridade");
     }
 
     /**

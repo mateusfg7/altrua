@@ -13,6 +13,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -37,6 +38,7 @@ import lombok.Setter;
 @Table(name = "users")
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     /**
@@ -119,17 +121,6 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     @Setter(AccessLevel.NONE)
     private Instant updatedAt;
-
-    /**
-     * Construtor padrão exigido pela especificação JPA.
-     *
-     * <p>
-     * <strong>Não deve ser utilizado diretamente.</strong> Utilize os
-     * métodos estáticos {@code create(...)} para instanciar a entidade.
-     * </p>
-     */
-    protected User() {
-    }
 
     /**
      * Constrói um usuário com os campos obrigatórios.
@@ -233,7 +224,7 @@ public class User {
      * </p>
      */
     @PrePersist
-    public void onPersist() {
+    private void onPersist() {
         if (this.createdAt == null)
             this.createdAt = Instant.now();
         if (this.updatedAt == null)
@@ -248,7 +239,7 @@ public class User {
      * </p>
      */
     @PreUpdate
-    public void onUpdate() {
+    private void onUpdate() {
         this.updatedAt = Instant.now();
     }
 }

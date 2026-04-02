@@ -83,6 +83,7 @@ public class Ong {
     private String cnpj;
 
     /** Texto descritivo sobre a missão e atividades da ONG. */
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     /** E-mail institucional para contato. */
@@ -110,7 +111,7 @@ public class Ong {
     private String bannerUrl;
 
     /** Informações e orientações sobre como realizar doações para a ONG. */
-    @Column(name = "donation_info")
+    @Column(name = "donation_info", columnDefinition = "TEXT")
     private String donationInfo;
 
     /** Coordenada de latitude para geolocalização. */
@@ -173,7 +174,7 @@ public class Ong {
      * Callback JPA executado antes da persistência inicial.
      */
     @PrePersist
-    public void onPersist() {
+    private void onPersist() {
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
     }
@@ -182,7 +183,7 @@ public class Ong {
      * Callback JPA executado antes de cada atualização.
      */
     @PreUpdate
-    public void onUpdate() {
+    private void onUpdate() {
         this.updatedAt = Instant.now();
     }
 

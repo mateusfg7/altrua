@@ -1,5 +1,7 @@
 package com.techfun.altrua.features.ong.service;
 
+import java.util.UUID;
+
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -8,14 +10,16 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
+import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
 import com.techfun.altrua.core.common.util.SlugUtils;
 import com.techfun.altrua.features.ong.api.OngSpecification;
 import com.techfun.altrua.features.ong.api.dto.OngFilterDTO;
 import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
 import com.techfun.altrua.features.ong.api.dto.RegisterOngRequestDTO;
-import com.techfun.altrua.features.ong.domain.enums.OngStatusEnum;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.domain.model.OngAdministrator;
+import com.techfun.altrua.features.ong.domain.model.OngAdministratorId;
+import com.techfun.altrua.features.ong.repository.OngAdministratorRepository;
 import com.techfun.altrua.features.ong.repository.OngRepository;
 import com.techfun.altrua.features.user.domain.User;
 
@@ -38,20 +42,23 @@ import lombok.extern.slf4j.Slf4j;
 public class OngService {
 
     private final OngRepository ongRepository;
+    private final OngAdministratorRepository ongAdministratorRepository;
 
     /**
-     * Registra uma nova ONG no sistema.
+     * Registra uma nova organização (ONG) e estabelece seu administrador inicial.
      *
      * <p>
-     * Valida duplicidade de CNPJ, gera um slug único a partir do nome e persiste
-     * a ONG com o usuário solicitante como administrador principal.
+     * O fluxo compreende a normalização do nome para geração de slug, a validação
+     * de unicidade de registros ativos (CNPJ e Slug) e o vínculo automático do
+     * criador como administrador principal da entidade.
      * </p>
      *
-     * @param request dados da ONG a ser cadastrada
-     * @param creator usuário responsável pelo cadastro, definido como administrador
-     * @return a entidade {@link Ong} persistida
-     * @throws DuplicateResourceException se o CNPJ já estiver cadastrado ou houver
-     *                                    conflito de unicidade ao persistir
+     * @param request DTO com os dados de entrada validados.
+     * @param creator Usuário autenticado que será definido como administrador e
+     *                criador.
+     * @return A entidade {@link Ong} persistida e configurada.
+     * @throws DuplicateResourceException Se o CNPJ ou o Slug gerado já pertencerem
+     *                                    a uma ONG ativa.
      */
     @Transactional
     public Ong register(RegisterOngRequestDTO request, User creator) {
@@ -66,34 +73,26 @@ public class OngService {
         }
 
         try {
-            Ong ong = Ong.builder()
-                    .name(request.name())
-                    .slug(slug)
-                    .cnpj(request.cnpj())
-                    .description(request.description())
-                    .email(request.email())
-                    .phone(request.phone())
-                    .category(request.category())
-                    .status(OngStatusEnum.ATIVA)
-                    .logoUrl(request.logoUrl())
-                    .bannerUrl(request.bannerUrl())
-                    .donationInfo(request.donationInfo())
-                    .latitude(request.latitude())
-                    .longitude(request.longitude())
-                    .build();
-
+            Ong ong = request.toEntity(slug);
             OngAdministrator admin = new OngAdministrator(creator, ong, true);
             ong.addAdministrator(admin);
             return ongRepository.save(ong);
         } catch (DataIntegrityViolationException ex) {
             if (ex.getCause() instanceof ConstraintViolationException cve) {
-                log.warn("Conflito de unicidade ao cadastrar ONG. Constraint: {}", cve.getConstraintName());
-                throw new DuplicateResourceException(
-                        "Já existe uma ONG cadastrada com os dados fornecidos.");
+
+                if ("uk_active_ong_slug".equals(cve.getConstraintName())) {
+                    log.warn("Conflito de slug ao cadastrar ONG: {}", slug);
+                    throw new DuplicateResourceException("Já existe uma organização com este nome/slug ativa.");
+                }
+
+                if ("uk_active_ong_cnpj".equals(cve.getConstraintName())) {
+                    log.warn("Conflito de CNPJ ao cadastrar ONG: {}", request.cnpj());
+                    throw new DuplicateResourceException("O CNPJ informado já está vinculado a uma organização ativa.");
+                }
             }
 
-            log.error("Erro técnico inesperado ao cadastrar ONG", ex);
-            throw new RuntimeException("Não foi possível processar o cadastro da ONG no momento.");
+            log.error("Erro técnico inesperado ao cadastrar ONG: {}", ex.getMessage());
+            throw ex;
         }
     }
 
@@ -117,5 +116,30 @@ public class OngService {
     public Page<OngResponseDTO> listOngs(OngFilterDTO filter, Pageable pageable) {
         Specification<Ong> spec = OngSpecification.withFilter(filter);
         return ongRepository.findAll(spec, pageable).map(OngResponseDTO::fromEntity);
+    }
+
+    /**
+     * Valida se um usuário possui privilégios de administrador para uma ONG
+     * específica.
+     * <p>
+     * Realiza uma consulta de existência na base de dados para verificar o vínculo
+     * de
+     * administração. Caso o vínculo não exista, um log de aviso é gerado para fins
+     * de
+     * auditoria e segurança.
+     * </p>
+     *
+     * @param ongId  O identificador único da ONG alvo da operação.
+     * @param userId O identificador único do usuário que tenta realizar a ação.
+     * @throws ForbiddenActionException Se o usuário não estiver registrado como
+     *                                  administrador da ONG informada.
+     */
+    public void validateAdminPermission(UUID ongId, UUID userId) {
+        OngAdministratorId id = new OngAdministratorId(ongId, userId);
+
+        if (!ongAdministratorRepository.existsById(id)) {
+            log.warn("Tentativa de acesso não autorizado: Usuário {} na ONG {}", userId, ongId);
+            throw new ForbiddenActionException("Você não tem permissão para realizar essa ação.");
+        }
     }
 }

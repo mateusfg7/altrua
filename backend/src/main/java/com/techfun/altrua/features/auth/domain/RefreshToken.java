@@ -16,6 +16,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -35,6 +36,7 @@ import lombok.Setter;
 @Table(name = "refresh_tokens")
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshToken {
 
     /** Identificador único do refresh token, gerado automaticamente como UUID. */
@@ -67,12 +69,6 @@ public class RefreshToken {
     private Instant createdAt;
 
     /**
-     * Construtor padrão exigido pelo JPA. Não deve ser utilizado diretamente.
-     */
-    protected RefreshToken() {
-    }
-
-    /**
      * Construtor para criação de um novo refresh token.
      *
      * @param token     valor do token JWT gerado
@@ -89,7 +85,7 @@ public class RefreshToken {
      * Define automaticamente a data de criação antes de persistir no banco.
      */
     @PrePersist
-    public void onPersist() {
+    private void onPersist() {
         this.createdAt = Instant.now();
     }
 }

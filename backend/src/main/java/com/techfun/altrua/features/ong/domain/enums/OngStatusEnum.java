@@ -8,7 +8,7 @@ import com.techfun.altrua.features.ong.domain.model.Ong;
  */
 public enum OngStatusEnum {
     /** Indica que a ONG está ativa. */
-    ATIVA,
+    ACTIVE,
     /** Indica que a ONG está desativada. */
-    INATIVA;
+    INACTIVE;
 }

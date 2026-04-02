@@ -78,7 +78,7 @@ public class OngAdministrator {
      * atribuição.
      */
     @PrePersist
-    public void onPersist() {
+    private void onPersist() {
         this.assignedAt = Instant.now();
     }
 
