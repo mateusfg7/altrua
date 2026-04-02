@@ -10,6 +10,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +20,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.techfun.altrua.core.common.exceptions.BusinessException;
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
+import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
 import com.techfun.altrua.core.common.exceptions.InvalidCredentialsException;
+import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
+import com.techfun.altrua.infra.security.handler.CustomAuthenticationEntryPoint;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,8 +79,53 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @return {@link ProblemDetail} com status 401 Unauthorized.
      */
     @ExceptionHandler({ BadCredentialsException.class, InvalidCredentialsException.class })
-    public ProblemDetail handleAuthentication(Exception ex) {
+    public ProblemDetail handleInvalidCredencials(Exception ex) {
         return buildProblemDetail(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", "Falha na Autenticação");
+    }
+
+    /**
+     * Manipula falhas específicas durante a renovação do token de acesso (Refresh
+     * Token).
+     * <p>
+     * Este método é acionado quando um {@code Refresh Token} é inválido, foi
+     * revogado
+     * ou expirou. Ao retornar {@code 401 Unauthorized}, a API sinaliza ao cliente
+     * (ex: Frontend ou Mobile) que a sessão encerrou completamente e que uma nova
+     * autenticação via credenciais (login) é estritamente necessária.
+     * </p>
+     *
+     * @param ex A exceção contendo os detalhes da falha na renovação do token.
+     * @return Um objeto {@link ProblemDetail} com status 401 (Unauthorized) e
+     *         orientações sobre a falha na sessão.
+     */
+    @ExceptionHandler(RefreshTokenException.class)
+    public ProblemDetail handleRefreshToken(RefreshTokenException ex) {
+        log.warn("Falha no Refresh Token: {}", ex.getMessage());
+        return buildProblemDetail(HttpStatus.UNAUTHORIZED, ex.getMessage(), "Falha na Autenticação");
+    }
+
+    /**
+     * Manipula falhas de autenticação ocorridas durante o processamento da
+     * requisição.
+     * <p>
+     * Este método intercepta exceções do tipo {@link AuthenticationException}, que
+     * geralmente
+     * são originadas nos filtros de segurança (ex: JWT) e delegadas a este handler
+     * pelo
+     * {@link CustomAuthenticationEntryPoint}. Retorna um erro padronizado
+     * informando que
+     * as credenciais são inválidas, expiraram ou não foram fornecidas.
+     * </p>
+     *
+     * @param ex A exceção de autenticação capturada.
+     * @return Um objeto {@link ProblemDetail} com status 401 (Unauthorized) e
+     *         detalhes da falha.
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthentication(AuthenticationException ex) {
+        log.error("Falha de autenticação: {}", ex.getMessage());
+        return buildProblemDetail(HttpStatus.UNAUTHORIZED, "Token de acesso inválido, expirado ou ausente.",
+                "Falha na Autenticação");
     }
 
     /**
@@ -119,24 +168,50 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Manipula exceções de acesso negado quando um usuário autenticado tenta
-     * realizar
-     * uma operação para a qual não possui permissões suficientes.
+     * Manipula violações de regras de negócio relacionadas a permissões de acesso.
      * <p>
-     * Este método intercepta a {@link AccessDeniedException} lançada pela camada de
-     * serviço
-     * ou pelo Spring Security e a traduz em um formato de erro padronizado (RFC
-     * 7807).
+     * Este método intercepta a {@link ForbiddenActionException} lançada pela camada
+     * de
+     * serviço quando um usuário, embora autenticado, tenta realizar uma operação
+     * que viola as regras de domínio (ex: editar uma ONG da qual não é
+     * administrador).
+     * A mensagem detalhada é retornada ao cliente para fornecer feedback claro
+     * sobre
+     * o motivo da rejeição.
      * </p>
      *
-     * @param ex A exceção de acesso negado capturada, contendo a mensagem de erro
+     * @param ex A exceção de regra de negócio contendo o status HTTP e a mensagem
      *           específica.
-     * @return Um objeto {@link ProblemDetail} com o status HTTP 403 (Forbidden),
-     *         detalhando a violação de segurança para o cliente.
+     * @return Um objeto {@link ProblemDetail} formatado com o status da exceção e a
+     *         mensagem de erro de negócio.
+     */
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ProblemDetail handleForbiddenAction(ForbiddenActionException ex) {
+        return buildProblemDetail(ex.getStatus(), ex.getMessage(), "Ação Proibida");
+    }
+
+    /**
+     * Manipula exceções de segurança lançadas pelo Spring Security
+     * (infraestrutura).
+     * <p>
+     * Este método intercepta a {@link AccessDeniedException} quando o framework
+     * barra o acesso
+     * com base em roles, permissões de rota ou anotações de segurança
+     * (ex: @PreAuthorize).
+     * Por motivos de segurança, a mensagem detalhada da exceção é ocultada do
+     * cliente final
+     * e apenas registrada em log para auditoria.
+     * </p>
+     *
+     * @param ex A exceção de acesso negado original capturada pelo framework.
+     * @return Um objeto {@link ProblemDetail} com status 403 e mensagem genérica
+     *         padronizada.
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
-        return buildProblemDetail(HttpStatus.FORBIDDEN, ex.getMessage(), "Acesso Negado");
+        log.error("Segurança: Acesso negado via Spring Security - {}", ex.getMessage());
+        return buildProblemDetail(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso.",
+                "Acesso Negado");
     }
 
     /**
