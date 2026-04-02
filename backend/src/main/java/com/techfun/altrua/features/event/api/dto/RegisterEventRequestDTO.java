@@ -80,7 +80,7 @@ public record RegisterEventRequestDTO(
                 .description(this.description)
                 .slug(slug)
                 .ong(ong)
-                .createBy(creator)
+                .createdByUser(creator)
                 .status(EventStatusEnum.PUBLISHED)
                 .coverUrl(this.coverUrl)
                 .externalLink(this.externalLink)
