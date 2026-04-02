@@ -1,0 +1,51 @@
+spring:
+    application:
+        name: Altrua
+    datasource:
+        url: "jdbc:postgresql://localhost:5432/${DB_NAME}"
+        username: "${DB_USER}"
+        password: "${DB_PASSWORD}"
+    jpa:
+        hibernate:
+            ddl-auto: validate
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+    flyway:
+        enabled: true
+        locations: "classpath:db/migration"
+        baseline-on-migrate: true
+    mvc:
+        problemdetails:
+            enabled: true
+    data:
+        web:
+            pageable:
+                serialization-mode: via-dto
+
+scalar:
+    enabled: true
+    pageTitle: "Altrua API"
+    path: /docs
+    theme: solarized
+    layout: modern
+    darkMode: true
+    hideDarkModeToggle: true
+    hideModels: true
+    documentDownloadType: none
+    showDeveloperTools: never
+
+springdoc:
+    api-docs:
+        enabled: true
+        path: /api-docs
+
+jwt:
+    secret: "${JWT_SECRET}"
+    expiration: "${JWT_EXPIRATION:1800000}"
+    refresh-token-expiration: "${JWT_REFRESH_TOKEN_EXPIRATION:2592000000}"
+
+server:
+    error:
+        include-message: never
+        include-instance: always
