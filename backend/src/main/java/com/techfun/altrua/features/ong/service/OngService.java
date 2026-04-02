@@ -45,18 +45,20 @@ public class OngService {
     private final OngAdministratorRepository ongAdministratorRepository;
 
     /**
-     * Registra uma nova ONG no sistema.
+     * Registra uma nova organização (ONG) e estabelece seu administrador inicial.
      *
      * <p>
-     * Valida duplicidade de CNPJ, gera um slug único a partir do nome e persiste
-     * a ONG com o usuário solicitante como administrador principal.
+     * O fluxo compreende a normalização do nome para geração de slug, a validação
+     * de unicidade de registros ativos (CNPJ e Slug) e o vínculo automático do
+     * criador como administrador principal da entidade.
      * </p>
      *
-     * @param request dados da ONG a ser cadastrada
-     * @param creator usuário responsável pelo cadastro, definido como administrador
-     * @return a entidade {@link Ong} persistida
-     * @throws DuplicateResourceException se o CNPJ já estiver cadastrado ou houver
-     *                                    conflito de unicidade ao persistir
+     * @param request DTO com os dados de entrada validados.
+     * @param creator Usuário autenticado que será definido como administrador e
+     *                criador.
+     * @return A entidade {@link Ong} persistida e configurada.
+     * @throws DuplicateResourceException Se o CNPJ ou o Slug gerado já pertencerem
+     *                                    a uma ONG ativa.
      */
     @Transactional
     public Ong register(RegisterOngRequestDTO request, User creator) {
@@ -77,13 +79,20 @@ public class OngService {
             return ongRepository.save(ong);
         } catch (DataIntegrityViolationException ex) {
             if (ex.getCause() instanceof ConstraintViolationException cve) {
-                log.warn("Conflito de unicidade ao cadastrar ONG. Constraint: {}", cve.getConstraintName());
-                throw new DuplicateResourceException(
-                        "Já existe uma ONG cadastrada com os dados fornecidos.");
+
+                if ("uk_active_ong_slug".equals(cve.getConstraintName())) {
+                    log.warn("Conflito de slug ao cadastrar ONG: {}", slug);
+                    throw new DuplicateResourceException("Já existe uma organização com este nome/slug ativa.");
+                }
+
+                if ("uk_active_ong_cnpj".equals(cve.getConstraintName())) {
+                    log.warn("Conflito de CNPJ ao cadastrar ONG: {}", request.cnpj());
+                    throw new DuplicateResourceException("O CNPJ informado já está vinculado a uma organização ativa.");
+                }
             }
 
-            log.error("Erro técnico inesperado ao cadastrar ONG", ex);
-            throw new RuntimeException("Não foi possível processar o cadastro da ONG no momento.");
+            log.error("Erro técnico inesperado ao cadastrar ONG: {}", ex.getMessage());
+            throw ex;
         }
     }
 
