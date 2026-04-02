@@ -3,6 +3,7 @@ package com.techfun.altrua.infra.config.handler;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -231,6 +232,32 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         return buildProblemDetail(HttpStatus.BAD_REQUEST, ex.getMessage(), "Requisição Inválida");
+    }
+
+    /**
+     * Manipula violações de integridade de dados que não foram tratadas na camada
+     * de serviço.
+     * *
+     * <p>
+     * Este handler atua como uma rede de segurança para erros de banco de dados
+     * (ex: violações
+     * de chaves estrangeiras ou restrições de nulidade) que escaparam do tratamento
+     * de regra de negócio.
+     * Por segurança, os detalhes técnicos da exceção são omitidos na resposta ao
+     * cliente e
+     * registrados apenas nos logs do servidor.
+     * </p>
+     *
+     * @param ex A exceção {@link DataIntegrityViolationException} lançada durante a
+     *           persistência.
+     * @return Um {@link ProblemDetail} com status 500 (Internal Server Error) e uma
+     *         mensagem genérica.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.error("Conflito de integridade de dados não capturado no service", ex);
+        return buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Erro de consistência de dados.", "Erro de Integridade");
     }
 
     /**
