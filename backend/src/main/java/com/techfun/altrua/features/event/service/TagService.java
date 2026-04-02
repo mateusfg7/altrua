@@ -1,7 +1,6 @@
 package com.techfun.altrua.features.event.service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,27 +29,34 @@ public class TagService {
     private final TagRepository tagRepository;
 
     /**
-     * Recupera tags existentes no banco de dados ou cria novas instâncias para
-     * termos inéditos.
+     * Garante a existência das tags fornecidas no banco de dados e as retorna como
+     * entidades persistidas.
      *
      * <p>
-     * O processo de resolução segue estas etapas:
-     * <ol>
-     * <li>Valida se o conjunto de entrada não está vazio.</li>
-     * <li>Normaliza os nomes para garantir consistência na busca.</li>
-     * <li>Identifica quais tags já possuem registro via
-     * {@link TagRepository#findAllByNameIn(Set)}.</li>
-     * <li>Instancia e persiste apenas os termos que ainda não existem.</li>
-     * <li>Retorna a união de tags pré-existentes e recém-criadas.</li>
-     * </ol>
+     * Diferente de uma abordagem de verificação manual, este método utiliza uma
+     * operação
+     * atômica de "Upsert" (Insert on Conflict) para evitar condições de corrida
+     * (race conditions)
+     * em cenários de alta concorrência.
      * </p>
      *
-     * @param tags Conjunto de strings representando os nomes das etiquetas.
-     * @return Um {@link Set} de entidades {@link Tag} persistidas e prontas para
-     *         associação.
+     * <p>
+     * O processo segue estas etapas:
+     * </p>
+     * <ol>
+     * <li>Valida se o conjunto de entrada contém dados.</li>
+     * <li>Normaliza os nomes (trim e lowercase) para manter a unicidade
+     * semântica.</li>
+     * <li>Executa uma inserção em lote que ignora conflitos de nomes já existentes
+     * diretamente no banco.</li>
+     * <li>Recupera o conjunto final de entidades sincronizadas com o estado atual
+     * do banco.</li>
+     * </ol>
+     *
+     * @param tags Conjunto de strings com os nomes das etiquetas.
+     * @return Um {@link Set} de entidades {@link Tag} garantidamente persistidas.
      * @throws IllegalArgumentException Caso o parâmetro {@code tags} seja nulo ou
      *                                  vazio.
-     * @see com.techfun.altrua.features.event.domain.model.Tag#Tag(String)
      */
     @Transactional
     public Set<Tag> getOrCreateTags(Set<String> tags) {
@@ -62,23 +68,8 @@ public class TagService {
                 .map(name -> name.trim().toLowerCase(Locale.ROOT))
                 .collect(Collectors.toSet());
 
-        List<Tag> existingTags = tagRepository.findAllByNameIn(normalizedNames);
+        tagRepository.ensureTagsExist(normalizedNames);
 
-        existingTags.forEach(tag -> normalizedNames.remove(tag.getName()));
-
-        if (!normalizedNames.isEmpty()) {
-            List<Tag> newTags = normalizedNames.stream()
-                    .map(Tag::new)
-                    .toList();
-
-            tagRepository.saveAll(newTags);
-
-            Set<Tag> allTags = new HashSet<>(existingTags);
-            allTags.addAll(newTags);
-
-            return allTags;
-        }
-
-        return new HashSet<>(existingTags);
+        return new HashSet<>(tagRepository.findAllByNameIn(normalizedNames));
     }
 }
