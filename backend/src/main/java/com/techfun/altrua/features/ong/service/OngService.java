@@ -7,10 +7,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
+import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
 import com.techfun.altrua.core.common.util.SlugUtils;
 import com.techfun.altrua.features.ong.api.OngSpecification;
 import com.techfun.altrua.features.ong.api.dto.OngFilterDTO;
@@ -18,6 +18,7 @@ import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
 import com.techfun.altrua.features.ong.api.dto.RegisterOngRequestDTO;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.domain.model.OngAdministrator;
+import com.techfun.altrua.features.ong.domain.model.OngAdministratorId;
 import com.techfun.altrua.features.ong.repository.OngAdministratorRepository;
 import com.techfun.altrua.features.ong.repository.OngRepository;
 import com.techfun.altrua.features.user.domain.User;
@@ -121,13 +122,15 @@ public class OngService {
      *
      * @param ongId  O identificador único da ONG alvo da operação.
      * @param userId O identificador único do usuário que tenta realizar a ação.
-     * @throws AccessDeniedException Se o usuário não estiver registrado como
-     *                               administrador da ONG informada.
+     * @throws ForbiddenActionException Se o usuário não estiver registrado como
+     *                                  administrador da ONG informada.
      */
     public void validateAdminPermission(UUID ongId, UUID userId) {
-        if (!ongAdministratorRepository.existsByOngIdAndUserId(ongId, userId)) {
+        OngAdministratorId id = new OngAdministratorId(ongId, userId);
+
+        if (!ongAdministratorRepository.existsById(id)) {
             log.warn("Tentativa de acesso não autorizado: Usuário {} na ONG {}", userId, ongId);
-            throw new AccessDeniedException("Você não tem permissão para realizar essa ação.");
+            throw new ForbiddenActionException("Você não tem permissão para realizar essa ação.");
         }
     }
 }

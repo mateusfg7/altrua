@@ -1,10 +1,9 @@
 package com.techfun.altrua.features.ong.repository;
 
-import java.util.UUID;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.techfun.altrua.features.ong.domain.model.OngAdministrator;
+import com.techfun.altrua.features.ong.domain.model.OngAdministratorId;
 
 /**
  * Repositório para gerenciamento de persistência da entidade
@@ -19,17 +18,6 @@ import com.techfun.altrua.features.ong.domain.model.OngAdministrator;
  * 
  * @see OngAdministrator
  */
-public interface OngAdministratorRepository extends JpaRepository<OngAdministrator, UUID> {
-
-    /**
-     * Verifica se existe um registro de administrador para a combinação específica
-     * de ONG e usuário.
-     *
-     * @param ongId  Identificador único da ONG.
-     * @param userId Identificador único do usuário.
-     * @return {@code true} se o vínculo de administração existir; {@code false}
-     *         caso contrário.
-     */
-    public boolean existsByOngIdAndUserId(UUID ongId, UUID userId);
+public interface OngAdministratorRepository extends JpaRepository<OngAdministrator, OngAdministratorId> {
 
 }
