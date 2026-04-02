@@ -25,10 +25,10 @@ CREATE TABLE IF NOT EXISTS "events" (
     FOREIGN KEY (created_by_user_id) REFERENCES users(id)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "uk_active_event_slug" ON "events"("slug") 
-WHERE "deleted_at" IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uk_active_event_slug ON events(slug) 
+WHERE deleted_at IS NULL;
 
-CREATE INDEX IF NOT EXISTS "idx_events_ong_id" ON "events"("ong_id");
+CREATE INDEX IF NOT EXISTS idx_events_ong_id ON events(ong_id);
 
 CREATE TABLE IF NOT EXISTS "tags" (
     id UUID PRIMARY KEY,
