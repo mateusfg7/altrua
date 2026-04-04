@@ -9,23 +9,23 @@ import {
   CardHeader,
 } from "~/components/ui/card";
 
-interface OngCardProps {
+type Props = {
   area: string;
   description: string;
   eventsCount: number;
   imageUrl: string;
   location: string;
   name: string;
-}
+};
 
-export function OngCard({
+export function NGOCard({
   name,
   description,
   area,
   location,
   imageUrl,
   eventsCount,
-}: OngCardProps) {
+}: Props) {
   return (
     <Card className="group flex h-full flex-col overflow-hidden p-0 transition-all">
       <CardHeader className="p-0">

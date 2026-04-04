@@ -1,6 +1,6 @@
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { OngCard } from "~/components/ong-card";
+import { NGOCard } from "~/components/ngo-card";
 import { Button } from "~/components/ui/button";
 
 const mockONGs = [
@@ -50,7 +50,7 @@ const mockONGs = [
   },
 ];
 
-export function OngSection() {
+export function NGOSection() {
   return (
     <section className="bg-muted px-3 py-16" id="ongs">
       <div className="mx-auto max-w-6xl">
@@ -71,7 +71,7 @@ export function OngSection() {
           </Button>
           <div className="grid 3xl:grid-cols-4 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {mockONGs.map((ong) => (
-              <OngCard key={ong.id} {...ong} />
+              <NGOCard key={ong.id} {...ong} />
             ))}
           </div>
         </div>
