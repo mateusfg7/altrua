@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.features.event.domain.model.Tag;
 import com.techfun.altrua.features.event.repository.TagRepository;
 
@@ -55,13 +56,13 @@ public class TagService {
      *
      * @param tags Conjunto de strings com os nomes das etiquetas.
      * @return Um {@link Set} de entidades {@link Tag} garantidamente persistidas.
-     * @throws IllegalArgumentException Caso o parâmetro {@code tags} seja nulo ou
-     *                                  vazio.
+     * @throws DomainException Caso o parâmetro {@code tags} seja nulo ou
+     *                         vazio.
      */
     @Transactional
     public Set<Tag> getOrCreateTags(Set<String> tags) {
         if (tags == null || tags.isEmpty()) {
-            throw new IllegalArgumentException("É obrigatório informar ao menos uma tag.");
+            throw new DomainException("É obrigatório informar ao menos uma tag.");
         }
 
         Set<String> normalizedNames = tags.stream()

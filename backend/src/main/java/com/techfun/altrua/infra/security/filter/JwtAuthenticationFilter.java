@@ -3,6 +3,7 @@ package com.techfun.altrua.infra.security.filter;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,17 +11,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.techfun.altrua.infra.security.jwt.JwtValidator;
 import com.techfun.altrua.infra.security.userdetails.UserLookupService;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Filtro de segurança executado uma vez por requisição para autenticação via
@@ -33,29 +34,38 @@ import lombok.RequiredArgsConstructor;
  * segurança do Spring.
  * </p>
  */
+@Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserLookupService userLookupService;
     private final JwtValidator jwtValidator;
+    private final HandlerExceptionResolver resolver;
+
+    public JwtAuthenticationFilter(
+            UserLookupService userLookupService,
+            JwtValidator jwtValidator,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.userLookupService = userLookupService;
+        this.jwtValidator = jwtValidator;
+        this.resolver = resolver;
+    }
 
     /**
-     * Executa a lógica de filtragem interna da requisição.
-     * 
+     * Filtro de segurança para autenticação via JWT.
      * <p>
-     * Extrai o token, valida sua assinatura e expiração, carrega os dados do
-     * usuário
-     * e autentica a requisição no {@link SecurityContextHolder}.
+     * Valida o token 'Bearer' no cabeçalho Authorization, verifica a integridade
+     * e o tipo do acesso (Access Token) e estabelece o contexto de segurança.
+     * Falhas são delegadas ao {@code HandlerExceptionResolver}.
      * </p>
      *
-     * @param request     a requisição HTTP recebida
-     * @param response    a resposta HTTP a ser enviada
-     * @param filterChain a cadeia de filtros para prosseguir com a requisição
+     * @param request     Requisição HTTP.
+     * @param response    Resposta HTTP.
+     * @param filterChain Cadeia de filtros.
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
 
@@ -65,20 +75,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String token = authHeader.substring(7);
-        final String subject;
 
         try {
-            subject = jwtValidator.extractSubject(token);
-        } catch (ExpiredJwtException ex) {
-            sendError(response, "Token expirado");
-            return;
-        } catch (JwtException ex) {
-            sendError(response, "Token inválido");
-            return;
-        }
+            jwtValidator.validateTokenIntegrity(token);
+            String subject = jwtValidator.extractSubject(token);
 
-        if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            try {
+            if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UUID userId = UUID.fromString(subject);
                 UserDetails userDetails = userLookupService.loadById(userId);
 
@@ -88,32 +90,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             null,
                             userDetails.getAuthorities());
 
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
-
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    throw new JwtException("Token inválido");
                 }
-            } catch (UsernameNotFoundException | JwtException | IllegalArgumentException ex) {
-                sendError(response, "Token inválido");
-                return;
             }
+
+            filterChain.doFilter(request, response);
+
+        } catch (JwtException | UsernameNotFoundException | IllegalArgumentException ex) {
+            log.warn("JWT inválido na requisição {}: {}", request.getRequestURI(), ex.getMessage());
+            resolver.resolveException(request, response, null, ex);
+            return;
         }
-
-        filterChain.doFilter(request, response);
-    }
-
-    /**
-     * Método utilitário para enviar uma resposta de erro em formato JSON.
-     * Utilizado quando falhas específicas de JWT (expiração, formato inválido)
-     * ocorrem dentro do filtro.
-     *
-     * @param response a resposta HTTP
-     * @param message  a mensagem de erro a ser enviada no corpo da resposta
-     * @throws IOException em caso de erro de entrada/saída ao escrever a resposta
-     */
-    private void sendError(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.getWriter().write("{\"error\": \"" + message + "\"}");
     }
 }

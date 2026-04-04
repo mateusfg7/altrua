@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,6 +27,8 @@ import com.techfun.altrua.core.common.exceptions.InvalidCredentialsException;
 import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
 import com.techfun.altrua.infra.security.handler.CustomAuthenticationEntryPoint;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -85,6 +88,60 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Manipula falhas críticas e temporais relacionadas ao ciclo de vida do Token
+     * JWT.
+     * <p>
+     * Este método diferencia tokens malformados/inválidos de tokens expirados. No
+     * caso de
+     * expiração, a API fornece uma orientação explícita para o uso do
+     * {@code Refresh Token},
+     * permitindo que o cliente tente a renovação automática da sessão sem exigir
+     * novas
+     * credenciais do usuário.
+     * </p>
+     *
+     * @param ex A exceção lançada durante a decodificação ou validação do JWT.
+     * @return Um {@link ProblemDetail} com status 401 (Unauthorized) e o
+     *         diagnóstico da sessão.
+     */
+    @ExceptionHandler({ JwtException.class, ExpiredJwtException.class })
+    public ProblemDetail handleJwtFailure(Exception ex) {
+        String detail = "Token de acesso inválido ou malformado.";
+        String title = "Token Inválido";
+
+        if (ex instanceof ExpiredJwtException) {
+            detail = "Sua sessão expirou. Use o refresh token para renovar.";
+            title = "Sessão Expirada";
+        }
+        return buildProblemDetail(HttpStatus.UNAUTHORIZED, detail, title);
+    }
+
+    /**
+     * Intercepta casos onde um token válido aponta para um identificador de usuário
+     * que não existe mais ou foi desativado no sistema.
+     * <p>
+     * Por razões de segurança e prevenção de enumeração de recursos, a mensagem
+     * retornada
+     * ao cliente é opaca (neutra), ocultando se o erro é devido à inexistência do
+     * registro
+     * ou a outra falha de integridade. A falha real é registrada internamente via
+     * log
+     * para fins de auditoria.
+     * </p>
+     *
+     * @param ex A exceção de usuário não encontrado lançada pela camada de
+     *           persistência ou segurança.
+     * @return Um {@link ProblemDetail} com status 401 (Unauthorized) e mensagem
+     *         neutra.
+     */
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ProblemDetail handleUsernameNotFound(UsernameNotFoundException ex) {
+        log.warn("Falha de integridade na sessão: {}", ex.getMessage());
+        return buildProblemDetail(HttpStatus.UNAUTHORIZED,
+                "Não foi possível processar a autenticação com as informações fornecidas.", "Acesso Negado");
+    }
+
+    /**
      * Manipula falhas específicas durante a renovação do token de acesso (Refresh
      * Token).
      * <p>
@@ -115,7 +172,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * pelo
      * {@link CustomAuthenticationEntryPoint}. Retorna um erro padronizado
      * informando que
-     * as credenciais são inválidas, expiraram ou não foram fornecidas.
+     * as credenciais são insuficientes ou inválidas.
      * </p>
      *
      * @param ex A exceção de autenticação capturada.
@@ -124,8 +181,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail handleAuthentication(AuthenticationException ex) {
-        log.error("Falha de autenticação: {}", ex.getMessage());
-        return buildProblemDetail(HttpStatus.UNAUTHORIZED, "Token de acesso inválido, expirado ou ausente.",
+        log.error("Falha de autenticação genérica: {}", ex.getMessage());
+        return buildProblemDetail(HttpStatus.UNAUTHORIZED, "Acesso negado: credenciais insuficientes ou inválidas.",
                 "Falha na Autenticação");
     }
 
@@ -210,7 +267,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
-        log.error("Segurança: Acesso negado via Spring Security - {}", ex.getMessage());
+        log.warn("Segurança: Acesso negado via Spring Security - {}", ex.getMessage());
         return buildProblemDetail(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar este recurso.",
                 "Acesso Negado");
     }
