@@ -62,7 +62,7 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/auth/refresh")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/ongs", "/ongs/**")
+                        .requestMatchers(HttpMethod.GET, "/ongs")
                         .permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
