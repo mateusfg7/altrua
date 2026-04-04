@@ -2,6 +2,7 @@ package com.techfun.altrua.infra.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -60,6 +61,8 @@ public class SecurityConfig {
                                 "/auth/signup",
                                 "/auth/login",
                                 "/auth/refresh")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ongs", "/ongs/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
