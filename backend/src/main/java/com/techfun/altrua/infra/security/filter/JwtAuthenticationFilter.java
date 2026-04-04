@@ -3,24 +3,25 @@ package com.techfun.altrua.infra.security.filter;
 import java.io.IOException;
 import java.util.UUID;
 
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
 import com.techfun.altrua.infra.security.jwt.JwtValidator;
 import com.techfun.altrua.infra.security.userdetails.UserLookupService;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Filtro de segurança executado uma vez por requisição para autenticação via
@@ -33,6 +34,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * segurança do Spring.
  * </p>
  */
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -62,9 +64,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @param filterChain Cadeia de filtros.
      */
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
 
@@ -76,6 +77,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         try {
+            jwtValidator.validateTokenIntegrity(token);
             String subject = jwtValidator.extractSubject(token);
 
             if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -91,14 +93,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    throw new RefreshTokenException("Token inválido para esta operação.");
+                    throw new JwtException("Token inválido");
                 }
             }
 
             filterChain.doFilter(request, response);
 
-        } catch (Exception ex) {
+        } catch (JwtException | UsernameNotFoundException | IllegalArgumentException ex) {
+            log.warn("JWT inválido na requisição {}: {}", request.getRequestURI(), ex.getMessage());
             resolver.resolveException(request, response, null, ex);
+            return;
         }
     }
 }
