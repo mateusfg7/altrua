@@ -1,56 +1,13 @@
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { NGOCard } from "~/components/ngo-card";
 import { Button } from "~/components/ui/button";
-
-const mockONGs = [
-  {
-    id: 1,
-    name: "Instituto Esperança Viva",
-    description:
-      "Promovemos educação e capacitação profissional para jovens em situação de vulnerabilidade social.",
-    area: "Educação",
-    location: "São Paulo, SP",
-    imageUrl:
-      "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&h=400&fit=crop",
-    eventsCount: 5,
-  },
-  {
-    id: 2,
-    name: "Patas Felizes",
-    description:
-      "Resgatamos, cuidamos e promovemos a adoção responsável de animais abandonados.",
-    area: "Animais",
-    location: "Rio de Janeiro, RJ",
-    imageUrl:
-      "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=400&fit=crop",
-    eventsCount: 3,
-  },
-  {
-    id: 3,
-    name: "Mãos que Alimentam",
-    description:
-      "Distribuímos refeições nutritivas para pessoas em situação de rua e famílias carentes.",
-    area: "Alimentação",
-    location: "Belo Horizonte, MG",
-    imageUrl:
-      "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&h=400&fit=crop",
-    eventsCount: 8,
-  },
-  {
-    id: 4,
-    name: "Verde Vida",
-    description:
-      "Trabalhamos pela preservação ambiental através de reflorestamento e educação ecológica.",
-    area: "Meio Ambiente",
-    location: "Curitiba, PR",
-    imageUrl:
-      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&h=400&fit=crop",
-    eventsCount: 4,
-  },
-];
+import { useNgoList } from "~/features/ngos/hooks/use-ngo-list";
+import { NGOCard } from "../ngo-card";
+import { Skeleton } from "../ui/skeleton";
 
 export function NGOSection() {
+  const { data, isLoading } = useNgoList();
+
   return (
     <section className="bg-muted px-3 py-16" id="ongs">
       <div className="mx-auto max-w-6xl">
@@ -69,10 +26,19 @@ export function NGOSection() {
             Ver todas as ONGs
             <HugeiconsIcon icon={ArrowRight01Icon} />
           </Button>
+
           <div className="grid 3xl:grid-cols-4 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {mockONGs.map((ong) => (
-              <NGOCard key={ong.id} {...ong} />
-            ))}
+            {isLoading &&
+              Array.from({ length: 6 }).map((_, index) => (
+                <Skeleton
+                  className="h-90 w-full rounded-xl bg-muted-foreground/20"
+                  // biome-ignore lint/suspicious/noArrayIndexKey: Only used for skeleton loading state, no dynamic data involved
+                  key={index}
+                />
+              ))}
+
+            {!isLoading &&
+              data?.content.map((ngo) => <NGOCard data={ngo} key={ngo.id} />)}
           </div>
         </div>
       </div>
