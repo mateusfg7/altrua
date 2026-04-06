@@ -127,7 +127,7 @@ public class SecurityConfig {
      * <li><b>Headers:</b> Todos permitidos ({@code *}).</li>
      * <li><b>Cache:</b> Configurações válidas por 1 hora (3600s).</li>
      * </ul>
-     * * @return {@link CorsConfigurationSource} mapeado para todos os caminhos
+     * @return {@link CorsConfigurationSource} mapeado para todos os caminhos
      * ({@code /**}).
      */
     @Bean
