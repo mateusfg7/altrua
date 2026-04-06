@@ -1,5 +1,9 @@
 package com.techfun.altrua.infra.security;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +20,9 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.techfun.altrua.infra.security.filter.JwtAuthenticationFilter;
 import com.techfun.altrua.infra.security.handler.CustomAuthenticationEntryPoint;
@@ -32,37 +39,46 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @Value("${cors.allowed-origins}")
+    private List<String> allowedOrigins;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     /**
-     * Configura a cadeia de filtros de segurança (Security Filter Chain).
+     * Define a arquitetura de segurança da API utilizando uma política
+     * <b>Stateless</b> e autenticação via <b>JWT</b>.
+     * Este método desabilita a proteção contra CSRF (visto que a API não utiliza
+     * sessões baseadas em cookies),
+     * estabelece a configuração de CORS e centraliza o controle de acesso.
+     * A cadeia de filtros é estendida pela injeção do
+     * {@code jwtAuthenticationFilter} precedendo o
+     * {@link UsernamePasswordAuthenticationFilter}, garantindo que a validação do
+     * token ocorra antes
+     * do processo de autenticação padrão do Spring.
      *
-     * <p>
-     * Desabilita CSRF, define a política de sessão como STATELESS e configura
-     * as permissões de acesso aos endpoints (Swagger e API docs públicos).
-     * </p>
-     *
-     * @param http o objeto {@link HttpSecurity} para configuração
-     * @return a cadeia de filtros configurada
-     * @throws Exception em caso de erro na configuração
+     * @param http o objeto {@link HttpSecurity} para customização da segurança.
+     * @return a instância de {@link SecurityFilterChain} configurada para o
+     *         contexto da aplicação.
+     * @throws Exception caso ocorra uma falha na construção da hierarquia de
+     *                   filtros ou na injeção de provedores.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ongs").permitAll()
                         .requestMatchers(
                                 "/api-docs/**",
                                 "/docs/**",
                                 "/auth/signup",
                                 "/auth/login",
                                 "/auth/refresh")
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/ongs")
                         .permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
@@ -101,6 +117,31 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
+    }
+
+    /**
+     * Define a política global de CORS para a aplicação.
+     * <ul>
+     * <li><b>Origens:</b> Baseado na lista {@code allowedOrigins}.</li>
+     * <li><b>Métodos:</b> GET, POST, PUT, DELETE e OPTIONS.</li>
+     * <li><b>Headers:</b> Todos permitidos ({@code *}).</li>
+     * <li><b>Cache:</b> Configurações válidas por 1 hora (3600s).</li>
+     * </ul>
+     * * @return {@link CorsConfigurationSource} mapeado para todos os caminhos
+     * ({@code /**}).
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(allowedOrigins);
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     /**
