@@ -46,7 +46,7 @@ jwt:
     refresh-token-expiration: "${JWT_REFRESH_TOKEN_EXPIRATION:2592000000}"
 
 cors:
-    allowed-origins: ${CORS_ORIGINS}
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
 
 server:
     error:
