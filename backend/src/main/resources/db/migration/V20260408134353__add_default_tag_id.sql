@@ -1,0 +1,1 @@
+ALTER TABLE tags ALTER COLUMN id SET DEFAULT uuidv7();
