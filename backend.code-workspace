@@ -1,20 +1,25 @@
 {
-  "folders": [
-    { "name": "🌐 backend", "path": "./backend" }
-  ],
-  "settings": {
-    "editor.formatOnSave": true,
-    
-    "java.import.maven.enabled": true,
-    "java.compile.nullAnalysis.mode": "automatic",
-    
-    "cSpell.words": [
-      "Altrua",
-      "gerenciados",
-      "registra",
-      "registro",
-      "respectivamente",
-      "techfun"
-    ]
-  }
+    "folders": [
+        { "name": "🌐 backend", "path": "./backend" }
+    ],
+    "settings": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+        },
+        "editor.formatOnSave": true,
+
+        "java.refactor.renameFromFileExplorer": "autoApply",
+        "java.import.maven.enabled": true,
+        "java.compile.nullAnalysis.mode": "automatic",
+
+        "cSpell.words": [
+            "Altrua",
+            "gerenciados",
+            "registra",
+            "registro",
+            "respectivamente",
+            "techfun",
+        ],
+        "java.configuration.updateBuildConfiguration": "disabled",
+    },
 }
