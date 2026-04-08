@@ -114,7 +114,7 @@ public class OngService {
      * @throws org.springframework.dao.DataAccessException em caso de erro na
      *                                                     persistência.
      */
-    public Page<OngResponseDTO> listOngs(OngFilterDTO filter, Pageable pageable) {
+    public Page<OngResponseDTO> listNgos(OngFilterDTO filter, Pageable pageable) {
         Specification<Ong> spec = OngSpecification.withFilter(filter);
         return ongRepository.findAll(spec, pageable).map(OngResponseDTO::fromEntity);
     }

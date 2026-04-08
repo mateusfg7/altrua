@@ -79,6 +79,6 @@ public class OngController {
     public ResponseEntity<Page<OngResponseDTO>> list(
             @ParameterObject OngFilterDTO filter,
             @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(ongService.listOngs(filter, pageable));
+        return ResponseEntity.ok(ongService.listNgos(filter, pageable));
     }
 }
