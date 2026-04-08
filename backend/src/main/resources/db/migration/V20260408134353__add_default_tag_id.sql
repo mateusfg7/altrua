@@ -1,1 +1,1 @@
-ALTER TABLE tags ALTER COLUMN id SET DEFAULT uuidv7();
+ALTER TABLE tags ALTER COLUMN id SET DEFAULT gen_random_uuid();
