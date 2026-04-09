@@ -144,7 +144,7 @@ public class Ong {
     /*
      * Quantidade de eventos ativos que a ONG possui.
      */
-    @Formula("(SELECT COUNT(e.id) FROM events e WHERE e.ong_id = id AND e.deleted_at IS NULL)")
+    @Formula("(SELECT COUNT(e.id) FROM events e WHERE e.ong_id = {alias}.id AND e.deleted_at IS NULL)")
     @Setter(AccessLevel.NONE)
     private Long activeEventCount;
 

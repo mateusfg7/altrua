@@ -4,7 +4,7 @@
     ],
     "settings": {
         "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit",
+            "source.organizeImports": "explicit"
         },
         "editor.formatOnSave": true,
 
@@ -18,8 +18,8 @@
             "registra",
             "registro",
             "respectivamente",
-            "techfun",
+            "techfun"
         ],
-        "java.configuration.updateBuildConfiguration": "disabled",
-    },
+        "java.configuration.updateBuildConfiguration": "disabled"
+    }
 }
