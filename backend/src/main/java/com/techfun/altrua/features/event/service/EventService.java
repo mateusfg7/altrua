@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
@@ -19,7 +20,6 @@ import com.techfun.altrua.features.ong.repository.OngRepository;
 import com.techfun.altrua.features.ong.service.OngService;
 import com.techfun.altrua.features.user.domain.User;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

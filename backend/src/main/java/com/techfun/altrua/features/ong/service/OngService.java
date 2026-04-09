@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
@@ -23,7 +24,6 @@ import com.techfun.altrua.features.ong.repository.OngAdministratorRepository;
 import com.techfun.altrua.features.ong.repository.OngRepository;
 import com.techfun.altrua.features.user.domain.User;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OngService {
 
     private final OngRepository ongRepository;
@@ -113,7 +114,7 @@ public class OngService {
      * @throws org.springframework.dao.DataAccessException em caso de erro na
      *                                                     persistência.
      */
-    public Page<OngResponseDTO> listOngs(OngFilterDTO filter, Pageable pageable) {
+    public Page<OngResponseDTO> listNgos(OngFilterDTO filter, Pageable pageable) {
         Specification<Ong> spec = OngSpecification.withFilter(filter);
         return ongRepository.findAll(spec, pageable).map(OngResponseDTO::fromEntity);
     }
@@ -135,7 +136,7 @@ public class OngService {
      *                                  administrador da ONG informada.
      */
     public void validateAdminPermission(UUID ongId, UUID userId) {
-        OngAdministratorId id = new OngAdministratorId(ongId, userId);
+        OngAdministratorId id = new OngAdministratorId(userId, ongId);
 
         if (!ongAdministratorRepository.existsById(id)) {
             log.warn("Tentativa de acesso não autorizado: Usuário {} na ONG {}", userId, ongId);

@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.InvalidCredentialsException;
@@ -22,7 +23,6 @@ import com.techfun.altrua.infra.security.jwt.JwtValidator;
 import com.techfun.altrua.infra.security.userdetails.UserPrincipal;
 
 import io.jsonwebtoken.JwtException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 /**

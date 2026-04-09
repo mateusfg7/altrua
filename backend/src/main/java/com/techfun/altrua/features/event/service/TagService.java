@@ -6,12 +6,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.features.event.domain.model.Tag;
 import com.techfun.altrua.features.event.repository.TagRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -69,7 +69,7 @@ public class TagService {
                 .map(name -> name.trim().toLowerCase(Locale.ROOT))
                 .collect(Collectors.toSet());
 
-        tagRepository.ensureTagsExist(normalizedNames);
+        tagRepository.ensureTagsExist(normalizedNames.toArray(new String[0]));
 
         return new HashSet<>(tagRepository.findAllByNameIn(normalizedNames));
     }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -139,6 +140,13 @@ public class Ong {
     @Column(name = "deleted_at")
     @Setter(AccessLevel.NONE)
     private Instant deletedAt;
+
+    /*
+     * Quantidade de eventos ativos que a ONG possui.
+     */
+    @Formula("(SELECT COUNT(e.id) FROM events e WHERE e.ong_id = {alias}.id AND e.deleted_at IS NULL)")
+    @Setter(AccessLevel.NONE)
+    private Long activeEventCount;
 
     /**
      * Adiciona um novo administrador à organização, estabelecendo o vínculo

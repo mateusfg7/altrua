@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
 import com.techfun.altrua.features.auth.api.dto.RotateResult;
@@ -20,7 +21,6 @@ import com.techfun.altrua.infra.security.jwt.JwtProvider;
 import com.techfun.altrua.infra.security.userdetails.UserLookupService;
 import com.techfun.altrua.infra.security.userdetails.UserPrincipal;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -33,6 +33,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;

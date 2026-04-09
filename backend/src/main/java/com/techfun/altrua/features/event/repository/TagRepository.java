@@ -1,6 +1,5 @@
 package com.techfun.altrua.features.event.repository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -37,29 +36,34 @@ public interface TagRepository extends JpaRepository<Tag, UUID> {
     public List<Tag> findAllByNameIn(Set<String> names);
 
     /**
-     * Executa uma inserção em lote (bulk insert) das tags fornecidas, ignorando
-     * nomes duplicados.
+     * Realiza a persistência em lote de tags de forma idempotente.
      * *
      * <p>
-     * Esta operação é atômica no nível do banco de dados e utiliza a cláusula
-     * {@code ON CONFLICT DO NOTHING} para garantir idempotência em cenários
-     * concorrentes,
-     * evitando {@code DataIntegrityViolationException}.
+     * Utiliza a cláusula {@code ON CONFLICT (name) DO NOTHING} para ignorar nomes
+     * já existentes,
+     * prevenindo exceções de violação de restrição de unicidade em operações
+     * concorrentes.
      * </p>
      * *
      * <p>
-     * <strong>Nota de Implementação:</strong> Utiliza funções específicas do
-     * PostgreSQL
-     * ({@code unnest}) para converter a coleção em linhas. O uso de
-     * {@code clearAutomatically = true}
-     * garante que o Persistence Context do Hibernate seja limpo após a execução,
-     * evitando
-     * dados obsoletos em cache.
+     * <strong>Nota de Arquitetura:</strong> Como esta é uma {@code nativeQuery}, a
+     * geração do
+     * identificador (UUID v7) é delegada exclusivamente à estratégia de
+     * {@code DEFAULT} da coluna
+     * no PostgreSQL, ignorando as anotações {@code @GeneratedValue} do Hibernate.
+     * </p>
+     * *
+     * <p>
+     * O uso de {@code clearAutomatically = true} é obrigatório para sincronizar o
+     * estado
+     * do Persistence Context, invalidando entidades previamente carregadas que
+     * possam ter sido
+     * afetadas pela alteração direta no banco.
      * </p>
      *
-     * @param names Coleção de nomes de tags a serem garantidas no banco.
+     * @param names Array de strings contendo os nomes das tags a serem asseguradas.
      */
     @Modifying(clearAutomatically = true)
-    @Query(value = "INSERT INTO tags (name) SELECT unnest(:names) ON CONFLICT (name) DO NOTHING", nativeQuery = true)
-    public void ensureTagsExist(@Param("names") Collection<String> names);
+    @Query(value = "INSERT INTO tags (name) SELECT unnest(cast(:names as text[])) ON CONFLICT (name) DO NOTHING", nativeQuery = true)
+    public void ensureTagsExist(@Param("names") String[] names);
 }
