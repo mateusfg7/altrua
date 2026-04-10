@@ -10,22 +10,24 @@ import com.techfun.altrua.features.ong.domain.model.Ong;
  * Objeto de Transferência de Dados (DTO) para representação detalhada de uma
  * ONG nas respostas da API.
  * 
- * @param id           Identificador único da ONG
- * @param name         Nome da organização
- * @param slug         Identificador amigável para URL (gerado a partir do nome)
- * @param cnpj         Cadastro Nacional da Pessoa Jurídica
- * @param description  Descrição detalhada das atividades e missão da ONG
- * @param email        E-mail institucional de contato
- * @param phone        Telefone ou WhatsApp de contato
- * @param category     Categoria de atuação (ex: Proteção Animal, Educação)
- * @param status       Status atual do registro (valores possíveis: ATIVA,
- *                     INATIVA)
- * @param logoUrl      URL da imagem de logotipo
- * @param bannerUrl    URL da imagem de capa ou banner promocional
- * @param donationInfo Informações e instruções sobre como realizar doações
- * @param latitude     Coordenada geográfica de latitude para o mapa
- * @param longitude    Coordenada geográfica de longitude para o mapa
- * @param createdAt    Instante em que a ONG foi registrada no sistema
+ * @param id               Identificador único da ONG
+ * @param name             Nome da organização
+ * @param slug             Identificador amigável para URL (gerado a partir do
+ *                         nome)
+ * @param cnpj             Cadastro Nacional da Pessoa Jurídica
+ * @param description      Descrição detalhada das atividades e missão da ONG
+ * @param email            E-mail institucional de contato
+ * @param phone            Telefone ou WhatsApp de contato
+ * @param category         Categoria de atuação (ex: Proteção Animal, Educação)
+ * @param status           Status atual do registro (valores possíveis: ATIVA,
+ *                         INATIVA)
+ * @param logoUrl          URL da imagem de logotipo
+ * @param bannerUrl        URL da imagem de capa ou banner promocional
+ * @param donationInfo     Informações e instruções sobre como realizar doações
+ * @param latitude         Coordenada geográfica de latitude para o mapa
+ * @param longitude        Coordenada geográfica de longitude para o mapa
+ * @param activeEventCount Número de eventos ativos associados à ONG
+ * @param createdAt        Instante em que a ONG foi registrada no sistema
  */
 public record OngResponseDTO(
         UUID id,
@@ -42,6 +44,7 @@ public record OngResponseDTO(
         String donationInfo,
         BigDecimal latitude,
         BigDecimal longitude,
+        Long activeEventCount,
         Instant createdAt) {
 
     /**
@@ -66,6 +69,7 @@ public record OngResponseDTO(
                 ong.getDonationInfo(),
                 ong.getLatitude(),
                 ong.getLongitude(),
+                ong.getActiveEventCount() != null ? ong.getActiveEventCount() : 0L,
                 ong.getCreatedAt());
     }
 
