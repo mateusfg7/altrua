@@ -65,8 +65,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "pt_BR",
       },
       {
+        property: "og:url",
+        content: import.meta.env.VITE_HOST,
+      },
+      {
         property: "og:image",
-        content: "/og.png",
+        content: `${import.meta.env.VITE_HOST}/og.png`,
       },
       {
         name: "twitter:card",
@@ -83,7 +87,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
       {
         name: "twitter:image",
-        content: "/og.png",
+        content: `${import.meta.env.VITE_HOST}/og.png`,
       },
     ],
     links: [
