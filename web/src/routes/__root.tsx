@@ -27,7 +27,67 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "Altrua - Conectando quem quer ajudar com quem precisa",
+      },
+      {
+        name: "description",
+        content:
+          "O Altrua é a plataforma que une ONGs, voluntários e doadores. Encontre causas que importam para você e contribua com seu tempo ou recursos.",
+      },
+      {
+        name: "keywords",
+        content:
+          "voluntariado, ONGs, doações, causas sociais, voluntários, impacto social, Altrua",
+      },
+      {
+        name: "theme-color",
+        content: "#ffffff",
+      },
+      {
+        property: "og:type",
+        content: "website",
+      },
+      {
+        property: "og:site_name",
+        content: "Altrua",
+      },
+      {
+        property: "og:title",
+        content: "Altrua - Conectando quem quer ajudar com quem precisa",
+      },
+      {
+        property: "og:description",
+        content:
+          "O Altrua é a plataforma que une ONGs, voluntários e doadores. Encontre causas que importam para você e contribua com seu tempo ou recursos.",
+      },
+      {
+        property: "og:locale",
+        content: "pt_BR",
+      },
+      {
+        property: "og:url",
+        content: import.meta.env.VITE_HOST,
+      },
+      {
+        property: "og:image",
+        content: `${import.meta.env.VITE_HOST}/og.png`,
+      },
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
+      {
+        name: "twitter:title",
+        content: "Altrua - Conectando quem quer ajudar com quem precisa",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "O Altrua é a plataforma que une ONGs, voluntários e doadores. Encontre causas que importam para você e contribua com seu tempo ou recursos.",
+      },
+      {
+        name: "twitter:image",
+        content: `${import.meta.env.VITE_HOST}/og.png`,
       },
     ],
     links: [
@@ -42,7 +102,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
