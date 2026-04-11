@@ -6,7 +6,11 @@ import { NGOCard } from "../../../../features/ngos/components/ngo-card";
 import { NGOCardSkeleton } from "./ngo-card-skeleton";
 
 export function NGOSection() {
-  const { data, isLoading } = useNgoList({ page: 0, size: 6 });
+  const { data, isLoading, error } = useNgoList({ page: 0, size: 6 });
+
+  if (error) {
+    return null;
+  }
 
   return (
     <section className="bg-muted px-3 py-16" id="ongs">
