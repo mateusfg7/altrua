@@ -4,7 +4,7 @@ import {
   UserIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/shared/components/ui/button";
 
 export function CtaSection() {
   return (

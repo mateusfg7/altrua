@@ -1,31 +1,17 @@
 import { LinkSquare02Icon, Location01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
+import type { NGO } from "~/features/ngos/types/ngo";
+import { Badge } from "~/shared/components/ui/badge";
+import { Button } from "~/shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "~/components/ui/card";
+} from "~/shared/components/ui/card";
 
-interface OngCardProps {
-  area: string;
-  description: string;
-  eventsCount: number;
-  imageUrl: string;
-  location: string;
-  name: string;
-}
-
-export function OngCard({
-  name,
-  description,
-  area,
-  location,
-  imageUrl,
-  eventsCount,
-}: OngCardProps) {
+export function NGOCard({ data }: { data: NGO }) {
+  const { name, description, bannerUrl, category, activeEventCount } = data;
   return (
     <Card className="group flex h-full flex-col overflow-hidden p-0 transition-all">
       <CardHeader className="p-0">
@@ -34,11 +20,11 @@ export function OngCard({
           <img
             alt={name}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
-            src={imageUrl}
+            src={bannerUrl ?? ""}
           />
           <div className="absolute top-3 right-3">
             <Badge className="bg-card/90 backdrop-blur-sm" variant="secondary">
-              {area}
+              {category}
             </Badge>
           </div>
         </div>
@@ -53,10 +39,14 @@ export function OngCard({
         <div className="flex items-center gap-4 text-muted-foreground text-sm">
           <div className="flex items-center gap-1">
             <HugeiconsIcon className="size-4" icon={Location01Icon} />
-            <span>{location}</span>
+            <span>
+              {/* FIXME: Replace with actual location based on latitude and longitude */}
+              São Paulo, SP
+            </span>
           </div>
           <span className="font-medium text-primary">
-            {eventsCount} eventos
+            {activeEventCount}{" "}
+            {activeEventCount === 1 ? "evento ativo" : "eventos ativos"}
           </span>
         </div>
       </CardContent>

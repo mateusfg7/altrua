@@ -5,5 +5,18 @@
     "ultracite/biome/react",
     "ultracite/biome/remix",
     "ultracite/biome/vitest"
-  ]
+  ],
+  "linter": {
+    "rules": {
+      "style": {
+        "useConsistentTypeDefinitions": {
+          "level": "error",
+          "fix": "safe",
+          "options": {
+            "style": "type"
+          }
+        }
+      }
+    }
+  }
 }
