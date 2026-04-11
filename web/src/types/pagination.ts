@@ -7,3 +7,8 @@ export type Paginated<T> = {
     totalPages: number;
   };
 };
+
+export type PaginationParams = {
+  page?: number;
+  size?: number;
+};
