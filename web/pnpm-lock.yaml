@@ -46,14 +46,10 @@ importers:
         version: 1.167.20(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.7(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
       '@tanstack/router-plugin':
         specifier: 1.167.12
-<<<<<<< 88-listagem-de-ongs-na-homepage
-        version: 1.167.12(@tanstack/react-router@1.168.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@8.0.7(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
+        version: 1.167.12(@tanstack/react-router@1.168.13(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@8.0.7(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
       axios:
         specifier: ^1.14.0
         version: 1.14.0
-=======
-        version: 1.167.12(@tanstack/react-router@1.168.13(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(vite@8.0.7(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0))
->>>>>>> main
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
