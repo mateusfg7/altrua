@@ -2,7 +2,7 @@ import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useNgoList } from "~/features/ngos/hooks/use-ngo-list";
 import { Button } from "~/shared/components/ui/button";
-import { NGOCard } from "../../../features/ngos/components/ngo-card";
+import { NGOCard } from "../../../../features/ngos/components/ngo-card";
 import { NGOCardSkeleton } from "./ngo-card-skeleton";
 
 export function NGOSection() {
