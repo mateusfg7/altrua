@@ -3,10 +3,10 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "~/components/ui/button";
 import { useNgoList } from "~/features/ngos/hooks/use-ngo-list";
 import { NGOCard } from "../ngo-card";
-import { Skeleton } from "../ui/skeleton";
+import { NGOCardSkeleton } from "./ngo-card-skeleton";
 
 export function NGOSection() {
-  const { data, isLoading } = useNgoList();
+  const { data, isLoading } = useNgoList({ page: 0, size: 6 });
 
   return (
     <section className="bg-muted px-3 py-16" id="ongs">
@@ -27,15 +27,8 @@ export function NGOSection() {
             <HugeiconsIcon icon={ArrowRight01Icon} />
           </Button>
 
-          <div className="grid 3xl:grid-cols-4 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {isLoading &&
-              Array.from({ length: 6 }).map((_, index) => (
-                <Skeleton
-                  className="h-90 w-full rounded-xl bg-muted-foreground/20"
-                  // biome-ignore lint/suspicious/noArrayIndexKey: Only used for skeleton loading state, no dynamic data involved
-                  key={index}
-                />
-              ))}
+          <div className="grid w-full 3xl:grid-cols-4 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {isLoading && <NGOCardSkeleton />}
 
             {!isLoading &&
               data?.content.map((ngo) => <NGOCard data={ngo} key={ngo.id} />)}
