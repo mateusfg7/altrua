@@ -11,7 +11,7 @@ import {
 import type { NGO } from "~/features/ngos/types/ngo";
 
 export function NGOCard({ data }: { data: NGO }) {
-  const { name, description, bannerUrl, category } = data;
+  const { name, description, bannerUrl, category, activeEventCount } = data;
   return (
     <Card className="group flex h-full flex-col overflow-hidden p-0 transition-all">
       <CardHeader className="p-0">
@@ -45,7 +45,8 @@ export function NGOCard({ data }: { data: NGO }) {
             </span>
           </div>
           <span className="font-medium text-primary">
-            {/* FIXME: Replace with actual events count */}5 eventos
+            {activeEventCount}{" "}
+            {activeEventCount === 1 ? "evento ativo" : "eventos ativos"}
           </span>
         </div>
       </CardContent>
