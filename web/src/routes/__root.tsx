@@ -6,15 +6,15 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { Footer } from "~/components/footer";
-import { Header } from "~/components/header";
+import { Footer } from "~/shared/components/footer";
+import { Header } from "~/shared/components/header";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 import appCss from "../styles.css?url";
 
-interface MyRouterContext {
+type MyRouterContext = {
   queryClient: QueryClient;
-}
+};
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({

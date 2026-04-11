@@ -5,7 +5,7 @@ import {
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/shared/components/ui/button";
 
 export function HeroSection() {
   return (

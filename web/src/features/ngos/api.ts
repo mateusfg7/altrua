@@ -1,5 +1,5 @@
-import { apiClient } from "~/lib/api-client";
-import type { Paginated, PaginationParams } from "~/types/pagination";
+import { apiClient } from "~/shared/lib/api-client";
+import type { Paginated, PaginationParams } from "~/shared/types/pagination";
 import type { NGO } from "./types/ngo";
 
 export async function listNGOs(

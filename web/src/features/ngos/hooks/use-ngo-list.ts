@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { PaginationParams } from "~/types/pagination";
+import type { PaginationParams } from "~/shared/types/pagination";
 import { listNGOs } from "../api";
 
 export const NGO_LIST_QUERY_KEY = ["ngo", "list"];

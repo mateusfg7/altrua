@@ -6,11 +6,11 @@ import {
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
+import { Badge } from "~/shared/components/ui/badge";
+import { Button } from "~/shared/components/ui/button";
+import { Card, CardContent } from "~/shared/components/ui/card";
 
-interface EventCardProps {
+type EventCardProps = {
   date: string;
   description: string;
   hasDonation: boolean;
@@ -21,7 +21,7 @@ interface EventCardProps {
   title: string;
   volunteersNeeded: number;
   volunteersRegistered: number;
-}
+};
 
 export function EventCard({
   title,

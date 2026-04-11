@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CtaSection } from "~/components/cta-section";
-import { EventsSection } from "~/components/event-section";
-import { HeroSection } from "~/components/hero-section";
-import { HowItWorksSection } from "~/components/how-it-works-section";
-import { NGOSection } from "~/components/ngo-section";
+import { CtaSection } from "~/shared/components/cta-section";
+import { EventsSection } from "~/shared/components/event-section";
+import { HeroSection } from "~/shared/components/hero-section";
+import { HowItWorksSection } from "~/shared/components/how-it-works-section";
+import { NGOSection } from "~/shared/components/ngo-section";
 
 export const Route = createFileRoute("/")({ component: App });
 
