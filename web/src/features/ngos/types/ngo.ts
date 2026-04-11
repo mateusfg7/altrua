@@ -11,6 +11,7 @@ export type NGO = {
   logoUrl: string | null;
   bannerUrl: string | null;
   donationInfo: string | null;
+  activeEventCount: number;
   latitude: number | null;
   longitude: number | null;
   createdAt: string;
