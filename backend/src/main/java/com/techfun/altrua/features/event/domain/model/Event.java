@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.features.event.domain.enums.EventStatusEnum;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.user.domain.User;
@@ -165,6 +166,31 @@ public class Event {
      * está ativo.
      */
     private Instant deletedAt;
+
+    /**
+     * Altera o estado do evento para finalizado e define o instante de término.
+     * <p>
+     * Garante a idempotência da operação e impede o encerramento de eventos
+     * previamente cancelados.
+     * </p>
+     * * @throws DomainException se o evento estiver com status
+     * {@link EventStatusEnum#CANCELED}.
+     */
+    public void finish() {
+        if (this.status == EventStatusEnum.CANCELED) {
+            throw new DomainException("Não é possível encerrar um evento que foi cancelado.");
+        }
+
+        if (this.status == EventStatusEnum.FINISHED) {
+            return;
+        }
+
+        if (this.endsAt == null || this.endsAt.isAfter(Instant.now())) {
+            this.endsAt = Instant.now();
+        }
+
+        this.status = EventStatusEnum.FINISHED;
+    }
 
     /**
      * Gancho de ciclo de vida executado antes da persistência inicial.
