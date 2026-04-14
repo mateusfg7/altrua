@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
-import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
+import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
 import com.techfun.altrua.features.ong.api.OngSpecification;
 import com.techfun.altrua.features.ong.api.dto.OngFilterDTO;
@@ -19,10 +19,9 @@ import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
 import com.techfun.altrua.features.ong.api.dto.RegisterOngRequestDTO;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.domain.model.OngAdministrator;
-import com.techfun.altrua.features.ong.domain.model.OngAdministratorId;
-import com.techfun.altrua.features.ong.repository.OngAdministratorRepository;
 import com.techfun.altrua.features.ong.repository.OngRepository;
 import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OngService {
 
     private final OngRepository ongRepository;
-    private final OngAdministratorRepository ongAdministratorRepository;
+    private final UserRepository userRepository;
 
     /**
      * Registra uma nova organização (ONG) e estabelece seu administrador inicial.
@@ -55,14 +54,15 @@ public class OngService {
      * </p>
      *
      * @param request DTO com os dados de entrada validados.
-     * @param creator Usuário autenticado que será definido como administrador e
-     *                criador.
      * @return A entidade {@link Ong} persistida e configurada.
      * @throws DuplicateResourceException Se o CNPJ ou o Slug gerado já pertencerem
      *                                    a uma ONG ativa.
      */
     @Transactional
-    public Ong register(RegisterOngRequestDTO request, User creator) {
+    public Ong register(RegisterOngRequestDTO request) {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        User creator = userRepository.getReferenceById(currentUserId);
+
         if (request.cnpj() != null && ongRepository.existsByCnpj(request.cnpj())) {
             throw new DuplicateResourceException("CNPJ já cadastrado.");
         }
@@ -117,30 +117,5 @@ public class OngService {
     public Page<OngResponseDTO> listNgos(OngFilterDTO filter, Pageable pageable) {
         Specification<Ong> spec = OngSpecification.withFilter(filter);
         return ongRepository.findAll(spec, pageable).map(OngResponseDTO::fromEntity);
-    }
-
-    /**
-     * Valida se um usuário possui privilégios de administrador para uma ONG
-     * específica.
-     * <p>
-     * Realiza uma consulta de existência na base de dados para verificar o vínculo
-     * de
-     * administração. Caso o vínculo não exista, um log de aviso é gerado para fins
-     * de
-     * auditoria e segurança.
-     * </p>
-     *
-     * @param ongId  O identificador único da ONG alvo da operação.
-     * @param userId O identificador único do usuário que tenta realizar a ação.
-     * @throws ForbiddenActionException Se o usuário não estiver registrado como
-     *                                  administrador da ONG informada.
-     */
-    public void validateAdminPermission(UUID ongId, UUID userId) {
-        OngAdministratorId id = new OngAdministratorId(userId, ongId);
-
-        if (!ongAdministratorRepository.existsById(id)) {
-            log.warn("Tentativa de acesso não autorizado: Usuário {} na ONG {}", userId, ongId);
-            throw new ForbiddenActionException("Você não tem permissão para realizar essa ação.");
-        }
     }
 }
