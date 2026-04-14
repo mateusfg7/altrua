@@ -30,4 +30,15 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
      *         contrário.
      */
     public boolean existsBySlug(String slug);
+
+    /**
+     * Verifica se um usuário possui privilégios administrativos sobre um evento
+     * específico.
+     * * @param eventId Identificador do evento.
+     * 
+     * @param userId Identificador do usuário.
+     * @return {@code true} se o usuário for administrador da ONG responsável pelo
+     *         evento.
+     */
+    public boolean existsByIdAndOng_Administrators_User_Id(UUID eventId, UUID userId);
 }
