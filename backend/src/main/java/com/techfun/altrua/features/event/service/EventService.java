@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
@@ -99,13 +100,14 @@ public class EventService {
      * </p>
      *
      * @param eventId Identificador do evento.
-     * @throws DomainException se o ID for inválido;
-     *                         {@link DomainException} se o status atual
-     *                         não permitir o encerramento.
+     * @throws ResourceNotFoundException se o ID for inválido;
+     *                                   {@link DomainException} se o status atual
+     *                                   não permitir o encerramento.
      */
     @Transactional
     public void endEvent(UUID eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new DomainException("Evento não encontrado"));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento"));
 
         event.finish();
 

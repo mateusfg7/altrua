@@ -25,6 +25,7 @@ import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
 import com.techfun.altrua.core.common.exceptions.InvalidCredentialsException;
 import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.infra.security.handler.CustomAuthenticationEntryPoint;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -199,6 +200,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Trata tentativas de acesso a recursos que não existem no sistema.
+     *
+     * @param ex Exceção de recurso não encontrado.
+     * @return {@link ProblemDetail} com status 404 Not Found.
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
+        return buildProblemDetail(ex.getStatus(), ex.getMessage(), "Recurso não encontrado");
+    }
+
+    /**
      * Sobrescreve o tratamento de erros de validação do Bean Validation (@Valid).
      * 
      * <p>
@@ -221,7 +233,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         FieldError::getDefaultMessage,
                         (existingMessage, newMessage) -> existingMessage));
 
-        problem.setProperty("invalid_params", fields);
+        problem.setProperty("campos_invalidos", fields);
         return ResponseEntity.status(status).body(problem);
     }
 

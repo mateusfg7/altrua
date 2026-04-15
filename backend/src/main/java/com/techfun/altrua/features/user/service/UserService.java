@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.techfun.altrua.core.common.exceptions.DomainException;
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.features.user.api.dto.UserResponseDTO;
 import com.techfun.altrua.features.user.domain.User;
@@ -33,12 +33,13 @@ public class UserService {
      * </p>
      *
      * @return {@link UserResponseDTO} contendo os dados atuais do usuário.
-     * @throws DomainException se o identificador do usuário no contexto
-     *                         não existir na base.
+     * @throws ResourceNotFoundException se o identificador do usuário no contexto
+     *                                   não existir na base.
      */
     public UserResponseDTO getMe() {
         UUID userId = SecurityUtils.getCurrentUserId();
-        User user = userRepository.findById(userId).orElseThrow(() -> new DomainException("Usuário não encontrado"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário"));
         return UserResponseDTO.fromEntity(user);
     }
 }
