@@ -16,6 +16,11 @@ import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
 import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.event.service.EventService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +33,7 @@ import lombok.RequiredArgsConstructor;
  * a organizações específicas, garantindo as regras de autorização necessárias.
  * </p>
  */
+@Tag(name = "Eventos", description = "Gerenciamento de eventos vinculados a ONGs")
 @RestController
 @RequestMapping("/ongs/{ongId}/eventos")
 @RequiredArgsConstructor
@@ -47,9 +53,18 @@ public class EventController {
      * @param request Dados para criação do evento.
      * @return {@link EventResponseDTO} com o status 201 (Created).
      */
+    @Operation(summary = "Registrar novo evento", description = "Cria um evento vinculado a uma ONG. Requer que o usuário seja administrador da ONG informada.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Evento criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos ou ausência de tags obrigatórias"),
+            @ApiResponse(responseCode = "403", description = "Usuário não possui permissão de administrador na ONG"),
+            @ApiResponse(responseCode = "404", description = "ONG não encontrada"),
+            @ApiResponse(responseCode = "409", description = "Conflito: Slug do evento já existe")
+    })
     @PostMapping
     @PreAuthorize("@securityService.isOngAdmin(#ongId)")
-    public ResponseEntity<EventResponseDTO> register(@PathVariable("ongId") UUID ongId,
+    public ResponseEntity<EventResponseDTO> register(
+            @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
             @RequestBody @Valid RegisterEventRequestDTO request) {
         Event savedEvent = eventService.register(ongId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(EventResponseDTO.fromEntity(savedEvent));
@@ -65,9 +80,18 @@ public class EventController {
      * @param eventId UUID do evento a ser encerrado.
      * @return Status 204 (No Content).
      */
+    @Operation(summary = "Encerrar evento", description = "Finaliza um evento ativo. Requer permissão de gerenciamento sobre o evento específico.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Evento encerrado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Regra de negócio violada: o evento não pode ser encerrado no status atual"),
+            @ApiResponse(responseCode = "403", description = "Usuário não tem permissão para gerenciar este evento"),
+            @ApiResponse(responseCode = "404", description = "Evento não encontrado")
+    })
     @PostMapping("/{eventId}/encerrar")
     @PreAuthorize("@securityService.canManageEvent(#eventId)")
-    public ResponseEntity<Void> endEvent(@PathVariable UUID eventId) {
+    public ResponseEntity<Void> endEvent(
+            @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
+            @Parameter(description = "UUID do evento a ser encerrado") @PathVariable UUID eventId) {
         eventService.endEvent(eventId);
         return ResponseEntity.noContent().build();
     }

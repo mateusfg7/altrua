@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.event.domain.model.Tag;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * Objeto de Transferência de Dados (DTO) para representação de eventos.
  * 
@@ -40,23 +42,40 @@ import com.techfun.altrua.features.event.domain.model.Tag;
  * 
  * @see com.techfun.altrua.features.event.domain.model.Event
  */
+@Schema(description = "Objeto de resposta com os detalhes completos de um evento")
 public record EventResponseDTO(
-        UUID id,
-        String title,
-        String description,
-        String slug,
-        String coverUrl,
-        String externalLink,
-        String donationInfo,
-        String donationExternalLink,
-        boolean acceptsVolunteers,
-        Integer maxVolunteers,
-        BigDecimal latitude,
-        BigDecimal longitude,
-        String addressLabel,
-        Instant startsAt,
-        Instant endsAt,
-        Set<String> tags) {
+
+        @Schema(description = "Identificador único do evento", example = "550e8400-e29b-411d-a716-446655440000") UUID id,
+
+        @Schema(description = "Título descritivo do evento", example = "Mutirão de Reflorestamento Urbano") String title,
+
+        @Schema(description = "Texto detalhado sobre o que ocorrerá no evento", example = "Evento destinado ao plantio de mudas nativas no parque central.") String description,
+
+        @Schema(description = "Identificador amigável para URLs", example = "mutirao-reflorestamento-2026") String slug,
+
+        @Schema(description = "URL da imagem de capa/banner", example = "https://cdn.ong.org/images/evento-01.jpg") String coverUrl,
+
+        @Schema(description = "Link externo para mais informações", example = "https://ong.org/evento-detalhes") String externalLink,
+
+        @Schema(description = "Informações sobre como apoiar financeiramente", example = "Aceitamos doações via PIX ou cartão.") String donationInfo,
+
+        @Schema(description = "Link direto para plataforma de doação externa", example = "https://apoia.se/projeto-ong") String donationExternalLink,
+
+        @Schema(description = "Indica se o evento aceita novos voluntários", example = "true") boolean acceptsVolunteers,
+
+        @Schema(description = "Capacidade máxima de voluntários permitida", example = "50", nullable = true) Integer maxVolunteers,
+
+        @Schema(description = "Latitude para geolocalização", example = "-23.550520") BigDecimal latitude,
+
+        @Schema(description = "Longitude para geolocalização", example = "-46.633308") BigDecimal longitude,
+
+        @Schema(description = "Descrição textual do endereço", example = "Rua das Palmeiras, 123, São Paulo - SP") String addressLabel,
+
+        @Schema(description = "Instante de início do evento", example = "2026-05-20T09:00:00Z") Instant startsAt,
+
+        @Schema(description = "Instante de término previsto", example = "2026-05-20T17:00:00Z") Instant endsAt,
+
+        @Schema(description = "Conjunto de categorias vinculadas", example = "[\"meio ambiente\", \"sustentabilidade\"]") Set<String> tags) {
 
     /**
      * Converte uma entidade de domínio {@link Event} para seu respectivo DTO de

@@ -9,6 +9,7 @@ import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.user.domain.User;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -46,21 +47,36 @@ import jakarta.validation.constraints.NotNull;
  * @see com.techfun.altrua.features.event.domain.model.Event
  * @see com.techfun.altrua.features.event.domain.enums.EventStatusEnum
  */
+@Schema(description = "Dados necessários para o registro de um novo evento")
 public record RegisterEventRequestDTO(
-        @NotBlank(message = "Title is required") String title,
-        String description,
-        String coverUrl,
-        String externalLink,
-        String donationInfo,
-        String donationExternalLink,
-        @NotNull(message = "Accepts volunteers is required") Boolean acceptsVolunteers,
-        Integer maxVolunteers,
-        BigDecimal latitude,
-        BigDecimal longitude,
-        String addressLabel,
-        @NotNull(message = "Start date and time are required") Instant startsAt,
-        Instant endsAt,
-        @NotEmpty(message = "At least one tag must be provided") Set<@NotBlank(message = "Tag name is required") String> tags) {
+
+        @Schema(description = "Título descritivo do evento", example = "Mutirão de Limpeza de Praia") @NotBlank(message = "O título é obrigatório") String title,
+
+        @Schema(description = "Descrição detalhada sobre as atividades do evento", example = "Coleta de resíduos sólidos na orla da Praia Central.") String description,
+
+        @Schema(description = "URL da imagem de capa ou banner", example = "https://cdn.ong.org/images/banner-evento.jpg") String coverUrl,
+
+        @Schema(description = "Link para site externo ou formulário de inscrição", example = "https://ong.org/info-evento") String externalLink,
+
+        @Schema(description = "Instruções ou informações sobre doações", example = "As doações serão destinadas à compra de sacos de lixo e luvas.") String donationInfo,
+
+        @Schema(description = "Link para plataforma de arrecadação externa", example = "https://doar.ong.org/campanha-limpeza") String donationExternalLink,
+
+        @Schema(description = "Define se o evento está aberto para voluntários", example = "true") @NotNull(message = "A indicação de aceitação de voluntários é obrigatória") Boolean acceptsVolunteers,
+
+        @Schema(description = "Número máximo de voluntários permitidos (caso o evento aceitar voluntários)", example = "100") Integer maxVolunteers,
+
+        @Schema(description = "Coordenada de latitude para o local do evento", example = "-23.550520") BigDecimal latitude,
+
+        @Schema(description = "Coordenada de longitude para o local do evento", example = "-46.633308") BigDecimal longitude,
+
+        @Schema(description = "Endereço por extenso ou nome do local", example = "Avenida Beira Mar, S/N, Centro") String addressLabel,
+
+        @Schema(description = "Data e hora de início do evento (ISO 8601)", example = "2026-06-15T08:00:00Z") @NotNull(message = "A data e hora de início são obrigatórias") Instant startsAt,
+
+        @Schema(description = "Data e hora de término prevista (ISO 8601)", example = "2026-06-15T12:00:00Z") Instant endsAt,
+
+        @Schema(description = "Conjunto de nomes das tags para categorização", example = "[\"Meio Ambiente\", \"Limpeza\"]") @NotEmpty(message = "É obrigatório informar ao menos uma tag") Set<@NotBlank(message = "O nome da tag não pode estar em branco") String> tags) {
 
     /**
      * Mapeia os dados do DTO para uma nova instância da entidade {@link Event}.
