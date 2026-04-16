@@ -105,13 +105,9 @@ public class EventService {
      *                                   não permitir o encerramento.
      */
     @Transactional
-    public void endEvent(UUID ongId, UUID eventId) {
+    public void endEvent(UUID eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento"));
-
-        if (!event.getOng().getId().equals(ongId)) {
-            throw new ResourceNotFoundException("Evento");
-        }
 
         event.finish();
         eventRepository.save(event);

@@ -1,8 +1,11 @@
 package com.techfun.altrua.features.event.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.techfun.altrua.features.event.domain.model.Event;
 
@@ -32,13 +35,19 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
     public boolean existsBySlug(String slug);
 
     /**
-     * Verifica se um usuário possui privilégios administrativos sobre um evento
-     * específico.
+     * Recupera o evento com carregamento antecipado (Eager Loading) da ONG e seus
+     * administradores.
+     * <p>
+     * Utiliza {@code JOIN FETCH} para evitar o problema de N+1 e garantir que as
+     * associações
+     * estejam disponíveis mesmo fora da transação original, prevenindo
+     * {@code LazyInitializationException}.
+     * </p>
+     *
      * @param eventId Identificador do evento.
-     * 
-     * @param userId Identificador do usuário.
-     * @return {@code true} se o usuário for administrador da ONG responsável pelo
-     *         evento.
+     * @return {@link Optional} com o evento e associações carregadas, ou vazio se
+     *         não encontrado.
      */
-    public boolean existsByIdAndOng_Administrators_User_Id(UUID eventId, UUID userId);
+    @Query("SELECT e FROM Event e JOIN FETCH e.ong o LEFT JOIN FETCH o.administrators a WHERE e.id = :eventId")
+    Optional<Event> findByIdWithOngAndAdmins(@Param("eventId") UUID eventId);
 }

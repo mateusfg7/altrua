@@ -73,12 +73,15 @@ public class EventController {
     /**
      * Finaliza um evento específico.
      * <p>
-     * Verifica se o usuário tem permissão de gerenciamento sobre o evento antes de
-     * delegar a finalização ao serviço de domínio.
+     * O acesso é restrito a administradores da ONG proprietária. A validação de
+     * permissão
+     * e a integridade da relação entre ONG e Evento são realizadas na camada de
+     * segurança.
      * </p>
      *
+     * @param ongId   UUID da ONG proprietária para validação de integridade.
      * @param eventId UUID do evento a ser encerrado.
-     * @return Status 204 (No Content).
+     * @return Status 204 (No Content) em caso de sucesso.
      */
     @Operation(summary = "Encerrar evento", description = "Finaliza um evento ativo. Requer permissão de gerenciamento sobre o evento específico.")
     @ApiResponses({
@@ -88,11 +91,11 @@ public class EventController {
             @ApiResponse(responseCode = "404", description = "Evento não encontrado ou não pertence a esta ONG")
     })
     @PostMapping("/{eventId}/encerrar")
-    @PreAuthorize("@securityService.canManageEvent(#eventId)")
+    @PreAuthorize("@securityService.canManageEvent(#ongId, #eventId)")
     public ResponseEntity<Void> endEvent(
             @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
-            @Parameter(description = "UUID do evento a ser encerrado") @PathVariable UUID eventId) {
-        eventService.endEvent(ongId, eventId);
+            @Parameter(description = "UUID do evento a ser encerrado") @PathVariable("eventId") UUID eventId) {
+        eventService.endEvent(eventId);
         return ResponseEntity.noContent().build();
     }
 

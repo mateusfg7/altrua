@@ -3,8 +3,11 @@ package com.techfun.altrua.infra.security;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
+import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.event.repository.EventRepository;
 import com.techfun.altrua.features.ong.domain.model.OngAdministratorId;
 import com.techfun.altrua.features.ong.repository.OngAdministratorRepository;
@@ -43,19 +46,36 @@ public class SecurityService {
     }
 
     /**
-     * Verifica se o usuário autenticado tem permissão para gerenciar um evento.
+     * Valida se o usuário autenticado possui permissão para gerenciar um evento
+     * específico.
      * <p>
-     * A permissão é concedida se o usuário for administrador da ONG proprietária do
-     * evento.
+     * O método verifica a existência do evento e sua vinculação à ONG informada.
+     * A permissão é concedida apenas se o usuário for um administrador da ONG
+     * proprietária.
      * </p>
+     *
+     * @param ongId   Identificador da ONG para validação de integridade da rota.
+     * @param eventId Identificador do evento a ser gerenciado.
+     * @return {@code true} se o acesso for autorizado.
+     * @throws ResourceNotFoundException Se o evento não existir ou não pertencer à
+     *                                   ONG informada.
      */
-    public boolean canManageEvent(UUID eventId) {
+    @Transactional(readOnly = true)
+    public boolean canManageEvent(UUID ongId, UUID eventId) {
+        Event event = eventRepository.findByIdWithOngAndAdmins(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento"));
+
+        if (!event.getOng().getId().equals(ongId)) {
+            throw new ResourceNotFoundException("Evento");
+        }
+
         UUID userId = SecurityUtils.getCurrentUserId();
 
-        boolean canManage = eventRepository.existsByIdAndOng_Administrators_User_Id(eventId, userId);
+        boolean canManage = event.getOng().getAdministrators().stream()
+                .anyMatch(admin -> admin.getUser().getId().equals(userId));
 
         if (!canManage) {
-            log.warn("Acesso negado: Usuário {} tentou gerenciar o evento {}", userId, eventId);
+            log.warn("Acesso negado: Usuário {} tentou gerenciar o evento {} da ONG {}", userId, eventId, ongId);
         }
 
         return canManage;
