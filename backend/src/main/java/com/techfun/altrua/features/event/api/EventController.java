@@ -85,14 +85,14 @@ public class EventController {
             @ApiResponse(responseCode = "204", description = "Evento encerrado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Regra de negócio violada: o evento não pode ser encerrado no status atual"),
             @ApiResponse(responseCode = "403", description = "Usuário não tem permissão para gerenciar este evento"),
-            @ApiResponse(responseCode = "404", description = "Evento não encontrado")
+            @ApiResponse(responseCode = "404", description = "Evento não encontrado ou não pertence a esta ONG")
     })
     @PostMapping("/{eventId}/encerrar")
     @PreAuthorize("@securityService.canManageEvent(#eventId)")
     public ResponseEntity<Void> endEvent(
             @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
             @Parameter(description = "UUID do evento a ser encerrado") @PathVariable UUID eventId) {
-        eventService.endEvent(eventId);
+        eventService.endEvent(ongId, eventId);
         return ResponseEntity.noContent().build();
     }
 
