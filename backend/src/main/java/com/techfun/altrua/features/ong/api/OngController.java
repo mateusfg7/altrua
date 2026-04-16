@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +17,6 @@ import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
 import com.techfun.altrua.features.ong.api.dto.RegisterOngRequestDTO;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.service.OngService;
-import com.techfun.altrua.infra.security.userdetails.UserPrincipal;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,16 +44,13 @@ public class OngController {
      * automaticamente como o administrador criador da organização.
      * </p>
      *
-     * @param dto           objeto contendo os dados cadastrais da ONG
-     * @param userPrincipal detalhes do usuário autenticado obtidos via Spring
-     *                      Security
+     * @param dto objeto contendo os dados cadastrais da ONG
      * @return {@link ResponseEntity} contendo os dados da ONG criada com status 201
      *         (Created)
      */
     @PostMapping
-    public ResponseEntity<OngResponseDTO> register(@RequestBody @Valid RegisterOngRequestDTO dto,
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        Ong savedOng = ongService.register(dto, userPrincipal.getUser());
+    public ResponseEntity<OngResponseDTO> register(@RequestBody @Valid RegisterOngRequestDTO dto) {
+        Ong savedOng = ongService.register(dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(OngResponseDTO.fromEntity(savedOng));
     }

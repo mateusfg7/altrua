@@ -25,6 +25,7 @@ import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
 import com.techfun.altrua.core.common.exceptions.InvalidCredentialsException;
 import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.infra.security.handler.CustomAuthenticationEntryPoint;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -196,6 +197,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DuplicateResourceException.class)
     public ProblemDetail handleDuplicateResource(DuplicateResourceException ex) {
         return buildProblemDetail(ex.getStatus(), ex.getMessage(), "Recurso Duplicado");
+    }
+
+    /**
+     * Trata tentativas de acesso a recursos que não existem no sistema.
+     *
+     * @param ex Exceção de recurso não encontrado.
+     * @return {@link ProblemDetail} com status 404 Not Found.
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
+        return buildProblemDetail(ex.getStatus(), ex.getMessage(), "Recurso não encontrado");
     }
 
     /**

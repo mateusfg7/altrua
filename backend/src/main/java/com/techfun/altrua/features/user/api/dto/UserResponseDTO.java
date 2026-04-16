@@ -20,16 +20,27 @@ import com.techfun.altrua.features.user.domain.User;
  * @param createdAt data e hora de criação do registro
  * @param updatedAt data e hora da última atualização do registro
  */
-public record UserResponseDTO(UUID id, String name, String email, String avatarUrl, Instant createdAt,
+public record UserResponseDTO(
+        UUID id,
+        String name,
+        String email,
+        String avatarUrl,
+        Instant createdAt,
         Instant updatedAt) {
 
     /**
-     * Cria um {@link UserResponseDTO} a partir de uma entidade {@link User}.
+     * Converte uma instância da entidade {@link User} para {@link UserResponseDTO}.
      *
-     * @param user a entidade do usuário
+     * @param user a entidade original proveniente do banco de dados
+     * @return uma nova instância de DTO com os dados mapeados
      */
-    public UserResponseDTO(User user) {
-        this(user.getId(), user.getName(), user.getEmail(), user.getAvatarUrl(), user.getCreatedAt(),
+    public static UserResponseDTO fromEntity(User user) {
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getAvatarUrl(),
+                user.getCreatedAt(),
                 user.getUpdatedAt());
     }
 

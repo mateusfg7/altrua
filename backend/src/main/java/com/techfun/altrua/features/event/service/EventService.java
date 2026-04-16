@@ -8,8 +8,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
-import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
+import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
 import com.techfun.altrua.features.event.domain.model.Event;
@@ -17,8 +19,8 @@ import com.techfun.altrua.features.event.domain.model.Tag;
 import com.techfun.altrua.features.event.repository.EventRepository;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.repository.OngRepository;
-import com.techfun.altrua.features.ong.service.OngService;
 import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,32 +40,32 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class EventService {
 
+    private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final OngRepository ongRepository;
-    private final OngService ongService;
     private final TagService tagService;
 
     /**
-     * Registra um novo evento associado a uma ONG e ao seu criador.
-     *
+     * Registra um novo evento associado a uma ONG.
      * <p>
-     * O fluxo compreende a validação de permissões administrativas, a normalização
-     * e
-     * persistência idempotente de etiquetas (tags) e a geração de um identificador
-     * amigável (slug) para a URL do evento.
+     * O método realiza a normalização e persistência de etiquetas (tags), gera um
+     * slug
+     * único para a URL e persiste a entidade. A validação de permissões
+     * administrativas
+     * é delegada à camada de segurança via {@code @PreAuthorize}.
      * </p>
      *
-     * @param ongId   UUID da organização proprietária do evento.
-     * @param request DTO com os dados de entrada validados.
-     * @param creator Entidade do usuário autenticado que realiza a operação.
-     * @return O {@link Event} persistido e associado.
-     * @throws ForbiddenActionException   Se o criador não for administrador da ONG.
-     * @throws DuplicateResourceException Se o slug gerado colidir com um evento
-     *                                    ativo.
+     * @param ongId   UUID da organização proprietária.
+     * @param request DTO com os dados do evento.
+     * @return O evento registrado e persistido.
+     * @throws DuplicateResourceException Se houver colisão de slug que não pôde ser
+     *                                    resolvida.
      */
     @Transactional
-    public Event register(UUID ongId, RegisterEventRequestDTO request, User creator) {
-        ongService.validateAdminPermission(ongId, creator.getId());
+    public Event register(UUID ongId, RegisterEventRequestDTO request) {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+        User creator = userRepository.getReferenceById(currentUserId);
+
         Ong ong = ongRepository.getReferenceById(ongId);
         Set<Tag> managedTags = tagService.getOrCreateTags(request.tags());
 
@@ -87,5 +89,26 @@ public class EventService {
             log.error("Erro técnico inesperado ao cadastrar evento: {}", ex.getMessage());
             throw ex;
         }
+    }
+
+    /**
+     * Encerra um evento atualizando seu status e data de término.
+     * <p>
+     * Valida as regras de transição de estado na entidade e sincroniza as
+     * alterações no banco de dados.
+     * </p>
+     *
+     * @param eventId Identificador do evento.
+     * @throws ResourceNotFoundException se o ID for inválido;
+     *                                   {@link DomainException} se o status atual
+     *                                   não permitir o encerramento.
+     */
+    @Transactional
+    public void endEvent(UUID eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento"));
+
+        event.finish();
+        eventRepository.save(event);
     }
 }

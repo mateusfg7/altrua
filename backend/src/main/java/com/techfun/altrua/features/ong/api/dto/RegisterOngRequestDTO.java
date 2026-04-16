@@ -33,7 +33,7 @@ import jakarta.validation.constraints.Pattern;
 public record RegisterOngRequestDTO(
 
         @NotBlank(message = "Name is required") String name,
-        @NotBlank(message = "CNPJ is required") @Pattern(regexp = "\\d{14}", message = "Invalid Format") String cnpj,
+        @Pattern(regexp = "\\d{14}", message = "Invalid Format") String cnpj,
         @NotBlank(message = "Email is required") @Email String email,
         @NotBlank(message = "Category is required") String category,
         String description,
