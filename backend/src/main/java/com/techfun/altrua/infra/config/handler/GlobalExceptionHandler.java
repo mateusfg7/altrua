@@ -233,7 +233,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         FieldError::getDefaultMessage,
                         (existingMessage, newMessage) -> existingMessage));
 
-        problem.setProperty("campos_invalidos", fields);
+        problem.setProperty("invalid_params", fields);
         return ResponseEntity.status(status).body(problem);
     }
 

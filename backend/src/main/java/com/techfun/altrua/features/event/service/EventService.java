@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
-import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
 import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
@@ -47,20 +46,20 @@ public class EventService {
     private final TagService tagService;
 
     /**
-     * Registra um novo evento associado a uma ONG e ao seu criador.
-     *
+     * Registra um novo evento associado a uma ONG.
      * <p>
-     * O fluxo compreende a validação de permissões administrativas, a normalização
-     * e
-     * persistência idempotente de etiquetas (tags) e a geração de um identificador
-     * amigável (slug) para a URL do evento.
+     * O método realiza a normalização e persistência de etiquetas (tags), gera um
+     * slug
+     * único para a URL e persiste a entidade. A validação de permissões
+     * administrativas
+     * é delegada à camada de segurança via {@code @PreAuthorize}.
      * </p>
      *
-     * @param ongId   UUID da organização proprietária do evento.
-     * @param request DTO com os dados de entrada validados.
-     * @throws ForbiddenActionException   Se o criador não for administrador da ONG.
-     * @throws DuplicateResourceException Se o slug gerado colidir com um evento
-     *                                    ativo.
+     * @param ongId   UUID da organização proprietária.
+     * @param request DTO com os dados do evento.
+     * @return O evento registrado e persistido.
+     * @throws DuplicateResourceException Se houver colisão de slug que não pôde ser
+     *                                    resolvida.
      */
     @Transactional
     public Event register(UUID ongId, RegisterEventRequestDTO request) {
