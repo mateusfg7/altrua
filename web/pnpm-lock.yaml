@@ -115,8 +115,8 @@ importers:
         specifier: 6.0.2
         version: 6.0.2
       ultracite:
-        specifier: 7.4.4
-        version: 7.4.4
+        specifier: 7.5.6
+        version: 7.5.6
       vite:
         specifier: 8.0.8
         version: 8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)
@@ -3628,8 +3628,8 @@ packages:
   ufo@1.6.3:
     resolution: {integrity: sha512-yDJTmhydvl5lJzBmy/hyOAA0d+aqCBuwl818haVdYCRrWV84o7YyeVm4QlVHStqNrrJSTb6jKuFAVqAFsr+K3Q==}
 
-  ultracite@7.4.4:
-    resolution: {integrity: sha512-/IbNxt7+2KDTNd70VhAiJWIkWE+CRUt0rxKS7iUJKoWFGVuKAoQVvn30RwoZ7d5Qb4EFjgZYs+i97NTq4FzuPg==}
+  ultracite@7.5.6:
+    resolution: {integrity: sha512-lWHFAq7NP2tUxANFMcJW5JW14NsQ7EKlYz4+NTSUGD16a52j6yBkIenv0A+qpFBzpCXmZ0SdD0Bjh3yNkY8dGA==}
     hasBin: true
     peerDependencies:
       oxlint: ^1.0.0
@@ -7500,7 +7500,7 @@ snapshots:
 
   ufo@1.6.3: {}
 
-  ultracite@7.4.4:
+  ultracite@7.5.6:
     dependencies:
       '@clack/prompts': 1.2.0
       commander: 14.0.3
