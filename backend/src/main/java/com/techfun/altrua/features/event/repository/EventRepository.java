@@ -4,10 +4,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.techfun.altrua.features.event.domain.model.Event;
+
+import jakarta.persistence.LockModeType;
 
 /**
  * Interface de repositório para a entidade {@link Event}.
@@ -49,5 +52,24 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
      *         não encontrado.
      */
     @Query("SELECT e FROM Event e JOIN FETCH e.ong o LEFT JOIN FETCH o.administrators a WHERE e.id = :eventId")
-    Optional<Event> findByIdWithOngAndAdmins(@Param("eventId") UUID eventId);
+    public Optional<Event> findByIdWithOngAndAdmins(@Param("eventId") UUID eventId);
+
+    /**
+     * Recupera um evento específico sob lock pessimista de escrita para garantir
+     * consistência em operações concorrentes.
+     * <p>
+     * A consulta valida simultaneamente a existência do evento e seu vínculo com a
+     * ONG informada, prevenindo acessos indevidos a recursos de outras
+     * organizações. O bloqueio impede que outros processos modifiquem o evento até
+     * o fim da transação atual.
+     * </p>
+     * * @param eventId Identificador único do evento.
+     * 
+     * @param ongId Identificador da ONG proprietária do evento.
+     * @return Um Optional contendo o evento encontrado ou vazio caso a relação
+     *         ID/ONG seja inválida.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Event e WHERE e.id = :eventId AND e.ong.id = :ongId")
+    public Optional<Event> findByIdAndOngIdForUpdate(@Param("eventId") UUID eventId, @Param("ongId") UUID ongId);
 }
