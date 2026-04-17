@@ -63,108 +63,109 @@ import lombok.Setter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Event {
 
+    /** Identificador único universal do evento. */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Setter(AccessLevel.NONE)
-    /** Identificador único universal do evento. */
     private UUID id;
 
+    /** ONG responsável pela organização e gestão do evento. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ong_id", nullable = false)
-    /** ONG responsável pela organização e gestão do evento. */
+    @Setter(AccessLevel.NONE)
     private Ong ong;
 
+    /** Usuário administrador que realizou o cadastro inicial do evento. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user_id", nullable = false, updatable = false)
     @Setter(AccessLevel.NONE)
-    /** Usuário administrador que realizou o cadastro inicial do evento. */
     private User createdByUser;
 
+    /** Coleção de etiquetas (tags) associadas para categorização e busca. */
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "event_tags", joinColumns = @JoinColumn(name = "event_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     @Setter(AccessLevel.NONE)
-    /** Coleção de etiquetas (tags) associadas para categorização e busca. */
     private Set<Tag> tags = new HashSet<>();
 
-    @Column(nullable = false)
     /** Título público do evento. */
+    @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
-    @Setter(AccessLevel.NONE)
     /** Identificador único textual para composição de URLs amigáveis. */
+    @Column(nullable = false, updatable = false)
+    @Setter(AccessLevel.NONE)
     private String slug;
 
-    @Column(columnDefinition = "TEXT")
     /** Descrição detalhada sobre os objetivos e atividades do evento. */
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    /** Estado atual do ciclo de vida do evento (ex: PUBLISHED, CANCELED). */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    /** Estado atual do ciclo de vida do evento (ex: PUBLISHED, CANCELED). */
     private EventStatusEnum status;
 
-    @Column(name = "cover_url", length = 500)
     /** URL da imagem principal ou banner de divulgação. */
+    @Column(name = "cover_url", length = 500)
     private String coverUrl;
 
-    @Column(name = "external_link", length = 500)
     /** Link opcional para páginas externas de inscrição ou detalhes. */
+    @Column(name = "external_link", length = 500)
     private String externalLink;
 
-    @Column(name = "donation_info", columnDefinition = "TEXT")
     /** Informações e instruções sobre como realizar doações para o evento. */
+    @Column(name = "donation_info", columnDefinition = "TEXT")
     private String donationInfo;
 
-    @Column(name = "donation_external_link", length = 500)
     /** Link direto para plataformas externas de arrecadação financeira. */
+    @Column(name = "donation_external_link", length = 500)
     private String donationExternalLink;
 
-    @Column(name = "accepts_volunteers", nullable = false)
     /** Indica se o evento permite a inscrição de novos voluntários. */
+    @Column(name = "accepts_volunteers", nullable = false)
     private boolean acceptsVolunteers;
 
-    @Column(name = "max_volunteers")
     /** Quantidade máxima de voluntários permitida (opcional). */
+    @Column(name = "max_volunteers")
     private Integer maxVolunteers;
 
-    @Column(precision = 10, scale = 8)
     /** Coordenada de latitude para representação em mapas. */
+    @Column(precision = 10, scale = 8)
     private BigDecimal latitude;
 
-    @Column(precision = 11, scale = 8)
     /** Coordenada de longitude para representação em mapas. */
+    @Column(precision = 11, scale = 8)
     private BigDecimal longitude;
 
-    @Column(name = "address_label")
     /** Descrição textual do local (Ex: Praça Central ou nome da rua). */
+    @Column(name = "address_label")
     private String addressLabel;
 
-    @Column(name = "starts_at", nullable = false)
     /** Data e hora de início das atividades. */
+    @Column(name = "starts_at", nullable = false)
     private Instant startsAt;
 
-    @Column(name = "ends_at")
     /** Data e hora de encerramento previsto das atividades. */
+    @Column(name = "ends_at")
     private Instant endsAt;
 
+    /** Carimbo de data/hora de quando o registro foi criado no banco. */
     @Column(name = "created_at", nullable = false, updatable = false)
     @Setter(AccessLevel.NONE)
-    /** Carimbo de data/hora de quando o registro foi criado no banco. */
     private Instant createdAt;
 
+    /** Carimbo de data/hora da última modificação realizada no registro. */
     @Column(name = "updated_at", nullable = false)
     @Setter(AccessLevel.NONE)
-    /** Carimbo de data/hora da última modificação realizada no registro. */
     private Instant updatedAt;
 
-    @Column(name = "deleted_at")
-    @Setter(AccessLevel.NONE)
     /**
      * Carimbo de data/hora da exclusão lógica (Soft Delete). Se nulo, o registro
      * está ativo.
      */
+    @Column(name = "deleted_at")
+    @Setter(AccessLevel.NONE)
     private Instant deletedAt;
 
     /**
@@ -190,6 +191,26 @@ public class Event {
         }
 
         this.status = EventStatusEnum.FINISHED;
+    }
+
+    /**
+     * Valida a disponibilidade de vagas e a permissão de ingresso no evento.
+     * <p>
+     * Retorna verdadeiro apenas se o evento estiver configurado para aceitar
+     * participantes e o total de inscritos ativos for estritamente menor que a
+     * capacidade máxima estabelecida.
+     * </p>
+     * <p>
+     * A precisão desta verificação depende de um contador de voluntários
+     * consistente, preferencialmente obtido via lock pessimista para evitar
+     * violações de limite em processamentos paralelos.
+     * </p>
+     * * @param activeCount Total de inscrições com status confirmado.
+     * 
+     * @return Estado da disponibilidade de vagas para novos voluntários.
+     */
+    public boolean acceptsNewVolunteers(long activeCount) {
+        return this.acceptsVolunteers && activeCount < this.maxVolunteers;
     }
 
     /**
