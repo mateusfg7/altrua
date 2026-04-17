@@ -26,7 +26,7 @@
     "@tanstack/react-router-devtools": "latest",
     "@tanstack/react-router-ssr-query": "latest",
     "@tanstack/react-start": "latest",
-    "@tanstack/router-plugin": "1.167.20",
+    "@tanstack/router-plugin": "1.167.22",
     "axios": "^1.14.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
