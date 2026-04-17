@@ -13,7 +13,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Entidade que representa uma etiqueta ou categoria de classificação para
@@ -34,15 +33,13 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Tag {
 
+    /** Identificador único da tag. */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Setter(AccessLevel.NONE)
-    /** Identificador único da tag. */
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    @Setter(AccessLevel.NONE)
     /** Nome da tag em formato normalizado (lowercase e sem espaços extras). */
+    @Column(nullable = false, unique = true)
     private String name;
 
     /**
