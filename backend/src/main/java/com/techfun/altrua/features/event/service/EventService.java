@@ -78,7 +78,7 @@ public class EventService {
             Event event = request.toEntity(slug, ong, creator);
             event.getTags().addAll(managedTags);
 
-            return eventRepository.save(event);
+            return eventRepository.saveAndFlush(event);
         } catch (DataIntegrityViolationException ex) {
             if (ex.getCause() instanceof ConstraintViolationException cve) {
                 if ("uk_active_event_slug".equals(cve.getConstraintName())) {

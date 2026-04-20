@@ -65,7 +65,7 @@ public class RefreshTokenService {
         Instant expiration = Instant.now().plusMillis(refreshTokenExpiration);
         RefreshToken refreshToken = new RefreshToken(hashToken(token), user, expiration);
         try {
-            refreshTokenRepository.save(refreshToken);
+            refreshTokenRepository.saveAndFlush(refreshToken);
             return token;
         } catch (DataIntegrityViolationException ex) {
             throw new RefreshTokenException("Erro ao criar o novo refresh token");
@@ -120,7 +120,8 @@ public class RefreshTokenService {
         Instant expiration = Instant.now().plusMillis(refreshTokenExpiration);
 
         try {
-            refreshTokenRepository.save(new RefreshToken(hashToken(newToken), refreshToken.getUser(), expiration));
+            refreshTokenRepository
+                    .saveAndFlush(new RefreshToken(hashToken(newToken), refreshToken.getUser(), expiration));
             return new RotateResult(newToken, refreshToken.getUser());
         } catch (DataIntegrityViolationException e) {
             throw new RefreshTokenException("Erro ao rotacionar refresh token");
