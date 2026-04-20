@@ -3,6 +3,7 @@ package com.techfun.altrua.features.event.service;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,31 +41,37 @@ public class EventVolunteerService {
     /**
      * Realiza a inscrição ou reativação de um voluntário em um evento específico.
      * <p>
-     * O método valida se o usuário já possui inscrição ativa, se o evento pertence
-     * à ONG informada e se há vagas disponíveis sob lock de escrita. Caso uma
-     * inscrição prévia cancelada seja encontrada, ela é reativada; caso contrário,
-     * um novo registro é persistido.
+     * Antes de qualquer operação, verifica se o evento pertence à ONG informada
+     * adquirindo um lock pessimista de escrita, garantindo que verificações de
+     * vagas e persistência sejam atômicas sob concorrência.
      * </p>
-     * 
+     * <p>
+     * Se uma inscrição prévia cancelada for encontrada, ela é reativada. Caso
+     * contrário, um novo registro é persistido. Uma violação de unicidade no banco
+     * é capturada como salvaguarda contra requisições paralelas com o mesmo
+     * usuário.
+     * </p>
+     *
      * @param eventId Identificador do evento alvo.
      * @param ongId   Identificador da ONG proprietária do evento.
-     * @throws DomainException           Se o usuário já estiver inscrito ou se o
-     *                                   limite de vagas for atingido.
      * @throws ResourceNotFoundException Se o evento não for localizado no contexto
      *                                   da ONG informada.
+     * @throws DomainException           Se o usuário já possuir inscrição ativa,
+     *                                   ou se o limite de vagas tiver sido
+     *                                   atingido.
      */
     @Transactional
     public void enroll(UUID eventId, UUID ongId) {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+        Event event = eventRepository.findByIdAndOngIdForUpdate(eventId, ongId)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento"));
 
         Optional<EventVolunteer> existing = eventVolunteerRepository.findByEventIdAndUserId(eventId, currentUserId);
 
         if (existing.isPresent() && existing.get().getStatus() == VolunteerStatusEnum.CONFIRMED) {
             throw new DomainException("Você já está inscrito nesse evento");
         }
-
-        Event event = eventRepository.findByIdAndOngIdForUpdate(eventId, ongId)
-                .orElseThrow(() -> new ResourceNotFoundException("Evento"));
 
         long activeCount = eventVolunteerRepository.countByEventIdAndStatus(eventId, VolunteerStatusEnum.CONFIRMED);
         if (!event.acceptsNewVolunteers(activeCount)) {
@@ -76,8 +83,12 @@ public class EventVolunteerService {
             volunteer.reactivate();
             eventVolunteerRepository.save(volunteer);
         } else {
-            User user = userRepository.getReferenceById(currentUserId);
-            eventVolunteerRepository.save(EventVolunteer.enroll(event, user));
+            try {
+                User user = userRepository.getReferenceById(currentUserId);
+                eventVolunteerRepository.save(EventVolunteer.enroll(event, user));
+            } catch (DataIntegrityViolationException e) {
+                throw new DomainException("Você já está inscrito nesse evento");
+            }
         }
     }
 
