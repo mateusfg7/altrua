@@ -14,6 +14,7 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,11 +32,13 @@ import lombok.Setter;
 @Entity
 @Table(name = "ong_administrators")
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OngAdministrator {
 
     /** Identificador composto (User ID + Ong ID). */
     @EmbeddedId
+    @EqualsAndHashCode.Include
     private OngAdministratorId id;
 
     /** Usuário que possui privilégios administrativos. */
@@ -45,10 +48,10 @@ public class OngAdministrator {
     private User user;
 
     /** ONG a qual o administrador está vinculado. */
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("ongId")
     @JoinColumn(name = "ong_id")
+    @Setter(AccessLevel.PROTECTED)
     private Ong ong;
 
     /** Instante em que o usuário foi designado como administrador. */
@@ -66,11 +69,51 @@ public class OngAdministrator {
      * @param ong       a organização alvo
      * @param isCreator define se o usuário é o dono/criador da ONG
      */
-    public OngAdministrator(User user, Ong ong, boolean isCreator) {
+    private OngAdministrator(User user, Ong ong, boolean isCreator) {
         this.user = user;
         this.ong = ong;
         this.creator = isCreator;
         this.id = new OngAdministratorId(user.getId(), ong.getId());
+    }
+
+    /**
+     * Cria e vincula um administrador criador à ONG.
+     * <p>
+     * O criador possui privilégios especiais e não pode ser removido da ONG.
+     *
+     * @param user o usuário a ser vinculado como criador
+     * @param ong  a ONG à qual o usuário será vinculado
+     * @return o {@link OngAdministrator} criado com flag de criador ativa
+     */
+    public static OngAdministrator createCreator(User user, Ong ong) {
+        return create(user, ong, true);
+    }
+
+    /**
+     * Cria e vincula um administrador comum à ONG.
+     *
+     * @param user o usuário a ser promovido a administrador
+     * @param ong  a ONG à qual o usuário será vinculado
+     * @return o {@link OngAdministrator} criado sem flag de criador
+     */
+    public static OngAdministrator createAdministrator(User user, Ong ong) {
+        return create(user, ong, false);
+    }
+
+    /**
+     * Método interno que instancia um {@link OngAdministrator} e o adiciona à lista
+     * de administradores da ONG.
+     *
+     * @param user      o usuário a ser vinculado
+     * @param ong       a ONG à qual o usuário será vinculado
+     * @param isCreator {@code true} se o vínculo deve ser de criador, {@code false}
+     *                  para administrador comum
+     * @return o {@link OngAdministrator} criado e já associado à ONG
+     */
+    private static OngAdministrator create(User user, Ong ong, boolean isCreator) {
+        OngAdministrator admin = new OngAdministrator(user, ong, isCreator);
+        ong.addAdministrator(admin);
+        return admin;
     }
 
     /**
