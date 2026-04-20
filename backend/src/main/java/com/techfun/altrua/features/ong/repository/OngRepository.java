@@ -1,11 +1,17 @@
 package com.techfun.altrua.features.ong.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.techfun.altrua.features.ong.domain.model.Ong;
+
+import jakarta.persistence.LockModeType;
 
 /**
  * Repositório Spring Data JPA para a entidade {@link Ong}.
@@ -33,4 +39,17 @@ public interface OngRepository extends JpaRepository<Ong, UUID>, JpaSpecificatio
      * @return {@code true} se o CNPJ já existir, {@code false} caso contrário
      */
     public boolean existsByCnpj(String cnpj);
+
+    /**
+     * Busca uma ONG pelo ID, carregando seus administradores em uma única query,
+     * com lock pessimista de escrita para evitar race conditions em operações
+     * de modificação da lista de administradores.
+     *
+     * @param id o identificador único da ONG
+     * @return um {@link Optional} contendo a ONG com seus administradores, ou vazio
+     *         se não encontrada
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT DISTINCT o FROM Ong o LEFT JOIN FETCH o.administrators WHERE o.id = :id")
+    public Optional<Ong> findByIdWithAdministrators(@Param("id") UUID id);
 }
