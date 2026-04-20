@@ -17,7 +17,6 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Entidade que representa um refresh token no sistema.
@@ -35,25 +34,21 @@ import lombok.Setter;
 @Entity
 @Table(name = "refresh_tokens")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshToken {
 
     /** Identificador único do refresh token, gerado automaticamente como UUID. */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Setter(AccessLevel.NONE)
     private UUID id;
 
     /** Valor do refresh token JWT. Deve ser único no sistema. */
     @Column(nullable = false, unique = true, length = 64)
-    @Setter(AccessLevel.NONE)
     private String token;
 
     /** Usuário vinculado ao refresh token. */
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    @Setter(AccessLevel.NONE)
     private User user;
 
     /** Data e hora de expiração do token. */
@@ -65,7 +60,6 @@ public class RefreshToken {
      * e não pode ser alterada.
      */
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Setter(AccessLevel.NONE)
     private Instant createdAt;
 
     /**
