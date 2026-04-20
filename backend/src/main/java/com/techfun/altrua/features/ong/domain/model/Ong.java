@@ -10,6 +10,7 @@ import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.features.ong.domain.enums.OngStatusEnum;
 
 import jakarta.persistence.CascadeType;
@@ -149,33 +150,58 @@ public class Ong {
     private Long activeEventCount;
 
     /**
-     * Adiciona um novo administrador à organização, estabelecendo o vínculo
+     * Associa um administrador à organização, garantindo a integridade da relação
      * bidirecional.
+     * <p>
+     * O método verifica se o administrador já está presente na coleção para evitar
+     * duplicidade
+     * e sincroniza o lado inverso da associação
+     * ({@link OngAdministrator#setOng(Ong)}).
+     * </p>
      *
-     * @param administrator o vínculo administrativo a ser adicionado
+     * @param administrator O objeto de vínculo administrativo a ser associado;
+     *                      se {@code null}, a operação é ignorada.
      */
     public void addAdministrator(OngAdministrator administrator) {
-        this.administrators.add(administrator);
-        administrator.setOng(this);
+        if (administrator == null) {
+            return;
+        }
+        if (!this.administrators.contains(administrator)) {
+            this.administrators.add(administrator);
+            if (administrator.getOng() != this) {
+                administrator.setOng(this);
+            }
+        }
     }
 
     /**
-     * Remove um administrador da organização.
-     * 
+     * Desassocia um administrador da organização, respeitando as restrições de
+     * propriedade.
      * <p>
-     * Regra de negócio: O administrador marcado como criador não pode ser removido
-     * para garantir que a ONG sempre tenha um responsável principal.
+     * <b>Regra de Negócio:</b> Não é permitida a remoção do administrador definido
+     * como criador,
+     * garantindo que a organização possua sempre um responsável principal ativo.
      * </p>
      *
-     * @param administrator o vínculo administrativo a ser removido
-     * @throws IllegalStateException se houver tentativa de remover o criador
+     * @param administrator O vínculo administrativo a ser removido;
+     *                      se {@code null}, a operação é ignorada.
+     * @throws DomainException Se o administrador possuir o status de criador
+     *                         ({@code isCreator == true}).
      */
     public void removeAdministrator(OngAdministrator administrator) {
-        if (administrator.isCreator()) {
-            throw new IllegalStateException("O criador da ONG não pode ser removido.");
+        if (administrator == null) {
+            return;
         }
-        this.administrators.remove(administrator);
-        administrator.setOng(null);
+
+        if (administrator.isCreator()) {
+            throw new DomainException("O criador da ONG não pode ser removido.");
+        }
+
+        boolean removed = this.administrators.remove(administrator);
+
+        if (removed) {
+            administrator.setOng(null);
+        }
     }
 
     /**
