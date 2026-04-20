@@ -103,7 +103,8 @@ public class EventVolunteer {
     }
 
     /**
-     * Define o instante de criação do registro no momento da persistência inicial.
+     * Define o instante de confirmação do registro no momento da persistência
+     * inicial.
      */
     @PrePersist
     private void onPersist() {
@@ -111,11 +112,14 @@ public class EventVolunteer {
     }
 
     /**
-     * Atualiza o carimbo de confirmação sempre que houver modificações no registro,
-     * mantendo a última interação rastreada.
+     * Atualiza o carimbo de confirmação apenas quando o status for CONFIRMED,
+     * evitando que operações de cancelamento sobrescrevam o instante
+     * da última confirmação ou reativação.
      */
     @PreUpdate
     private void onUpdate() {
-        this.confirmedAt = Instant.now();
+        if (this.status == VolunteerStatusEnum.CONFIRMED) {
+            this.confirmedAt = Instant.now();
+        }
     }
 }
