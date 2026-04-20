@@ -63,9 +63,9 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
      * organizações. O bloqueio impede que outros processos modifiquem o evento até
      * o fim da transação atual.
      * </p>
-     * * @param eventId Identificador único do evento.
      * 
-     * @param ongId Identificador da ONG proprietária do evento.
+     * @param eventId Identificador único do evento.
+     * @param ongId   Identificador da ONG proprietária do evento.
      * @return Um Optional contendo o evento encontrado ou vazio caso a relação
      *         ID/ONG seja inválida.
      */

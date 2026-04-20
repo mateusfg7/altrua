@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.techfun.altrua.features.event.domain.enums.VolunteerStatusEnum;
 import com.techfun.altrua.features.event.domain.model.EventVolunteer;
 
 import jakarta.persistence.LockModeType;
@@ -19,17 +20,21 @@ import jakarta.persistence.LockModeType;
 public interface EventVolunteerRepository extends JpaRepository<EventVolunteer, UUID> {
 
     /**
-     * Contabiliza o total de inscrições confirmadas para um evento específico.
+     * Contabiliza o total de inscrições para um evento específico filtrando pelo
+     * status informado.
      * <p>
-     * Utilizado para validar o limite de vagas antes de permitir novos ingressos no
-     * sistema.
+     * Utilizado para validar o limite de vagas (quando o status é CONFIRMED) ou
+     * para métricas de cancelamento antes de processar novas operações de
+     * inscrição.
      * </p>
      * 
-     * @param eventId Identificador do evento.
-     * @return Quantidade total de voluntários com status CONFIRMED.
+     * @param eventId Identificador único do evento.
+     * @param status  Estado da inscrição a ser contabilizado (ex: CONFIRMED,
+     *                CANCELLED).
+     * @return Quantidade total de voluntários que atendem aos critérios de filtro.
      */
-    @Query("SELECT COUNT(ev) FROM EventVolunteer ev WHERE ev.event.id = :eventId AND ev.status = 'CONFIRMED'")
-    public long countActiveByEventId(@Param("eventId") UUID eventId);
+    @Query("SELECT COUNT(ev) FROM EventVolunteer ev WHERE ev.event.id = :eventId AND ev.status = :status")
+    public long countByEventIdAndStatus(@Param("eventId") UUID eventId, @Param("status") VolunteerStatusEnum status);
 
     /**
      * Recupera o vínculo de inscrição entre um evento e um usuário sem aplicar

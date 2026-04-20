@@ -205,7 +205,8 @@ public class Event {
      * consistente, preferencialmente obtido via lock pessimista para evitar
      * violações de limite em processamentos paralelos.
      * </p>
-     * * @param activeCount Total de inscrições com status confirmado.
+     * 
+     * @param activeCount Total de inscrições com status confirmado.
      * 
      * @return Estado da disponibilidade de vagas para novos voluntários.
      */

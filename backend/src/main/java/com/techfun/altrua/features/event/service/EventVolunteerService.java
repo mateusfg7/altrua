@@ -66,7 +66,7 @@ public class EventVolunteerService {
         Event event = eventRepository.findByIdAndOngIdForUpdate(eventId, ongId)
                 .orElseThrow(() -> new ResourceNotFoundException("Evento"));
 
-        long activeCount = eventVolunteerRepository.countActiveByEventId(eventId);
+        long activeCount = eventVolunteerRepository.countByEventIdAndStatus(eventId, VolunteerStatusEnum.CONFIRMED);
         if (!event.acceptsNewVolunteers(activeCount)) {
             throw new DomainException("O evento não aceita mais voluntários.");
         }
