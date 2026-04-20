@@ -11,3 +11,6 @@ CREATE TABLE IF NOT EXISTS "event_volunteers" (
     FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
+
+CREATE INDEX IF NOT EXISTS idx_event_volunteers_confirmed_event_id ON event_volunteers(event_id)
+WHERE status = 'CONFIRMED';
