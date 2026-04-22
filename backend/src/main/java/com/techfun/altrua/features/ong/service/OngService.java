@@ -10,7 +10,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
 import com.techfun.altrua.features.ong.api.OngSpecification;
@@ -19,6 +21,8 @@ import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
 import com.techfun.altrua.features.ong.api.dto.RegisterOngRequestDTO;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.domain.model.OngAdministrator;
+import com.techfun.altrua.features.ong.domain.model.OngAdministratorId;
+import com.techfun.altrua.features.ong.repository.OngAdministratorRepository;
 import com.techfun.altrua.features.ong.repository.OngRepository;
 import com.techfun.altrua.features.user.domain.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
@@ -43,6 +47,7 @@ public class OngService {
 
     private final OngRepository ongRepository;
     private final UserRepository userRepository;
+    private final OngAdministratorRepository ongAdministratorRepository;
 
     /**
      * Registra uma nova organização (ONG) e estabelece seu administrador inicial.
@@ -75,9 +80,8 @@ public class OngService {
 
         try {
             Ong ong = request.toEntity(slug);
-            OngAdministrator admin = new OngAdministrator(creator, ong, true);
-            ong.addAdministrator(admin);
-            return ongRepository.save(ong);
+            OngAdministrator.createCreator(creator, ong);
+            return ongRepository.saveAndFlush(ong);
         } catch (DataIntegrityViolationException ex) {
             if (ex.getCause() instanceof ConstraintViolationException cve) {
 
@@ -95,6 +99,67 @@ public class OngService {
             log.error("Erro técnico inesperado ao cadastrar ONG: {}", ex.getMessage());
             throw ex;
         }
+    }
+
+    /**
+     * Promove um usuário a administrador de uma ONG.
+     * <p>
+     * Verifica previamente se o usuário já é administrador para evitar o custo
+     * de persistência no caso comum. Em cenários de concorrência, a constraint
+     * de unicidade do banco garante a integridade, tratando o conflito como
+     * {@link DomainException}.
+     * </p>
+     *
+     * @param ongId  o identificador único da ONG
+     * @param userId o identificador único do usuário a ser promovido
+     * @throws ResourceNotFoundException se a ONG ou o usuário não forem encontrados
+     * @throws DomainException           se o usuário já for administrador desta ONG
+     */
+    @Transactional
+    public void promoteAdministrator(UUID ongId, UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário"));
+        Ong ong = ongRepository.findById(ongId)
+                .orElseThrow(() -> new ResourceNotFoundException("ONG"));
+
+        if (ongAdministratorRepository.existsById(new OngAdministratorId(userId, ongId))) {
+            throw new DomainException("Este usuário já é um administrador desta ONG.");
+        }
+
+        try {
+            OngAdministrator.createAdministrator(user, ong);
+            ongRepository.saveAndFlush(ong);
+        } catch (DataIntegrityViolationException ex) {
+            throw new DomainException("Este usuário já é um administrador desta ONG.");
+        }
+    }
+
+    /**
+     * Remove um administrador de uma ONG.
+     * <p>
+     * Utiliza lock pessimista de escrita ao buscar a ONG para evitar race
+     * conditions
+     * em remoções concorrentes do mesmo administrador.
+     * </p>
+     * 
+     * @param ongId          o identificador único da ONG
+     * @param userIdToRemove o identificador único do administrador a ser removido
+     * @throws ResourceNotFoundException se a ONG ou o administrador não forem
+     *                                   encontrados
+     * @throws DomainException           se o administrador for o criador da ONG
+     */
+    @Transactional
+    public void demoteAdministrator(UUID ongId, UUID userIdToRemove) {
+        Ong ong = ongRepository.findByIdWithAdministrators(ongId)
+                .orElseThrow(() -> new ResourceNotFoundException("ONG"));
+
+        OngAdministrator adminLink = ong.getAdministrators().stream()
+                .filter(a -> a.getUser().getId().equals(userIdToRemove))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Administrador"));
+
+        ong.removeAdministrator(adminLink);
+        ongRepository.save(ong);
     }
 
     /**

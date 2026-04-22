@@ -85,7 +85,7 @@ public class EventVolunteerService {
         } else {
             try {
                 User user = userRepository.getReferenceById(currentUserId);
-                eventVolunteerRepository.save(EventVolunteer.enroll(event, user));
+                eventVolunteerRepository.saveAndFlush(EventVolunteer.enroll(event, user));
             } catch (DataIntegrityViolationException e) {
                 throw new DomainException("Você já está inscrito nesse evento");
             }

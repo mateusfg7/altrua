@@ -31,7 +31,11 @@ public class SecurityService {
     private final EventRepository eventRepository;
 
     /**
-     * Verifica se o usuário autenticado é administrador de uma ONG específica.
+     * Verifica se o usuário autenticado é um administrador da organização.
+     *
+     * @param ongId Identificador único da organização.
+     * @return {@code true} se o vínculo administrativo existir; {@code false} caso
+     *         contrário.
      */
     public boolean isOngAdmin(UUID ongId) {
         UUID userId = SecurityUtils.getCurrentUserId();
@@ -43,6 +47,28 @@ public class SecurityService {
         }
 
         return isAdmin;
+    }
+
+    /**
+     * Verifica se o usuário autenticado possui privilégios de criador sobre uma ONG
+     * específica.
+     *
+     * @param ongId Identificador único da organização.
+     * @return {@code true} se o usuário for o criador/proprietário; {@code false}
+     *         caso contrário.
+     */
+    public boolean isOngCreator(UUID ongId) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        boolean isCreator = ongAdministratorRepository.checkIsCreator(userId, ongId).orElse(false);
+
+        if (!isCreator) {
+            log.warn(
+                    "Acesso negado: Usuário {} possui privilégios insuficientes para gerenciar a ONG {}. (Requisito: Criador)",
+                    userId, ongId);
+        }
+
+        return isCreator;
     }
 
     /**

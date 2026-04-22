@@ -76,7 +76,7 @@ public class AuthService {
                     dto.getEmail(),
                     passwordEncoder.encode(dto.getPassword()));
 
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
 
             String token = jwtProvider.generateToken(new UserPrincipal(user));
             String refreshToken = refreshTokenService.create(user);
