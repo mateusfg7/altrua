@@ -48,7 +48,7 @@ importers:
         specifier: 1.167.22
         version: 1.167.22(@tanstack/react-router@1.168.23(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.4)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
       axios:
-        specifier: ^1.14.0
+        specifier: 1.14.0
         version: 1.14.0
       class-variance-authority:
         specifier: 0.7.1
