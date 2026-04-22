@@ -77,29 +77,20 @@ Projeto desenvolvido como **Projeto Integrador** do curso — utilizando uma sta
 altrua/
 ├── backend/
 │   ├── src/main/java/com/techfun/altrua/
-│   │   ├── features/
-│   │   │   ├── auth/        # Autenticação (login, signup, refresh, logout)
-│   │   │   ├── event/       # Gerenciamento de eventos e voluntários
-│   │   │   ├── ong/         # Cadastro e listagem de ONGs
-│   │   │   └── user/        # Perfil do usuário autenticado
-│   │   ├── infra/
-│   │   │   ├── config/      # Configurações globais (CORS, OpenAPI, etc.)
-│   │   │   └── security/    # Filtros JWT e configuração do Spring Security
-│   │   ├── core/common/     # Utilitários e componentes compartilhados
-│   │   └── AltruaApplication.java
+│   │   ├── core/        # Exceções de domínio e utilitários compartilhados
+│   │   ├── features/    # Módulos de negócio (auth, event, ong, user)
+│   │   │                # Cada módulo segue a estrutura: api/ domain/ repository/ service/
+│   │   └── infra/       # Configurações globais e camada de segurança (JWT)
 │   ├── src/main/resources/
-│   │   ├── application.yml
-│   │   └── db/migration/    # Scripts Flyway
+│   │   └── db/migration/  # Scripts Flyway versionados
 │   ├── docker-compose.yaml
 │   ├── Makefile
 │   └── pom.xml
 └── web/
-    ├── src/
-    │   ├── features/        # Módulos por domínio (ngos, ...)
-    │   ├── routes/          # Páginas (file-based routing)
-    │   └── shared/          # Componentes, hooks e utilitários comuns
-    ├── package.json
-    └── vite.config.ts
+    └── src/
+        ├── features/    # Módulos por domínio (ngos, ...)
+        ├── routes/      # Páginas (file-based routing)
+        └── shared/      # Componentes, lib e tipos compartilhados
 ```
 
 ---
@@ -201,7 +192,7 @@ make logs                 # Exibe os logs do PostgreSQL em tempo real
 
 ## 🔌 API REST
 
-A documentação interativa da API está disponível via **Scalar UI** em:
+A documentação interativa completa dos endpoints está disponível via **Scalar UI** após subir o backend:
 
 ```
 http://localhost:8080/docs
@@ -212,22 +203,6 @@ O JSON da especificação OpenAPI está em:
 ```
 http://localhost:8080/api-docs
 ```
-
-### Endpoints disponíveis
-
-| Método | Rota                                         | Descrição                             | Auth |
-| ------ | -------------------------------------------- | ------------------------------------- | ---- |
-| POST   | `/auth/signup`                               | Registrar novo usuário                | —    |
-| POST   | `/auth/login`                                | Realizar login                        | —    |
-| POST   | `/auth/refresh`                              | Renovar access token (token rotation) | —    |
-| POST   | `/auth/logout`                               | Encerrar sessão                       | ✓    |
-| GET    | `/users/me`                                  | Perfil do usuário autenticado         | ✓    |
-| POST   | `/ongs`                                      | Cadastrar ONG                         | ✓    |
-| GET    | `/ongs`                                      | Listar ONGs (paginado, com filtros)   | —    |
-| POST   | `/ongs/{ongId}/eventos`                      | Criar evento (admin da ONG)           | ✓    |
-| POST   | `/ongs/{ongId}/eventos/{eventId}/encerrar`   | Encerrar evento (admin da ONG)        | ✓    |
-| POST   | `/ongs/{ongId}/eventos/{eventId}/volunteers` | Inscrever-se como voluntário          | ✓    |
-| DELETE | `/ongs/{ongId}/eventos/{eventId}/volunteers` | Cancelar inscrição como voluntário    | ✓    |
 
 ---
 
