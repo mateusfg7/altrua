@@ -156,7 +156,7 @@ public class OngService {
         OngAdministrator adminLink = ong.getAdministrators().stream()
                 .filter(a -> a.getUser().getId().equals(userIdToRemove))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Administrator"));
+                .orElseThrow(() -> new ResourceNotFoundException("Administrador"));
 
         ong.removeAdministrator(adminLink);
         ongRepository.save(ong);
