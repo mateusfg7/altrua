@@ -70,10 +70,10 @@ public class OngAdministrator {
      * @param isCreator define se o usuário é o dono/criador da ONG
      */
     private OngAdministrator(User user, Ong ong, boolean isCreator) {
+        this.id = new OngAdministratorId(user.getId(), ong.getId());
         this.user = user;
         this.ong = ong;
         this.creator = isCreator;
-        this.id = new OngAdministratorId(user.getId(), ong.getId());
     }
 
     /**

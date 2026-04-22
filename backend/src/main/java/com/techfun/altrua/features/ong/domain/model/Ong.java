@@ -2,8 +2,8 @@ package com.techfun.altrua.features.ong.domain.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.Formula;
@@ -59,11 +59,11 @@ public class Ong {
     @Setter(AccessLevel.NONE)
     private UUID id;
 
-    /** Lista de administradores responsáveis pela gestão da ONG no sistema. */
+    /** Set de administradores responsáveis pela gestão da ONG no sistema. */
     @Builder.Default
     @OneToMany(mappedBy = "ong", cascade = CascadeType.ALL, orphanRemoval = true)
     @Setter(AccessLevel.NONE)
-    private List<OngAdministrator> administrators = new ArrayList<>();
+    private Set<OngAdministrator> administrators = new HashSet<>();
 
     /** Nome oficial ou fantasia da organização. */
     @Column(nullable = false)
@@ -153,9 +153,7 @@ public class Ong {
      * Associa um administrador à organização, garantindo a integridade da relação
      * bidirecional.
      * <p>
-     * O método verifica se o administrador já está presente na coleção para evitar
-     * duplicidade
-     * e sincroniza o lado inverso da associação
+     * O método sincroniza o lado inverso da associação
      * ({@link OngAdministrator#setOng(Ong)}).
      * </p>
      *
@@ -166,11 +164,10 @@ public class Ong {
         if (administrator == null) {
             return;
         }
-        if (!this.administrators.contains(administrator)) {
-            this.administrators.add(administrator);
-            if (administrator.getOng() != this) {
-                administrator.setOng(this);
-            }
+
+        this.administrators.add(administrator);
+        if (administrator.getOng() != this) {
+            administrator.setOng(this);
         }
     }
 

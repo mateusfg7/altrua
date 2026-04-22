@@ -50,7 +50,6 @@ public class OngController {
 
         /**
          * Endpoint para o registro de uma nova ONG.
-         * 
          * <p>
          * Este método exige que o usuário esteja autenticado, vinculando-o
          * automaticamente como o administrador criador da organização.
