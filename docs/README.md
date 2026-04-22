@@ -2,6 +2,27 @@
 
 > Plataforma de cadastro de ONGs, eventos e voluntários.
 
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/mateusfg7">
+        <img src="https://github.com/mateusfg7.png" width="72" style="border-radius:50%" /><br />
+        <sub><b>Mateus Felipe</b></sub>
+      </a><br />
+      <sub>RA 16349</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/gabriel-mkv">
+        <img src="https://github.com/gabriel-mkv.png" width="72" style="border-radius:50%" /><br />
+        <sub><b>Gabriel Henrique</b></sub>
+      </a><br />
+      <sub>RA 16359</sub>
+    </td>
+  </tr>
+</table>
+
+---
+
 ![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.5-green?style=flat-square&logo=springboot)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
@@ -206,15 +227,6 @@ http://localhost:8080/api-docs
 
 ---
 
-## 👥 Colaboradores
-
-| Nome                            | GitHub                                         | RA FAPAM |
-| ------------------------------- | ---------------------------------------------- | -------- |
-| Mateus Felipe Gonçalves         | [@mateusfg7](https://github.com/mateusfg7)     | 16349    |
-| Gabriel Henrique Sousa Mendonça | [@gabriel-mkv](https://github.com/gabriel-mkv) | 16359    |
-
----
-
-## 📄 Licença
+## Licença
 
 Este projeto está sob a licença [GPL-3.0](LICENSE).
