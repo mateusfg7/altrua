@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +16,9 @@ import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
+import com.techfun.altrua.features.event.api.EventSpecification;
+import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
+import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
 import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.event.domain.model.Tag;
@@ -38,6 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventService {
 
     private final UserRepository userRepository;
@@ -110,5 +117,25 @@ public class EventService {
 
         event.finish();
         eventRepository.save(event);
+    }
+
+    /**
+     * Recupera uma página de eventos filtrados de acordo com os critérios
+     * fornecidos.
+     * <p>
+     * Este método aplica automaticamente uma restrição temporal, retornando apenas
+     * eventos cuja data de início seja igual ou posterior ao instante atual.
+     * </p>
+     *
+     * @param filter   Objeto contendo os critérios de filtragem (tags, status,
+     *                 voluntariado).
+     * @param pageable Configurações de paginação e ordenação.
+     * @return Uma {@link Page} de {@link EventResponseDTO} contendo os registros
+     *         encontrados
+     *         e metadados de paginação.
+     */
+    public Page<EventResponseDTO> listEvents(EventFilterDTO filter, Pageable pageable) {
+        Specification<Event> spec = EventSpecification.withFilter(filter);
+        return eventRepository.findAll(spec, pageable).map(EventResponseDTO::fromEntity);
     }
 }
