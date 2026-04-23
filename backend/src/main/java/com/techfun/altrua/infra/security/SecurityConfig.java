@@ -72,7 +72,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/ongs").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ongs", "/eventos").permitAll()
                         .requestMatchers(
                                 "/api-docs/**",
                                 "/docs/**",
@@ -127,8 +127,9 @@ public class SecurityConfig {
      * <li><b>Headers:</b> Todos permitidos ({@code *}).</li>
      * <li><b>Cache:</b> Configurações válidas por 1 hora (3600s).</li>
      * </ul>
+     * 
      * @return {@link CorsConfigurationSource} mapeado para todos os caminhos
-     * ({@code /**}).
+     *         ({@code /**}).
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
