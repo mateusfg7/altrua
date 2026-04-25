@@ -12,6 +12,7 @@ import org.hibernate.annotations.SQLRestriction;
 import com.techfun.altrua.core.common.exceptions.DomainException;
 import com.techfun.altrua.features.event.domain.enums.EventStatusEnum;
 import com.techfun.altrua.features.ong.domain.model.Ong;
+import com.techfun.altrua.features.tag.domain.Tag;
 import com.techfun.altrua.features.user.domain.User;
 
 import jakarta.persistence.CascadeType;

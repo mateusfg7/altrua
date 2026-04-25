@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.techfun.altrua.features.event.domain.model.Event;
-import com.techfun.altrua.features.event.domain.model.Tag;
+import com.techfun.altrua.features.tag.domain.Tag;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
