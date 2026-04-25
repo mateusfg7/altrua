@@ -1,5 +1,6 @@
 package com.techfun.altrua.features.event.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -67,4 +68,26 @@ public interface EventVolunteerRepository extends JpaRepository<EventVolunteer, 
             @Param("eventId") UUID eventId,
             @Param("ongId") UUID ongId,
             @Param("userId") UUID userId);
+
+    /**
+     * Calcula a quantidade de voluntários com status confirmado para uma lista
+     * específica de eventos.
+     * <p>
+     * O resultado é retornado como uma lista de arrays de objetos para otimizar a
+     * performance,
+     * evitando o overhead de inicialização de entidades completas ou DTOs complexos
+     * durante a agregação.
+     * </p>
+     * 
+     * @param ids Lista de {@link UUID} dos eventos que serão contabilizados.
+     * @return Uma {@link List} de {@code Object[]}, onde cada elemento do array
+     *         contém:
+     *         <ul>
+     *         <li>{@code [0]} ({@link UUID}): O identificador único do evento.</li>
+     *         <li>{@code [1]} ({@link Long}): A contagem total de voluntários
+     *         confirmados.</li>
+     *         </ul>
+     */
+    @Query("SELECT ev.event.id, COUNT(ev) FROM EventVolunteer ev WHERE ev.event.id IN :ids AND ev.status = 'CONFIRMED' GROUP BY ev.event.id")
+    List<Object[]> countConfirmedVolunteersByEventIds(@Param("ids") List<UUID> ids);
 }
