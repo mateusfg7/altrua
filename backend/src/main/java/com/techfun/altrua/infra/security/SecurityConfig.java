@@ -72,7 +72,8 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/ongs", "/eventos").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/ongs/**", "/eventos", "/tags")
+                        .permitAll()
                         .requestMatchers(
                                 "/api-docs/**",
                                 "/docs/**",

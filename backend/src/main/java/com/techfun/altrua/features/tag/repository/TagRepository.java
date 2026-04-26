@@ -1,4 +1,4 @@
-package com.techfun.altrua.features.event.repository;
+package com.techfun.altrua.features.tag.repository;
 
 import java.util.List;
 import java.util.Set;
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import com.techfun.altrua.features.event.domain.model.Tag;
+import com.techfun.altrua.features.tag.domain.Tag;
 
 /**
  * Repositório para operações de persistência da entidade {@link Tag}.
@@ -34,6 +34,19 @@ public interface TagRepository extends JpaRepository<Tag, UUID> {
      * @return Lista de entidades {@link Tag} encontradas.
      */
     public List<Tag> findAllByNameIn(Set<String> names);
+
+    /**
+     * Recupera todas as etiquetas cadastradas no sistema em ordem alfabética.
+     * <p>
+     * Este método é utilizado principalmente para alimentar componentes de
+     * interface (filtros),
+     * garantindo uma experiência de busca visual consistente para o usuário.
+     * </p>
+     *
+     * @return Uma {@link List} contendo todas as instâncias de {@link Tag},
+     *         ordenadas de forma ascendente (A-Z) pelo atributo {@code name}.
+     */
+    public List<Tag> findAllByOrderByNameAsc();
 
     /**
      * Realiza a persistência em lote de tags de forma idempotente.

@@ -1,8 +1,10 @@
-package com.techfun.altrua.features.event.domain.model;
+package com.techfun.altrua.features.tag.domain;
 
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+
+import com.techfun.altrua.features.event.domain.model.Event;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

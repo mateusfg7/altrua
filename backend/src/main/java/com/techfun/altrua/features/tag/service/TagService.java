@@ -1,6 +1,7 @@
-package com.techfun.altrua.features.event.service;
+package com.techfun.altrua.features.tag.service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,8 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.DomainException;
-import com.techfun.altrua.features.event.domain.model.Tag;
-import com.techfun.altrua.features.event.repository.TagRepository;
+import com.techfun.altrua.features.tag.api.dto.TagResponseDTO;
+import com.techfun.altrua.features.tag.domain.Tag;
+import com.techfun.altrua.features.tag.repository.TagRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TagService {
 
     private final TagRepository tagRepository;
@@ -72,5 +75,24 @@ public class TagService {
         tagRepository.ensureTagsExist(normalizedNames.toArray(new String[0]));
 
         return new HashSet<>(tagRepository.findAllByNameIn(normalizedNames));
+    }
+
+    /**
+     * Recupera todas as etiquetas cadastradas e as converte para o formato de
+     * resposta.
+     * <p>
+     * Este método obtém as entidades do banco de dados já ordenadas alfabeticamente
+     * e realiza o mapeamento para {@link TagResponseDTO}, garantindo que a ordem
+     * seja preservada para a correta exibição nos filtros da interface.
+     * </p>
+     *
+     * @return Uma {@link List} de {@link TagResponseDTO} contendo o ID e o nome
+     *         de todas as tags disponíveis.
+     */
+    public List<TagResponseDTO> listAllTags() {
+        return tagRepository.findAllByOrderByNameAsc()
+                .stream()
+                .map(TagResponseDTO::fromEntity)
+                .toList();
     }
 }

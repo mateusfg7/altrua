@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
+import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
 import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
 import com.techfun.altrua.features.event.domain.model.Event;
@@ -122,7 +123,7 @@ public class EventController {
             @ApiResponse(responseCode = "400", description = "Parâmetros de paginação ou filtro inválidos")
     })
     @GetMapping("/eventos")
-    public ResponseEntity<Page<EventResponseDTO>> list(
+    public ResponseEntity<Page<EventListResponseDTO>> list(
             @ParameterObject EventFilterDTO filter,
             @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(eventService.listEvents(filter, pageable));

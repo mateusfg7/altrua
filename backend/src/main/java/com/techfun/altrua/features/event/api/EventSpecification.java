@@ -7,7 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
 import com.techfun.altrua.features.event.domain.enums.EventStatusEnum;
 import com.techfun.altrua.features.event.domain.model.Event;
-import com.techfun.altrua.features.event.domain.model.Tag;
+import com.techfun.altrua.features.tag.domain.Tag;
 
 import jakarta.persistence.criteria.Join;
 import lombok.AccessLevel;

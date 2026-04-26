@@ -1,13 +1,15 @@
 package com.techfun.altrua.features.event.service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +20,16 @@ import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
 import com.techfun.altrua.features.event.api.EventSpecification;
 import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
-import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
+import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
+import com.techfun.altrua.features.event.domain.enums.VolunteerStatusEnum;
 import com.techfun.altrua.features.event.domain.model.Event;
-import com.techfun.altrua.features.event.domain.model.Tag;
 import com.techfun.altrua.features.event.repository.EventRepository;
+import com.techfun.altrua.features.event.repository.EventVolunteerRepository;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.repository.OngRepository;
+import com.techfun.altrua.features.tag.domain.Tag;
+import com.techfun.altrua.features.tag.service.TagService;
 import com.techfun.altrua.features.user.domain.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
 
@@ -49,6 +54,7 @@ public class EventService {
 
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final EventVolunteerRepository eventVolunteerRepository;
     private final OngRepository ongRepository;
     private final TagService tagService;
 
@@ -120,22 +126,32 @@ public class EventService {
     }
 
     /**
-     * Recupera uma página de eventos filtrados de acordo com os critérios
-     * fornecidos.
+     * Recupera uma página de eventos filtrados e enriquecidos com a contagem de
+     * voluntários.
      * <p>
-     * Este método aplica automaticamente uma restrição temporal, retornando apenas
-     * eventos cuja data de início seja igual ou posterior ao instante atual.
+     * O método realiza a busca paginada baseada nos filtros fornecidos e, para
+     * otimizar a performance
+     * e evitar o problema de consultas N+1, recupera as contagens de voluntários
+     * confirmados em lote
+     * (batch) antes de mapear os resultados para o DTO.
      * </p>
      *
-     * @param filter   Objeto contendo os critérios de filtragem (tags, status,
-     *                 voluntariado).
-     * @param pageable Configurações de paginação e ordenação.
-     * @return Uma {@link Page} de {@link EventResponseDTO} contendo os registros
-     *         encontrados
-     *         e metadados de paginação.
+     * @param filter   Objeto contendo os critérios de filtragem (ex: tags,
+     *                 localização, status).
+     * @param pageable Configurações de paginação e ordenação dos resultados.
+     * @return Uma {@link Page} de {@link EventListResponseDTO} contendo os dados
+     *         para exibição em lista
+     *         e a contagem atualizada de participantes confirmados.
      */
-    public Page<EventResponseDTO> listEvents(EventFilterDTO filter, Pageable pageable) {
-        Specification<Event> spec = EventSpecification.withFilter(filter);
-        return eventRepository.findAll(spec, pageable).map(EventResponseDTO::fromEntity);
+    public Page<EventListResponseDTO> listEvents(EventFilterDTO filter, Pageable pageable) {
+        Page<Event> eventPage = eventRepository.findAll(EventSpecification.withFilter(filter), pageable);
+
+        List<UUID> eventIds = eventPage.getContent().stream().map(Event::getId).toList();
+
+        Map<UUID, Integer> counts = eventVolunteerRepository
+                .countVolunteersByEventIdsAndStatus(eventIds, VolunteerStatusEnum.CONFIRMED).stream()
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> ((Long) row[1]).intValue()));
+
+        return eventPage.map(event -> EventListResponseDTO.fromEntity(event, counts.getOrDefault(event.getId(), 0)));
     }
 }
