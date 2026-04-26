@@ -70,24 +70,28 @@ public interface EventVolunteerRepository extends JpaRepository<EventVolunteer, 
             @Param("userId") UUID userId);
 
     /**
-     * Calcula a quantidade de voluntários com status confirmado para uma lista
+     * Calcula a quantidade de voluntários filtrados por status para uma lista
      * específica de eventos.
      * <p>
-     * O resultado é retornado como uma lista de arrays de objetos para otimizar a
-     * performance,
-     * evitando o overhead de inicialização de entidades completas ou DTOs complexos
-     * durante a agregação.
+     * O uso de parâmetros para o status evita problemas de incompatibilidade de
+     * tipos
+     * entre o Enum Java e o literal do banco de dados, além de facilitar a
+     * manutenção.
      * </p>
      * 
-     * @param ids Lista de {@link UUID} dos eventos que serão contabilizados.
+     * @param ids    Lista de {@link UUID} dos eventos que serão contabilizados.
+     * @param status O {@link VolunteerStatusEnum} para filtrar os voluntários (ex:
+     *               CONFIRMED).
      * @return Uma {@link List} de {@code Object[]}, onde cada elemento do array
      *         contém:
      *         <ul>
      *         <li>{@code [0]} ({@link UUID}): O identificador único do evento.</li>
-     *         <li>{@code [1]} ({@link Long}): A contagem total de voluntários
-     *         confirmados.</li>
+     *         <li>{@code [1]} ({@link Long}): A contagem total de voluntários com o
+     *         status informado.</li>
      *         </ul>
      */
-    @Query("SELECT ev.event.id, COUNT(ev) FROM EventVolunteer ev WHERE ev.event.id IN :ids AND ev.status = 'CONFIRMED' GROUP BY ev.event.id")
-    List<Object[]> countConfirmedVolunteersByEventIds(@Param("ids") List<UUID> ids);
+    @Query("SELECT ev.event.id, COUNT(ev) FROM EventVolunteer ev WHERE ev.event.id IN :ids AND ev.status = :status GROUP BY ev.event.id")
+    List<Object[]> countVolunteersByEventIdsAndStatus(
+            @Param("ids") List<UUID> ids,
+            @Param("status") VolunteerStatusEnum status);
 }

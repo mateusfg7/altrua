@@ -22,6 +22,7 @@ import com.techfun.altrua.features.event.api.EventSpecification;
 import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
 import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
+import com.techfun.altrua.features.event.domain.enums.VolunteerStatusEnum;
 import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.event.repository.EventRepository;
 import com.techfun.altrua.features.event.repository.EventVolunteerRepository;
@@ -145,13 +146,10 @@ public class EventService {
     public Page<EventListResponseDTO> listEvents(EventFilterDTO filter, Pageable pageable) {
         Page<Event> eventPage = eventRepository.findAll(EventSpecification.withFilter(filter), pageable);
 
-        if (eventPage.isEmpty()) {
-            return Page.empty();
-        }
-
         List<UUID> eventIds = eventPage.getContent().stream().map(Event::getId).toList();
 
-        Map<UUID, Integer> counts = eventVolunteerRepository.countConfirmedVolunteersByEventIds(eventIds).stream()
+        Map<UUID, Integer> counts = eventVolunteerRepository
+                .countVolunteersByEventIdsAndStatus(eventIds, VolunteerStatusEnum.CONFIRMED).stream()
                 .collect(Collectors.toMap(row -> (UUID) row[0], row -> ((Long) row[1]).intValue()));
 
         return eventPage.map(event -> EventListResponseDTO.fromEntity(event, counts.getOrDefault(event.getId(), 0)));
