@@ -28,5 +28,5 @@ public enum EventStatusEnum {
     /**
      * O evento foi interrompido ou cancelado pela organização responsável.
      */
-    CANCELED;
+    CANCELLED;
 }

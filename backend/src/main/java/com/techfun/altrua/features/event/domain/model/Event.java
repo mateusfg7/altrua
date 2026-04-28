@@ -179,7 +179,7 @@ public class Event {
      * {@link EventStatusEnum#CANCELED}.
      */
     public void finish() {
-        if (this.status == EventStatusEnum.CANCELED) {
+        if (this.status == EventStatusEnum.CANCELLED) {
             throw new DomainException("Não é possível encerrar um evento que foi cancelado.");
         }
 
