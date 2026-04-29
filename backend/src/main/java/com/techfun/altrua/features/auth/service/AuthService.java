@@ -16,7 +16,7 @@ import com.techfun.altrua.features.auth.api.dto.AuthResponseDTO;
 import com.techfun.altrua.features.auth.api.dto.LoginRequestDTO;
 import com.techfun.altrua.features.auth.api.dto.RegisterUserRequestDTO;
 import com.techfun.altrua.features.auth.api.dto.RotateResult;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
 import com.techfun.altrua.infra.security.jwt.JwtProvider;
 import com.techfun.altrua.infra.security.jwt.JwtValidator;
@@ -71,7 +71,7 @@ public class AuthService {
         }
 
         try {
-            User user = User.create(
+            User user = User.createStandard(
                     dto.getName(),
                     dto.getEmail(),
                     passwordEncoder.encode(dto.getPassword()));

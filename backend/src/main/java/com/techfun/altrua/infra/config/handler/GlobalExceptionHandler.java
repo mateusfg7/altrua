@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.techfun.altrua.core.common.exceptions.BusinessException;
 import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ForbiddenActionException;
+import com.techfun.altrua.core.common.exceptions.IdentityIncompleteException;
 import com.techfun.altrua.core.common.exceptions.InvalidCredentialsException;
 import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
 import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
@@ -161,6 +162,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleRefreshToken(RefreshTokenException ex) {
         log.warn("Falha no Refresh Token: {}", ex.getMessage());
         return buildProblemDetail(HttpStatus.UNAUTHORIZED, ex.getMessage(), "Falha na Autenticação");
+    }
+
+    /**
+     * Captura e trata exceções de identidade incompleta durante o fluxo de
+     * requisição.
+     * <p>
+     * Este handler garante que, caso um usuário tente operar no sistema com um
+     * perfil inconsistente ou sem permissões atribuídas, a API retorne um objeto
+     * {@link ProblemDetail} padronizado com o status {@code 403 Forbidden}.
+     * </p>
+     *
+     * @param ex A exceção capturada contendo os detalhes da falha de integridade.
+     * @return Um {@link ProblemDetail} estruturado com a mensagem de erro e o
+     *         título da falha.
+     */
+    @ExceptionHandler(IdentityIncompleteException.class)
+    public ProblemDetail handleMissingRole(IdentityIncompleteException ex) {
+        return buildProblemDetail(HttpStatus.FORBIDDEN, ex.getMessage(), "Perfil de Acesso Ausente");
     }
 
     /**

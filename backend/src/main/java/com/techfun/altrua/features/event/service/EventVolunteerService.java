@@ -15,7 +15,7 @@ import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.event.domain.model.EventVolunteer;
 import com.techfun.altrua.features.event.repository.EventRepository;
 import com.techfun.altrua.features.event.repository.EventVolunteerRepository;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;

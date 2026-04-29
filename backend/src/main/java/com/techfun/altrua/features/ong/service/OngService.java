@@ -24,7 +24,7 @@ import com.techfun.altrua.features.ong.domain.model.OngAdministrator;
 import com.techfun.altrua.features.ong.domain.model.OngAdministratorId;
 import com.techfun.altrua.features.ong.repository.OngAdministratorRepository;
 import com.techfun.altrua.features.ong.repository.OngRepository;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;

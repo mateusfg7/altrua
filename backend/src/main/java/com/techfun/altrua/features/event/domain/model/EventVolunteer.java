@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.techfun.altrua.features.event.domain.enums.VolunteerStatusEnum;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
