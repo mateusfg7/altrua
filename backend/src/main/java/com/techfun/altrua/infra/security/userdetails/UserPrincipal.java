@@ -1,13 +1,14 @@
 package com.techfun.altrua.infra.security.userdetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.enums.UserRoleEnum;
 
 import lombok.RequiredArgsConstructor;
 
@@ -53,13 +54,18 @@ public class UserPrincipal implements UserDetails {
     }
 
     /**
-     * Retorna as autoridades (roles/permissões) concedidas ao usuário.
+     * Retorna as autoridades concedidas ao usuário para o ecossistema do Spring
+     * Security.
+     * <p>
+     * Converte o {@link UserRoleEnum} (ex: ADMIN, USER) da entidade para o formato
+     * esperado pelo framework, concatenando o prefixo "ROLE_".
+     * </p>
      *
-     * @return uma lista contendo a role "ROLE_USER" por padrão
+     * @return uma lista contendo a autoridade formatada (ex: "ROLE_ADMIN")
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     /**

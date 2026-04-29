@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.techfun.altrua.core.common.exceptions.IdentityIncompleteException;
+
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,28 +48,31 @@ public class JwtProvider {
      * Gera um Access Token JWT para um usuário autenticado.
      *
      * <p>
-     * O token gerado possui tempo de expiração curto (definido em
-     * {@code jwt.expiration})
-     * e contém as seguintes informações no payload:
+     * O token gerado possui tempo de expiração curto e contém as seguintes
+     * informações no payload:
      * <ul>
-     * <li><b>sub:</b> Identificador único do usuário (Username).</li>
-     * <li><b>role:</b> A autoridade principal do usuário.</li>
+     * <li><b>sub:</b> Identificador único do usuário.</li>
+     * <li><b>role:</b> A autoridade formatada do usuário (ex: "ROLE_ADMIN" ou
+     * "ROLE_USER").</li>
      * <li><b>tokenType:</b> Identificador de tipo definido como "access".</li>
      * </ul>
      * </p>
      *
-     * @param userDetails Os detalhes do usuário autenticado.
+     * @param userDetails Os detalhes do usuário autenticado (UserPrincipal).
      * @return String contendo o Access Token assinado.
+     * @throws IdentityIncompleteException se o usuário não possuir nenhuma
+     *                                     autoridade definida.
      */
     public String generateToken(UserDetails userDetails) {
         log.debug("Gerando token para usuário: {}", userDetails.getUsername());
 
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("role", userDetails.getAuthorities()
-                .stream()
-                .findFirst()
+        String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .orElse("ROLE_USER"));
+                .findFirst()
+                .orElseThrow(() -> new IdentityIncompleteException("Conta com permissões insuficientes para acesso."));
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
         claims.put("tokenType", "access");
 
         return buildToken(claims, userDetails.getUsername(), jwtExpiration);
