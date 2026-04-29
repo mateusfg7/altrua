@@ -71,7 +71,7 @@ public class AuthService {
         }
 
         try {
-            User user = User.create(
+            User user = User.createStandard(
                     dto.getName(),
                     dto.getEmail(),
                     passwordEncoder.encode(dto.getPassword()));
