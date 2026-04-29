@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.techfun.altrua.features.user.domain;
+package com.techfun.altrua.features.user.domain.model;
 
 import java.time.Instant;
 import java.util.UUID;

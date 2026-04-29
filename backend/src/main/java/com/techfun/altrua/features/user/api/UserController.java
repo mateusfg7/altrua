@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.techfun.altrua.features.user.api.dto.UserResponseDTO;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.features.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;

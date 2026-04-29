@@ -7,8 +7,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.techfun.altrua.features.user.domain.User;
 import com.techfun.altrua.features.user.domain.enums.UserRoleEnum;
+import com.techfun.altrua.features.user.domain.model.User;
 
 import lombok.RequiredArgsConstructor;
 

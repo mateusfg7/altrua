@@ -7,7 +7,7 @@ import java.util.Set;
 import com.techfun.altrua.features.event.domain.enums.EventStatusEnum;
 import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.ong.domain.model.Ong;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;

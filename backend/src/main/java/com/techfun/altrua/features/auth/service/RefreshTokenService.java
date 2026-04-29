@@ -16,7 +16,7 @@ import com.techfun.altrua.core.common.exceptions.RefreshTokenException;
 import com.techfun.altrua.features.auth.api.dto.RotateResult;
 import com.techfun.altrua.features.auth.domain.RefreshToken;
 import com.techfun.altrua.features.auth.repository.RefreshTokenRepository;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.infra.security.jwt.JwtProvider;
 import com.techfun.altrua.infra.security.userdetails.UserLookupService;
 import com.techfun.altrua.infra.security.userdetails.UserPrincipal;

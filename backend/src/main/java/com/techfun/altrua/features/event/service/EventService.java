@@ -30,7 +30,7 @@ import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.repository.OngRepository;
 import com.techfun.altrua.features.tag.domain.Tag;
 import com.techfun.altrua.features.tag.service.TagService;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
