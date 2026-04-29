@@ -3,8 +3,12 @@ package com.techfun.altrua.features.user.domain;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.techfun.altrua.features.user.domain.enums.UserRoleEnum;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,21 +21,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Entidade que representa um usuário no sistema.
- *
+ * Entidade de domínio que centraliza os dados de identidade e regras de acesso
+ * do usuário.
+ * 
  * <p>
- * Mapeada para a tabela {@code users} no banco de dados.
- * </p>
- *
- * <p>
- * Os campos {@code createdAt} e {@code updatedAt} são gerenciados
- * automaticamente pelos callbacks {@link #onPersist()} e {@link #onUpdate()},
- * respectivamente, e não podem ser definidos externamente.
- * </p>
- *
- * <p>
- * A instanciação deve ser feita exclusivamente pelos métodos estáticos
- * {@code create(...)}, nunca pelo construtor diretamente.
+ * Esta classe utiliza o padrão <b>Static Factory Methods</b> para garantir que
+ * a criação de usuários siga estados válidos e imutáveis em relação ao papel
+ * (Role) atribuído. O ciclo de vida temporal (criação e atualização) é
+ * gerenciado automaticamente via callbacks JPA.
  * </p>
  */
 @Entity
@@ -41,187 +38,107 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
-    /**
-     * Identificador único do usuário.
-     *
-     * <p>
-     * Gerado automaticamente como UUID pelo provedor JPA no momento da
-     * persistência. Não pode ser alterado após a criação.
-     * </p>
-     */
+    /** Identificador único persistente. */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Setter(AccessLevel.NONE)
     private UUID id;
 
-    /**
-     * Nome completo do usuário.
-     *
-     * <p>
-     * Campo obrigatório. Não pode ser {@code null}.
-     * </p>
-     */
+    /** Nome completo do titular da conta. Campo obrigatório. */
     @Column(nullable = false)
     private String name;
 
     /**
-     * Endereço de e-mail do usuário.
-     *
-     * <p>
-     * Campo obrigatório e único no sistema. Utilizado como identificador
-     * de autenticação.
-     * </p>
+     * Nível de autoridade do usuário.
+     * Definido obrigatoriamente na criação e imutável para prevenir escalação de
+     * privilégios via JPA.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = false)
+    @Setter(AccessLevel.NONE)
+    private UserRoleEnum role;
+
+    /**
+     * E-mail único e obrigatório. Atua como o identificador primário para o
+     * processo de login.
      */
     @Column(nullable = false, unique = true)
     private String email;
 
     /**
-     * Senha do usuário armazenada em formato hash.
-     *
-     * <p>
-     * Nunca deve conter a senha em texto puro. O hash deve ser gerado
-     * antes da criação da entidade. Tamanho máximo de 500 caracteres.
-     * </p>
+     * Representação em hash da credencial de acesso.
+     * <b>Atenção:</b> Jamais deve persistir texto plano; o hashing deve ocorrer na
+     * camada de serviço.
      */
     @Column(nullable = false, length = 500)
     private String password;
 
-    /**
-     * URL do avatar do usuário.
-     *
-     * <p>
-     * Campo opcional. Quando presente, deve apontar para uma imagem
-     * acessível publicamente. Tamanho máximo de 500 caracteres.
-     * </p>
-     */
+    /** Referência externa para a imagem de perfil. Campo opcional. */
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
-    /**
-     * Data e hora de criação do registro.
-     *
-     * <p>
-     * Definida automaticamente pelo callback {@link #onPersist()} no
-     * momento da primeira persistência. Não pode ser alterada posteriormente.
-     * </p>
-     */
+    /** Timestamp da criação do registro. Imutável após o primeiro insert. */
     @Column(name = "created_at", nullable = false, updatable = false)
     @Setter(AccessLevel.NONE)
     private Instant createdAt;
 
     /**
-     * Data e hora da última atualização do registro.
-     *
-     * <p>
-     * Inicializada pelo callback {@link #onPersist()} e atualizada
-     * automaticamente a cada modificação pelo callback {@link #onUpdate()}.
-     * Não pode ser definida externamente.
-     * </p>
+     * Timestamp da última modificação, atualizado automaticamente em cada update.
      */
     @Column(name = "updated_at", nullable = false)
     @Setter(AccessLevel.NONE)
     private Instant updatedAt;
 
     /**
-     * Constrói um usuário com os campos obrigatórios.
-     *
-     * @param name     nome completo do usuário
-     * @param email    endereço de e-mail do usuário
-     * @param password senha do usuário já em formato hash
+     * Construtor privado para reforçar a política de criação via métodos estáticos
+     * nomeados.
      */
-    private User(String name, String email, String password) {
+    private User(String name, String email, String password, UserRoleEnum role, String avatarUrl) {
         this.name = name;
         this.email = email;
         this.password = password;
-    }
-
-    /**
-     * Constrói um usuário com os campos obrigatórios e um avatar.
-     *
-     * @param name      nome completo do usuário
-     * @param email     endereço de e-mail do usuário
-     * @param password  senha do usuário já em formato hash
-     * @param avatarUrl URL da imagem de avatar do usuário
-     */
-    private User(String name, String email, String password, String avatarUrl) {
-        this(name, email, password);
+        this.role = role;
         this.avatarUrl = avatarUrl;
     }
 
     /**
-     * Constrói um usuário com todos os campos, incluindo as datas de auditoria.
-     *
-     * <p>
-     * Destinado à reconstituição de entidades a partir de fontes externas,
-     * como eventos de integração ou migrações de dados.
-     * </p>
-     *
-     * @param name      nome completo do usuário
-     * @param email     endereço de e-mail do usuário
-     * @param password  senha do usuário já em formato hash
-     * @param avatarUrl URL da imagem de avatar do usuário
-     * @param createdAt data e hora de criação original do registro
-     * @param updatedAt data e hora da última atualização do registro
+     * Instancia um usuário com perfil padrão de acesso (USER).
      */
-    private User(String name, String email, String password, String avatarUrl, Instant createdAt, Instant updatedAt) {
-        this(name, email, password, avatarUrl);
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    public static User createStandard(String name, String email, String password) {
+        return new User(name, email, password, UserRoleEnum.USER, null);
     }
 
     /**
-     * Cria um novo usuário com os campos obrigatórios.
-     *
-     * @param name     nome completo do usuário
-     * @param email    endereço de e-mail do usuário
-     * @param password senha do usuário já em formato hash
-     * @return nova instância de {@link User}
+     * Instancia um usuário com privilégios administrativos totais (ADMIN).
      */
-    public static User create(String name, String email, String password) {
-        return new User(name, email, password);
+    public static User createAdmin(String name, String email, String password) {
+        return new User(name, email, password, UserRoleEnum.ADMIN, null);
     }
 
     /**
-     * Cria um novo usuário com os campos obrigatórios e um avatar.
-     *
-     * @param name      nome completo do usuário
-     * @param email     endereço de e-mail do usuário
-     * @param password  senha do usuário já em formato hash
-     * @param avatarUrl URL da imagem de avatar do usuário
-     * @return nova instância de {@link User}
+     * Método fluente para configuração opcional do avatar após a criação.
+     * 
+     * @return A própria instância de {@code User} para encadeamento.
      */
-    public static User create(String name, String email, String password, String avatarUrl) {
-        return new User(name, email, password, avatarUrl);
+    public User withAvatar(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+        return this;
     }
 
     /**
-     * Cria um novo usuário com todos os campos, incluindo as datas de auditoria.
-     *
-     * <p>
-     * Útil para reconstituição de entidades a partir de fontes externas,
-     * como eventos de integração ou migrações de dados.
-     * </p>
-     *
-     * @param name      nome completo do usuário
-     * @param email     endereço de e-mail do usuário
-     * @param password  senha do usuário já em formato hash
-     * @param avatarUrl URL da imagem de avatar do usuário
-     * @param createdAt data e hora de criação original do registro
-     * @param updatedAt data e hora da última atualização do registro
-     * @return nova instância de {@link User}
+     * Reconstrói a entidade com dados pré-existentes.
+     * Uso exclusivo para mapeamento de persistência ou migração de dados.
      */
-    public static User create(String name, String email, String password, String avatarUrl, Instant createdAt,
-            Instant updatedAt) {
-        return new User(name, email, password, avatarUrl, createdAt, updatedAt);
+    public static User reconstruct(String name, String email, String password, UserRoleEnum role, String avatarUrl,
+            Instant createdAt, Instant updatedAt) {
+        User user = new User(name, email, password, role, avatarUrl);
+        user.createdAt = createdAt;
+        user.updatedAt = updatedAt;
+        return user;
     }
 
     /**
-     * Callback JPA executado antes da persistência inicial da entidade.
-     *
-     * <p>
-     * Inicializa {@code createdAt} e {@code updatedAt} com o instante atual
-     * caso ainda não tenham sido definidos.
-     * </p>
+     * Sincroniza os campos temporais antes da persistência inicial.
      */
     @PrePersist
     private void onPersist() {
@@ -232,11 +149,7 @@ public class User {
     }
 
     /**
-     * Callback JPA executado antes de cada atualização da entidade.
-     *
-     * <p>
-     * Atualiza {@code updatedAt} com o instante atual automaticamente.
-     * </p>
+     * Garante a atualização do timestamp sempre que o registro sofrer modificações.
      */
     @PreUpdate
     private void onUpdate() {
