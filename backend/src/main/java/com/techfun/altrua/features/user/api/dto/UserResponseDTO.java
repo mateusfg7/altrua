@@ -3,7 +3,7 @@ package com.techfun.altrua.features.user.api.dto;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 
 /**
  * DTO de resposta com os dados públicos do usuário.

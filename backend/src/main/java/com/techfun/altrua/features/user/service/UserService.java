@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.features.user.api.dto.UserResponseDTO;
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;

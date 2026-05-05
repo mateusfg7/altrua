@@ -3,7 +3,7 @@ package com.techfun.altrua.features.auth.domain;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,6 +1,6 @@
 package com.techfun.altrua.features.auth.api.dto;
 
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 
 /**
  * Resultado da operação de rotação de refresh token.

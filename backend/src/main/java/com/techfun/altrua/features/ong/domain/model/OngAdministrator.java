@@ -2,7 +2,7 @@ package com.techfun.altrua.features.ong.domain.model;
 
 import java.time.Instant;
 
-import com.techfun.altrua.features.user.domain.User;
+import com.techfun.altrua.features.user.domain.model.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
