@@ -4,10 +4,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
-import com.techfun.altrua.features.event.domain.model.Event;
-import com.techfun.altrua.features.tag.domain.Tag;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -77,30 +73,4 @@ public record EventResponseDTO(
 
         @Schema(description = "Conjunto de categorias vinculadas", example = "[\"meio ambiente\", \"sustentabilidade\"]") Set<String> tags) {
 
-    /**
-     * Converte uma entidade de domínio {@link Event} para seu respectivo DTO de
-     * resposta.
-     *
-     * @param event A entidade original proveniente do banco de dados.
-     * @return Uma nova instância de {@link EventResponseDTO} populada.
-     */
-    public static EventResponseDTO fromEntity(Event event) {
-        return new EventResponseDTO(
-                event.getId(),
-                event.getTitle(),
-                event.getDescription(),
-                event.getSlug(),
-                event.getCoverUrl(),
-                event.getExternalLink(),
-                event.getDonationInfo(),
-                event.getDonationExternalLink(),
-                event.isAcceptsVolunteers(),
-                event.getMaxVolunteers(),
-                event.getLatitude(),
-                event.getLongitude(),
-                event.getAddressLabel(),
-                event.getStartsAt(),
-                event.getEndsAt(),
-                event.getTags().stream().map(Tag::getName).collect(Collectors.toSet()));
-    }
 }

@@ -4,13 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Set;
 
-import com.techfun.altrua.features.event.domain.enums.EventStatusEnum;
-import com.techfun.altrua.features.event.domain.model.Event;
-import com.techfun.altrua.features.ong.domain.model.Ong;
-import com.techfun.altrua.features.user.domain.model.User;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -79,60 +73,4 @@ public record RegisterEventRequestDTO(
 
         @Schema(description = "Conjunto de nomes das tags para categorização", example = "[\"Meio Ambiente\", \"Limpeza\"]") @NotEmpty(message = "É obrigatório informar ao menos uma tag") Set<@NotBlank(message = "O nome da tag não pode estar em branco") String> tags) {
 
-    /**
-     * Valida a consistência entre {@code acceptsVolunteers} e
-     * {@code maxVolunteers}.
-     * <p>
-     * Quando o evento aceita voluntários, {@code maxVolunteers} deve ser informado
-     * e conter um valor maior que zero. Caso {@code acceptsVolunteers} seja
-     * {@code false} ou {@code null}, o campo é ignorado.
-     * </p>
-     *
-     * @return {@code true} se a combinação dos campos for válida; {@code false}
-     *         caso contrário.
-     */
-    @AssertTrue(message = "Número máximo de voluntários é obrigatório e deve ser maior que zero quando o evento aceitar voluntários")
-    private boolean isMaxVolunteersValid() {
-        return !Boolean.TRUE.equals(acceptsVolunteers) || maxVolunteers != null && maxVolunteers > 0;
-    }
-
-    /**
-     * Mapeia os dados do DTO para uma nova instância da entidade {@link Event}.
-     * 
-     * <p>
-     * Por padrão, novos eventos são criados com o status {@code PUBLISHED}.
-     * </p>
-     *
-     * <p>
-     * O campo {@code maxVolunteers} só é repassado à entidade quando
-     * {@code acceptsVolunteers} for {@code true}; caso contrário, é persistido
-     * como {@code null}, independentemente do valor informado na requisição.
-     * </p>
-     *
-     * @param slug    O slug único gerado previamente para o evento.
-     * @param ong     A instância da {@link Ong} proprietária do evento.
-     * @param creator O usuário ({@link User}) que está realizando o cadastro.
-     * @return Uma instância de {@link Event} pronta para persistência.
-     */
-    public Event toEntity(String slug, Ong ong, User creator) {
-        return Event.builder()
-                .title(this.title)
-                .description(this.description)
-                .slug(slug)
-                .ong(ong)
-                .createdByUser(creator)
-                .status(EventStatusEnum.PUBLISHED)
-                .coverUrl(this.coverUrl)
-                .externalLink(this.externalLink)
-                .donationInfo(this.donationInfo)
-                .donationExternalLink(this.donationExternalLink)
-                .acceptsVolunteers(this.acceptsVolunteers)
-                .maxVolunteers(Boolean.TRUE.equals(this.acceptsVolunteers) ? this.maxVolunteers : null)
-                .latitude(this.latitude)
-                .longitude(this.longitude)
-                .addressLabel(this.addressLabel)
-                .startsAt(this.startsAt)
-                .endsAt(this.endsAt)
-                .build();
-    }
 }
