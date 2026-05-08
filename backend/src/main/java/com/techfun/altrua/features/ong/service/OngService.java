@@ -20,6 +20,7 @@ import com.techfun.altrua.features.ong.api.OngSpecification;
 import com.techfun.altrua.features.ong.api.dto.OngFilterDTO;
 import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
 import com.techfun.altrua.features.ong.api.dto.RegisterOngRequestDTO;
+import com.techfun.altrua.features.ong.api.dto.UpdateOngRequestDTO;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.ong.domain.model.OngAdministrator;
 import com.techfun.altrua.features.ong.domain.model.OngAdministratorId;
@@ -103,6 +104,31 @@ public class OngService {
             log.error("Erro técnico inesperado ao cadastrar ONG: {}", ex.getMessage());
             throw ex;
         }
+    }
+
+    /**
+     * Atualiza os dados de uma ONG existente de forma parcial.
+     * <p>
+     * O método recupera a entidade do banco de dados e utiliza o {@link OngMapper}
+     * para mesclar apenas os campos não nulos fornecidos no DTO de requisição com
+     * os dados atuais.
+     * </p>
+     *
+     * @param id      O identificador único (UUID) da ONG a ser atualizada.
+     * @param request O DTO contendo os campos que devem ser modificados.
+     *                Campos omitidos no JSON não serão alterados no banco de dados.
+     * @return {@link OngResponseDTO} contendo os dados da ONG após a persistência.
+     * @throws ResourceNotFoundException Caso não exista nenhuma ONG com o ID
+     *                                   fornecido.
+     */
+    @Transactional
+    public OngResponseDTO update(UUID id, UpdateOngRequestDTO request) {
+        Ong ong = ongRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ONG"));
+
+        ongMapper.updateEntityFromDto(request, ong);
+        Ong updatedOng = ongRepository.save(ong);
+        return ongMapper.toDto(updatedOng);
     }
 
     /**

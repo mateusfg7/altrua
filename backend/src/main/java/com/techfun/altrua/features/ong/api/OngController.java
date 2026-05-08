@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import com.techfun.altrua.features.ong.api.dto.OngFilterDTO;
 import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
 import com.techfun.altrua.features.ong.api.dto.PromoteAdminRequestDTO;
 import com.techfun.altrua.features.ong.api.dto.RegisterOngRequestDTO;
+import com.techfun.altrua.features.ong.api.dto.UpdateOngRequestDTO;
 import com.techfun.altrua.features.ong.service.OngService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,6 +72,34 @@ public class OngController {
     public ResponseEntity<OngResponseDTO> register(@RequestBody @Valid RegisterOngRequestDTO dto) {
         OngResponseDTO savedOng = ongService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedOng);
+    }
+
+    /**
+     * Atualiza parcialmente os dados de uma organização.
+     * <p>
+     * Este endpoint permite a modificação de atributos específicos de uma ONG.
+     * A autorização é restrita a usuários com privilégios de administrador sobre a
+     * ONG informada.
+     * </p>
+     *
+     * @param ongId O identificador único da ONG.
+     * @param dto   Objeto contendo os campos a serem atualizados (campos nulos ou
+     *              vazios são ignorados).
+     * @return {@link OngResponseDTO} com os dados atualizados.
+     */
+    @Operation(summary = "Atualizar uma ONG", description = "Atualiza os dados de uma organização existente. Requer que o usuário autenticado possua privilégios de administrador sobre a ONG informada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "ONG atualizada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos (validação do DTO)"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado: Usuário não possui permissão de administrador"),
+            @ApiResponse(responseCode = "404", description = "ONG não encontrada") })
+    @PatchMapping("{ongId}")
+    @PreAuthorize("@securityService.isOngAdmin(#ongId)")
+    public ResponseEntity<OngResponseDTO> update(
+            @Parameter(description = "ID da ONG") @PathVariable("ongId") UUID ongId,
+            @RequestBody @Valid UpdateOngRequestDTO dto) {
+        OngResponseDTO updatedOng = ongService.update(ongId, dto);
+        return ResponseEntity.ok(updatedOng);
     }
 
     /**
