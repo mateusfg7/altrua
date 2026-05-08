@@ -66,15 +66,15 @@ public class AuthService {
      */
     @Transactional
     public AuthResponseDTO register(RegisterUserRequestDTO dto) {
-        if (userRepository.existsByEmail(dto.getEmail())) {
+        if (userRepository.existsByEmail(dto.email())) {
             throw new DuplicateResourceException("E-mail já cadastrado");
         }
 
         try {
             User user = User.createStandard(
-                    dto.getName(),
-                    dto.getEmail(),
-                    passwordEncoder.encode(dto.getPassword()));
+                    dto.name(),
+                    dto.email(),
+                    passwordEncoder.encode(dto.password()));
 
             userRepository.saveAndFlush(user);
 
@@ -108,7 +108,7 @@ public class AuthService {
     public AuthResponseDTO login(LoginRequestDTO dto) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+                    new UsernamePasswordAuthenticationToken(dto.email(), dto.password()));
 
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
             String token = jwtProvider.generateToken(userPrincipal);

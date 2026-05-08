@@ -2,24 +2,18 @@ package com.techfun.altrua.features.auth.api.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
 
 /**
- * DTO de requisição para operações que envolvem refresh token.
- *
+ * DTO para operações que utilizam o token de renovação (refresh token).
  * <p>
- * Utilizado nos endpoints {@code POST /auth/refresh} e
- * {@code POST /auth/logout},
- * recebendo o refresh token enviado pelo cliente.
+ * Este objeto é utilizado para estender a sessão do usuário ou para invalidar
+ * o acesso durante o encerramento da sessão (logout).
  * </p>
+ *
+ * @param token O refresh token recebido anteriormente no login ou na última
+ *              renovação.
  */
-@Getter
-public class RefreshTokenRequestDTO {
-
-    /**
-     * Refresh token enviado pelo cliente. Não pode estar em branco.
-     */
-    @Schema(description = "Refresh token recebido no login ou na última renovação", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
-    @NotBlank
-    private String token;
+@Schema(description = "Dados de requisição para renovação de acesso ou logout")
+public record RefreshTokenRequestDTO(
+        @Schema(description = "Token de renovação (Refresh Token)", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3YjhlMWEyYyIsInR5cGUiOiJyZWZyZXNoIn0...", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O token de renovação é obrigatório") String token) {
 }

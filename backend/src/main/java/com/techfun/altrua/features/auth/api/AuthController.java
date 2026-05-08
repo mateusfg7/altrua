@@ -102,7 +102,7 @@ public class AuthController {
     })
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponseDTO> refresh(@RequestBody @Valid RefreshTokenRequestDTO dto) {
-        return ResponseEntity.ok(authService.refresh(dto.getToken()));
+        return ResponseEntity.ok(authService.refresh(dto.token()));
     }
 
     /**
@@ -124,7 +124,7 @@ public class AuthController {
     })
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestBody @Valid RefreshTokenRequestDTO dto) {
-        authService.logout(dto.getToken());
+        authService.logout(dto.token());
         return ResponseEntity.noContent().build();
     }
 }
