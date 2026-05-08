@@ -2,9 +2,6 @@ package com.techfun.altrua.features.ong.api.dto;
 
 import java.math.BigDecimal;
 
-import com.techfun.altrua.features.ong.domain.enums.OngStatusEnum;
-import com.techfun.altrua.features.ong.domain.model.Ong;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -55,22 +52,4 @@ public record RegisterOngRequestDTO(
         @Schema(description = "Coordenada de latitude para geolocalização", example = "-23.550520") BigDecimal latitude,
 
         @Schema(description = "Coordenada de longitude para geolocalização", example = "-46.633308") BigDecimal longitude) {
-
-    public Ong toEntity(String slug) {
-        return Ong.builder()
-                .name(this.name)
-                .slug(slug)
-                .status(OngStatusEnum.ACTIVE)
-                .cnpj(this.cnpj)
-                .email(this.email)
-                .category(this.category)
-                .description(this.description)
-                .phone(this.phone)
-                .logoUrl(this.logoUrl)
-                .bannerUrl(this.bannerUrl)
-                .donationInfo(this.donationInfo)
-                .latitude(this.latitude)
-                .longitude(this.longitude)
-                .build();
-    }
 }

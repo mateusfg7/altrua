@@ -15,6 +15,7 @@ import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
+import com.techfun.altrua.features.ong.api.OngMapper;
 import com.techfun.altrua.features.ong.api.OngSpecification;
 import com.techfun.altrua.features.ong.api.dto.OngFilterDTO;
 import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
@@ -48,6 +49,7 @@ public class OngService {
     private final OngRepository ongRepository;
     private final UserRepository userRepository;
     private final OngAdministratorRepository ongAdministratorRepository;
+    private final OngMapper ongMapper;
 
     /**
      * Registra uma nova organização (ONG) e estabelece seu administrador inicial.
@@ -59,12 +61,13 @@ public class OngService {
      * </p>
      *
      * @param request DTO com os dados de entrada validados.
-     * @return A entidade {@link Ong} persistida e configurada.
+     * @return O DTO {@link OngResponseDTO} contendo os detalhes da organização
+     *         recém-criada.
      * @throws DuplicateResourceException Se o CNPJ ou o Slug gerado já pertencerem
      *                                    a uma ONG ativa.
      */
     @Transactional
-    public Ong register(RegisterOngRequestDTO request) {
+    public OngResponseDTO register(RegisterOngRequestDTO request) {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
         User creator = userRepository.getReferenceById(currentUserId);
 
@@ -79,9 +82,10 @@ public class OngService {
         }
 
         try {
-            Ong ong = request.toEntity(slug);
+            Ong ong = ongMapper.toEntity(request, slug);
             OngAdministrator.createCreator(creator, ong);
-            return ongRepository.saveAndFlush(ong);
+            Ong savedOng = ongRepository.saveAndFlush(ong);
+            return ongMapper.toDto(savedOng);
         } catch (DataIntegrityViolationException ex) {
             if (ex.getCause() instanceof ConstraintViolationException cve) {
 
@@ -181,6 +185,6 @@ public class OngService {
      */
     public Page<OngResponseDTO> listNgos(OngFilterDTO filter, Pageable pageable) {
         Specification<Ong> spec = OngSpecification.withFilter(filter);
-        return ongRepository.findAll(spec, pageable).map(OngResponseDTO::fromEntity);
+        return ongRepository.findAll(spec, pageable).map(ongMapper::toDto);
     }
 }

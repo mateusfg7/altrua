@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.techfun.altrua.features.ong.domain.model.Ong;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -50,7 +48,8 @@ public record OngResponseDTO(
         @Schema(description = "Área principal de atuação da ONG", example = "Proteção Animal") String category,
 
         @Schema(description = "Estado atual do registro no sistema (Definido automaticamente como ACTIVE na criação)", allowableValues = {
-                "ACTIVE", "INACTIVE" }, example = "ACTIVE", accessMode = Schema.AccessMode.READ_ONLY) String status,
+                "ACTIVE",
+                "INACTIVE" }, example = "ACTIVE", accessMode = Schema.AccessMode.READ_ONLY) String status,
 
         @Schema(description = "URL pública para o logotipo da ONG", example = "https://cdn.ong.com/logos/amigos-animais.png") String logoUrl,
 
@@ -65,31 +64,5 @@ public record OngResponseDTO(
         @Schema(description = "Número de eventos ativos (campo calculado via subquery). Não é editável.", example = "5", accessMode = Schema.AccessMode.READ_ONLY) Long activeEventCount,
 
         @Schema(description = "Data e hora em que o registro foi criado", accessMode = Schema.AccessMode.READ_ONLY) Instant createdAt) {
-
-    /**
-     * Converte uma instância da entidade {@link Ong} para {@link OngResponseDTO}.
-     *
-     * @param ong a entidade original proveniente do banco de dados
-     * @return uma nova instância de DTO com os dados mapeados
-     */
-    public static OngResponseDTO fromEntity(Ong ong) {
-        return new OngResponseDTO(
-                ong.getId(),
-                ong.getName(),
-                ong.getSlug(),
-                ong.getCnpj(),
-                ong.getDescription(),
-                ong.getEmail(),
-                ong.getPhone(),
-                ong.getCategory(),
-                ong.getStatus().name(),
-                ong.getLogoUrl(),
-                ong.getBannerUrl(),
-                ong.getDonationInfo(),
-                ong.getLatitude(),
-                ong.getLongitude(),
-                ong.getActiveEventCount() != null ? ong.getActiveEventCount() : 0L,
-                ong.getCreatedAt());
-    }
 
 }
