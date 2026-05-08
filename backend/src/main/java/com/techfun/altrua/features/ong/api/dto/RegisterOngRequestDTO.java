@@ -2,8 +2,7 @@ package com.techfun.altrua.features.ong.api.dto;
 
 import java.math.BigDecimal;
 
-import com.techfun.altrua.features.ong.domain.enums.OngStatusEnum;
-import com.techfun.altrua.features.ong.domain.model.Ong;
+import org.hibernate.validator.constraints.URL;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -46,31 +45,13 @@ public record RegisterOngRequestDTO(
 
         @Schema(description = "Telefone ou WhatsApp de contato", example = "11987654321") String phone,
 
-        @Schema(description = "URL para o logotipo da organização", example = "https://link-da-imagem.com/logo.png") String logoUrl,
+        @URL(message = "A URL do logotipo deve ser válida") @Schema(description = "URL para o logotipo da organização", example = "https://link-da-imagem.com/logo.png") String logoUrl,
 
-        @Schema(description = "URL para a imagem de capa ou banner", example = "https://link-da-imagem.com/banner.jpg") String bannerUrl,
+        @URL(message = "A URL do banner deve ser válida") @Schema(description = "URL para a imagem de capa ou banner", example = "https://link-da-imagem.com/banner.jpg") String bannerUrl,
 
         @Schema(description = "Texto explicativo sobre métodos de doação (PIX, conta bancária, etc.)", example = "Chave PIX: contato@amigosdosanimais.org") String donationInfo,
 
         @Schema(description = "Coordenada de latitude para geolocalização", example = "-23.550520") BigDecimal latitude,
 
         @Schema(description = "Coordenada de longitude para geolocalização", example = "-46.633308") BigDecimal longitude) {
-
-    public Ong toEntity(String slug) {
-        return Ong.builder()
-                .name(this.name)
-                .slug(slug)
-                .status(OngStatusEnum.ACTIVE)
-                .cnpj(this.cnpj)
-                .email(this.email)
-                .category(this.category)
-                .description(this.description)
-                .phone(this.phone)
-                .logoUrl(this.logoUrl)
-                .bannerUrl(this.bannerUrl)
-                .donationInfo(this.donationInfo)
-                .latitude(this.latitude)
-                .longitude(this.longitude)
-                .build();
-    }
 }

@@ -19,7 +19,6 @@ import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
 import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
 import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
-import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.event.service.EventService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,8 +70,8 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> register(
             @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
             @RequestBody @Valid RegisterEventRequestDTO request) {
-        Event savedEvent = eventService.register(ongId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(EventResponseDTO.fromEntity(savedEvent));
+        EventResponseDTO savedEvent = eventService.register(ongId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
     }
 
     /**

@@ -18,9 +18,11 @@ import com.techfun.altrua.core.common.exceptions.DuplicateResourceException;
 import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
 import com.techfun.altrua.core.common.util.SlugUtils;
+import com.techfun.altrua.features.event.api.EventMapper;
 import com.techfun.altrua.features.event.api.EventSpecification;
 import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
 import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
+import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
 import com.techfun.altrua.features.event.domain.enums.VolunteerStatusEnum;
 import com.techfun.altrua.features.event.domain.model.Event;
@@ -56,6 +58,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventVolunteerRepository eventVolunteerRepository;
     private final OngRepository ongRepository;
+    private final EventMapper eventMapper;
     private final TagService tagService;
 
     /**
@@ -70,12 +73,13 @@ public class EventService {
      *
      * @param ongId   UUID da organização proprietária.
      * @param request DTO com os dados do evento.
-     * @return O evento registrado e persistido.
+     * @return O DTO {@link EventResponseDTO} contendo os dados do evento
+     *         persistido.
      * @throws DuplicateResourceException Se houver colisão de slug que não pôde ser
      *                                    resolvida.
      */
     @Transactional
-    public Event register(UUID ongId, RegisterEventRequestDTO request) {
+    public EventResponseDTO register(UUID ongId, RegisterEventRequestDTO request) {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
         User creator = userRepository.getReferenceById(currentUserId);
 
@@ -88,10 +92,10 @@ public class EventService {
         }
 
         try {
-            Event event = request.toEntity(slug, ong, creator);
+            Event event = eventMapper.toEntity(request, slug, ong, creator);
             event.getTags().addAll(managedTags);
-
-            return eventRepository.saveAndFlush(event);
+            Event savedEvent = eventRepository.saveAndFlush(event);
+            return eventMapper.toDto(savedEvent);
         } catch (DataIntegrityViolationException ex) {
             if (ex.getCause() instanceof ConstraintViolationException cve) {
                 if ("uk_active_event_slug".equals(cve.getConstraintName())) {
@@ -152,6 +156,6 @@ public class EventService {
                 .countVolunteersByEventIdsAndStatus(eventIds, VolunteerStatusEnum.CONFIRMED).stream()
                 .collect(Collectors.toMap(row -> (UUID) row[0], row -> ((Long) row[1]).intValue()));
 
-        return eventPage.map(event -> EventListResponseDTO.fromEntity(event, counts.getOrDefault(event.getId(), 0)));
+        return eventPage.map(event -> eventMapper.toListDto(event, counts.getOrDefault(event.getId(), 0)));
     }
 }

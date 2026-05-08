@@ -3,8 +3,6 @@ package com.techfun.altrua.features.event.api.dto;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.techfun.altrua.features.event.domain.model.Event;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -57,32 +55,4 @@ public record EventListResponseDTO(
 
         @Schema(description = "Capacidade total de voluntários", example = "50", nullable = true) Integer maxVolunteers) {
 
-    /**
-     * Mapeia uma entidade {@link Event} para {@link EventListResponseDTO}.
-     * <p>
-     * Este método exige que a contagem de voluntários seja fornecida externamente,
-     * permitindo que o serviço gerencie a performance de contagem (ex: via queries
-     * batch)
-     * de forma independente da carga da entidade.
-     * </p>
-     *
-     * @param event                  A entidade de origem contendo os dados básicos.
-     * @param currentVolunteersCount O número total de voluntários confirmados para
-     *                               este evento.
-     * @return Uma nova instância de {@link EventListResponseDTO} populada.
-     */
-    public static EventListResponseDTO fromEntity(Event event, Integer currentVolunteersCount) {
-        return new EventListResponseDTO(
-                event.getId(),
-                event.getTitle(),
-                event.getSlug(),
-                event.getDescription(),
-                event.getCoverUrl(),
-                event.getOng().getName(),
-                event.getStartsAt(),
-                event.getAddressLabel(),
-                event.isAcceptsVolunteers(),
-                currentVolunteersCount,
-                event.getMaxVolunteers());
-    }
 }

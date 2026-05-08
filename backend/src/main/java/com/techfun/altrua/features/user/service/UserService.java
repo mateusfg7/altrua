@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.core.common.util.SecurityUtils;
+import com.techfun.altrua.features.user.api.UserMapper;
 import com.techfun.altrua.features.user.api.dto.UserResponseDTO;
 import com.techfun.altrua.features.user.domain.model.User;
 import com.techfun.altrua.features.user.repository.UserRepository;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     /**
      * Recupera o perfil do usuário atualmente autenticado na sessão.
@@ -40,6 +42,6 @@ public class UserService {
         UUID userId = SecurityUtils.getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário"));
-        return UserResponseDTO.fromEntity(user);
+        return userMapper.toDTO(user);
     }
 }
