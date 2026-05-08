@@ -3,8 +3,6 @@ package com.techfun.altrua.features.user.api.dto;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.techfun.altrua.features.user.domain.model.User;
-
 /**
  * DTO de resposta com os dados públicos do usuário.
  *
@@ -27,21 +25,4 @@ public record UserResponseDTO(
         String avatarUrl,
         Instant createdAt,
         Instant updatedAt) {
-
-    /**
-     * Converte uma instância da entidade {@link User} para {@link UserResponseDTO}.
-     *
-     * @param user a entidade original proveniente do banco de dados
-     * @return uma nova instância de DTO com os dados mapeados
-     */
-    public static UserResponseDTO fromEntity(User user) {
-        return new UserResponseDTO(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getAvatarUrl(),
-                user.getCreatedAt(),
-                user.getUpdatedAt());
-    }
-
 }
