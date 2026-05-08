@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.techfun.altrua.core.common.exceptions.DomainException;
+import com.techfun.altrua.features.tag.api.TagMapper;
 import com.techfun.altrua.features.tag.api.dto.TagResponseDTO;
 import com.techfun.altrua.features.tag.domain.Tag;
 import com.techfun.altrua.features.tag.repository.TagRepository;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class TagService {
 
     private final TagRepository tagRepository;
+    private final TagMapper tagMapper;
 
     /**
      * Garante a existência das tags fornecidas no banco de dados e as retorna como
@@ -92,7 +94,7 @@ public class TagService {
     public List<TagResponseDTO> listAllTags() {
         return tagRepository.findAllByOrderByNameAsc()
                 .stream()
-                .map(TagResponseDTO::fromEntity)
+                .map(tagMapper::toDto)
                 .toList();
     }
 }
