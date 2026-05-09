@@ -78,6 +78,10 @@ public class OngService {
 
         String slug = SlugUtils.normalize(request.name());
 
+        if (slug.isBlank() || slug.length() < 2) {
+            throw new DomainException("Não foi possível gerar um link válido a partir do nome fornecido.");
+        }
+
         if (ongRepository.existsBySlug(slug)) {
             slug = SlugUtils.withSuffix(slug);
         }
