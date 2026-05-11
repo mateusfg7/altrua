@@ -12,8 +12,8 @@ importers:
         specifier: 5.2.8
         version: 5.2.8
       '@hugeicons/core-free-icons':
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.2
+        version: 4.1.2
       '@hugeicons/react':
         specifier: 1.1.6
         version: 1.1.6(react@19.2.6)
@@ -25,7 +25,7 @@ importers:
         version: 0.10.2(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(csstype@3.2.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(solid-js@1.9.11)
       '@tanstack/react-form':
         specifier: latest
-        version: 1.29.3(@tanstack/react-start@1.167.65(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@24.12.2)(jiti@2.7.0)(yaml@2.8.4)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        version: 1.31.0(@tanstack/react-start@1.167.65(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@24.12.2)(jiti@2.7.0)(yaml@2.8.4)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@tanstack/react-query':
         specifier: latest
         version: 5.100.9(react@19.2.6)
@@ -438,8 +438,8 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hugeicons/core-free-icons@4.1.1':
-    resolution: {integrity: sha512-teqIBvPHl90ygIwKyJwTxOH8aNp1X1PjDTcMvLkEwdPxPD+8mssrZ5kXKIAJJFYPsz69a8LYQY0UPid4PAdavg==}
+  '@hugeicons/core-free-icons@4.1.2':
+    resolution: {integrity: sha512-7PfGYaUyExpAMA8ZC7gfXykttrBDIUutU/yQHIBgz0L61ENSM73mqg/9hCTZemiEUVtj2raRRjhoJMGdAFwetQ==}
 
   '@hugeicons/react@1.1.6':
     resolution: {integrity: sha512-c2LhXJMAW5wN1pC/smBXG0YPqUON6ceR/ZdXHCjEI9KvB+hjtqYjmzIxok5hAQOeXGz0WtORgCQMzqewFKAZwg==}
@@ -1530,8 +1530,8 @@ packages:
     peerDependencies:
       solid-js: '>=1.9.7'
 
-  '@tanstack/form-core@1.29.3':
-    resolution: {integrity: sha512-NNluDFsF/wjtOuhbqRJokVmR3GNuWQDeLeykcfDaEiod6mQ+/iwaXkLGVdlzXXLBOd+cb34KWP8seVaPhh5N6A==}
+  '@tanstack/form-core@1.31.0':
+    resolution: {integrity: sha512-t5G/LnrM/U10mQgzYis/WvHc6yTDj7jyF5cYf6GjVJpEbn0et0wDUQtafiOXY8hiXJ9D1HUqBi0u76ZX05uiHw==}
 
   '@tanstack/history@1.161.6':
     resolution: {integrity: sha512-NaOGLRrddszbQj9upGat6HG/4TKvXLvu+osAIgfxPYA+eIvYKv8GKDJOrY2D3/U9MRnKfMWD7bU4jeD4xmqyIg==}
@@ -1556,8 +1556,8 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/react-form@1.29.3':
-    resolution: {integrity: sha512-L5XPwEGLu461cfV/7Vd7JF7+/E4ysf98Oex/gr77x6k2fQjt/cPuzi7C0NnVgMfbWMbl51bSnwjnoCVwgRF1Yg==}
+  '@tanstack/react-form@1.31.0':
+    resolution: {integrity: sha512-31hoeKlk45jCAnry85bOiL89FwySL9HtAhfWLHmCJ5WcvBlHJpoqnMvl6Cy8DM+7ey2eWHKiPiEL29BkG5o12w==}
     peerDependencies:
       '@tanstack/react-start': '*'
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -4109,7 +4109,7 @@ snapshots:
     dependencies:
       hono: 4.12.8
 
-  '@hugeicons/core-free-icons@4.1.1': {}
+  '@hugeicons/core-free-icons@4.1.2': {}
 
   '@hugeicons/react@1.1.6(react@19.2.6)':
     dependencies:
@@ -5214,7 +5214,7 @@ snapshots:
       - csstype
       - utf-8-validate
 
-  '@tanstack/form-core@1.29.3':
+  '@tanstack/form-core@1.31.0':
     dependencies:
       '@tanstack/devtools-event-client': 0.4.3
       '@tanstack/pacer-lite': 0.1.1
@@ -5241,9 +5241,9 @@ snapshots:
       - solid-js
       - utf-8-validate
 
-  '@tanstack/react-form@1.29.3(@tanstack/react-start@1.167.65(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@24.12.2)(jiti@2.7.0)(yaml@2.8.4)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@tanstack/react-form@1.31.0(@tanstack/react-start@1.167.65(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@24.12.2)(jiti@2.7.0)(yaml@2.8.4)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
-      '@tanstack/form-core': 1.29.3
+      '@tanstack/form-core': 1.31.0
       '@tanstack/react-store': 0.9.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react: 19.2.6
     optionalDependencies:
