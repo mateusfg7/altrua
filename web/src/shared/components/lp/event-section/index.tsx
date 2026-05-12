@@ -1,5 +1,6 @@
 import { ArrowRight01Icon, FilterIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useNGOEventList } from "~/features/ngos/hooks/use-ngo-event-list";
 import { EventCard } from "~/shared/components/lp/event-card";
 import { Badge } from "~/shared/components/ui/badge";
 import { Button } from "~/shared/components/ui/button";
@@ -77,6 +78,8 @@ const filterCategories = [
 ];
 
 export function EventsSection() {
+  const { data, isLoading, error } = useNGOEventList();
+
   return (
     <section className="px-3 py-16" id="eventos">
       <div className="mx-auto max-w-6xl">
@@ -113,7 +116,7 @@ export function EventsSection() {
         </div>
 
         <div className="grid gap-6">
-          {mockEvents.map((event) => (
+          {data?.content.map((event) => (
             <EventCard key={event.id} {...event} />
           ))}
         </div>

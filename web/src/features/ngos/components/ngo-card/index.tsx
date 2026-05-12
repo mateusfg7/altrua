@@ -19,7 +19,7 @@ export function NGOCard({ data }: { data: NGO }) {
           {/** biome-ignore lint/correctness/useImageSize: Image comes from external source */}
           <img
             alt={name}
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
             src={bannerUrl ?? ""}
           />
           <div className="absolute top-3 right-3">

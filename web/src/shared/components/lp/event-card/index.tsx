@@ -6,38 +6,30 @@ import {
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale/pt-BR";
+import type { NGOEvent } from "~/features/ngos/types/ngo-event";
 import { Badge } from "~/shared/components/ui/badge";
 import { Button } from "~/shared/components/ui/button";
 import { Card, CardContent } from "~/shared/components/ui/card";
 
-type EventCardProps = {
-  date: string;
-  description: string;
-  hasDonation: boolean;
-  hasVolunteering: boolean;
-  imageUrl: string;
-  location: string;
-  ongName: string;
-  title: string;
-  volunteersNeeded: number;
-  volunteersRegistered: number;
-};
-
 export function EventCard({
   title,
   description,
-  date,
-  location,
-  ongName,
-  imageUrl,
-  volunteersNeeded,
-  volunteersRegistered,
-  hasVolunteering,
-  hasDonation,
-}: EventCardProps) {
+  acceptsVolunteers,
+  addressLabel,
+  coverUrl,
+  donationExternalLink,
+  donationInfo,
+  maxVolunteers,
+  startsAt,
+}: NGOEvent) {
+  const volunteersRegistered = 5;
+  const ongName = "ONG Exemplo";
+
   const progress =
-    volunteersNeeded > 0
-      ? Math.min((volunteersRegistered / volunteersNeeded) * 100, 100)
+    maxVolunteers && maxVolunteers > 0
+      ? Math.min((volunteersRegistered / maxVolunteers) * 100, 100)
       : 0;
 
   return (
@@ -48,16 +40,16 @@ export function EventCard({
           <img
             alt={title}
             className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-            src={imageUrl}
+            src={coverUrl}
           />
           <div className="absolute top-3 left-3 flex gap-2">
-            {hasVolunteering && (
+            {acceptsVolunteers && (
               <Badge className="bg-primary/90 text-primary-foreground backdrop-blur-sm">
                 <HugeiconsIcon className="mr-1 size-3" icon={UserGroupIcon} />
                 Voluntariado
               </Badge>
             )}
-            {hasDonation && (
+            {(donationInfo || donationExternalLink) && (
               <Badge
                 className="bg-card/90 backdrop-blur-sm"
                 variant="secondary"
@@ -89,21 +81,23 @@ export function EventCard({
             <div className="mt-4 flex flex-wrap items-center gap-4 text-muted-foreground text-sm">
               <div className="flex items-center gap-1">
                 <HugeiconsIcon className="size-4" icon={Calendar03Icon} />
-                <span>{date}</span>
+                <span>
+                  {format(startsAt, "dd MMM, yyyy · HH:mm", { locale: ptBR })}
+                </span>
               </div>
               <div className="flex items-center gap-1">
                 <HugeiconsIcon className="size-4" icon={Location01Icon} />
-                <span>{location}</span>
+                <span>{addressLabel}</span>
               </div>
             </div>
           </div>
 
-          {hasVolunteering && (
+          {acceptsVolunteers && (
             <div className="mt-4">
               <div className="mb-2 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Voluntários</span>
                 <span className="font-medium">
-                  {volunteersRegistered}/{volunteersNeeded}
+                  {volunteersRegistered}/{maxVolunteers}
                 </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-muted">

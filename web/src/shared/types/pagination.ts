@@ -11,4 +11,5 @@ export type Paginated<T> = {
 export type PaginationParams = {
   page?: number;
   size?: number;
+  sort?: string;
 };
