@@ -53,9 +53,11 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center justify-end gap-3 md:flex">
-          <Button size="sm" variant="ghost">
+          <Button size="sm" variant="ghost" asChild>
+            <Link to="/sign-in">
             <HugeiconsIcon icon={Login01Icon} />
             Entrar
+            </Link>
           </Button>
           <Button size="sm">Cadastre-se</Button>
         </div>

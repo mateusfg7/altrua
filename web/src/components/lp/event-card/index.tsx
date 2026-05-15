@@ -109,9 +109,9 @@ export function EventCard({
             </div>
           )}
 
-          <div className="mt-4 flex gap-3">
-            <Button className="flex-1">Participar</Button>
+          <div className="mt-4 justify-end items-center flex gap-3">
             <Button variant="outline">Detalhes</Button>
+            <Button size="lg">Participar</Button>
           </div>
         </CardContent>
       </div>
