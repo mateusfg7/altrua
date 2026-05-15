@@ -8,10 +8,10 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
-import type { NGOEvent } from "~/features/ngos/types/ngo-event";
 import { Badge } from "~/shared/components/ui/badge";
 import { Button } from "~/shared/components/ui/button";
 import { Card, CardContent } from "~/shared/components/ui/card";
+import type { NGOEvent } from "~/shared/types/ngo-event";
 
 export function EventCard({
   title,
