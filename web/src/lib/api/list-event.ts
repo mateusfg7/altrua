@@ -1,11 +1,16 @@
-import type { NGOEvent, NGOEventListFilters } from "~/types/ngo-event";
+import type { NgoEvent, NgoEventListFilters } from "~/types/ngo-event";
 import type { Paginated, PaginationParams } from "~/types/pagination";
 import { apiClient } from "../api-client";
 
+
+
 export async function listEvents(
-  pagination?: PaginationParams & NGOEventListFilters
+  pagination?: PaginationParams & NgoEventListFilters
 ) {
+
+
+
   return await apiClient
-    .get<Paginated<NGOEvent>>("/eventos", { params: pagination })
+    .get<Paginated<NgoEvent>>("/eventos", { params: pagination })
     .then((res) => res.data);
 }

@@ -1,7 +1,7 @@
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useNgoList } from "~/hooks/use-ngo-list";
 import { Button } from "~/components/ui/button";
+import { useNgoList } from "~/hooks/use-ngo-list";
 import { NGOCard } from "../../ngo-card";
 import { NGOCardSkeleton } from "./ngo-card-skeleton";
 

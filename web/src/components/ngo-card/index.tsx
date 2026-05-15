@@ -8,9 +8,9 @@ import {
   CardFooter,
   CardHeader,
 } from "~/components/ui/card";
-import type { NGO } from "~/types/ngo";
+import type { Ngo } from "~/types/ngo";
 
-export function NGOCard({ data }: { data: NGO }) {
+export function NGOCard({ data }: { data: Ngo }) {
   const { name, description, bannerUrl, category, activeEventCount } = data;
   return (
     <Card className="group flex h-full flex-col overflow-hidden p-0 transition-all">

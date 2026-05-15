@@ -1,4 +1,4 @@
-export type NGO = {
+export type Ngo = {
   id: string;
   name: string;
   slug: string;

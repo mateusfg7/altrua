@@ -11,7 +11,7 @@ import { ptBR } from "date-fns/locale/pt-BR";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
-import type { NGOEvent } from "~/types/ngo-event";
+import type { NgoEvent } from "~/types/ngo-event";
 
 export function EventCard({
   title,
@@ -23,7 +23,7 @@ export function EventCard({
   donationInfo,
   maxVolunteers,
   startsAt,
-}: NGOEvent) {
+}: NgoEvent) {
   const volunteersRegistered = 5;
   const ongName = "ONG Exemplo";
 

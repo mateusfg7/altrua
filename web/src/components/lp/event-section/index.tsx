@@ -1,21 +1,27 @@
 import { ArrowRight01Icon, FilterIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useNGOEventList } from "~/hooks/use-ngo-event-list";
+import { useState } from "react";
 import { EventCard } from "~/components/lp/event-card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-
-const filterCategories = [
-  "Todos",
-  "Voluntariado",
-  "Doação",
-  "Educação",
-  "Animais",
-  "Meio Ambiente",
-];
+import { useNgoEventList } from "~/hooks/use-ngo-event-list";
+import { useNgoEventTagList } from "~/hooks/use-ngo-event-tag-list";
+import { cn } from "~/lib/utils";
 
 export function EventsSection() {
-  const { data } = useNGOEventList();
+  const [tag, setTag] = useState<undefined | string>();
+
+  const { data: tags } = useNgoEventTagList();
+  const { data: events, isFetching } = useNgoEventList({ tag });
+
+  function toggleTag(newTag: string) {
+    
+    if (newTag === tag) {
+      setTag(undefined);
+    } else {
+      setTag(newTag);
+    }
+  }
 
   return (
     <section className="px-3 py-16" id="eventos">
@@ -39,21 +45,26 @@ export function EventsSection() {
         <div className="mb-8 flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <HugeiconsIcon className="size-4" icon={FilterIcon} />
-            <span>Filtrar:</span>
+            <span>Filtrar</span>
           </div>
-          {filterCategories.map((category, index) => (
+          {tags?.map((currTag) => (
             <Badge
+            asChild
               className="cursor-pointer transition-colors hover:bg-primary hover:text-primary-foreground"
-              key={category}
-              variant={index === 0 ? "default" : "secondary"}
+              key={currTag.id}
+             
+              variant={currTag.name === tag ? "default" : "secondary"}
             >
-              {category}
+              <Button  onClick={() => toggleTag(currTag.name)}>
+
+              {currTag.name}
+              </Button>
             </Badge>
           ))}
         </div>
 
-        <div className="grid gap-6">
-          {data?.content.map((event) => (
+        <div className={cn("grid gap-6", isFetching && "opacity-50")}>
+          {events?.content.map((event) => (
             <EventCard key={event.id} {...event} />
           ))}
         </div>

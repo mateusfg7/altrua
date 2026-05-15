@@ -1,4 +1,4 @@
-export type NGOEvent = {
+export type NgoEvent = {
   id: string;
   title: string;
   description: string;
@@ -17,7 +17,7 @@ export type NGOEvent = {
   tags: string[];
 };
 
-export type NGOEventListFilters = {
+export type NgoEventListFilters = {
   tag?: string;
   status?: "PUBLISHED" | "ONGOING" | "FINISHED" | "CANCELED";
   acceptsVolunteers?: boolean;
