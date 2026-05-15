@@ -13,7 +13,7 @@ export function useNgoEventList(
   return useQuery<Paginated<NgoEvent>, AxiosError<ApiError>>({
     queryKey: [...NGO_EVENT_LIST_QUERY_KEY, filters],
     queryFn: () => listEvents(filters),
-        placeholderData: keepPreviousData,
-        refetchOnWindowFocus: false
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
   });
 }

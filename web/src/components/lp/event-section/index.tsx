@@ -15,7 +15,6 @@ export function EventsSection() {
   const { data: events, isFetching } = useNgoEventList({ tag });
 
   function toggleTag(newTag: string) {
-    
     if (newTag === tag) {
       setTag(undefined);
     } else {
@@ -49,15 +48,13 @@ export function EventsSection() {
           </div>
           {tags?.map((currTag) => (
             <Badge
-            asChild
+              asChild
               className="cursor-pointer transition-colors hover:bg-primary hover:text-primary-foreground"
               key={currTag.id}
-             
               variant={currTag.name === tag ? "default" : "secondary"}
             >
-              <Button  onClick={() => toggleTag(currTag.name)}>
-
-              {currTag.name}
+              <Button onClick={() => toggleTag(currTag.name)}>
+                {currTag.name}
               </Button>
             </Badge>
           ))}
