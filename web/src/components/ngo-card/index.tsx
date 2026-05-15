@@ -1,14 +1,14 @@
 import { LinkSquare02Icon, Location01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Badge } from "~/shared/components/ui/badge";
-import { Button } from "~/shared/components/ui/button";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "~/shared/components/ui/card";
-import type { NGO } from "~/shared/types/ngo";
+} from "~/components/ui/card";
+import type { NGO } from "~/types/ngo";
 
 export function NGOCard({ data }: { data: NGO }) {
   const { name, description, bannerUrl, category, activeEventCount } = data;

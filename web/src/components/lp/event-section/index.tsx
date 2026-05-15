@@ -1,9 +1,9 @@
 import { ArrowRight01Icon, FilterIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useNGOEventList } from "~/hooks/use-ngo-event-list";
-import { EventCard } from "~/shared/components/lp/event-card";
-import { Badge } from "~/shared/components/ui/badge";
-import { Button } from "~/shared/components/ui/button";
+import { EventCard } from "~/components/lp/event-card";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 
 const filterCategories = [
   "Todos",

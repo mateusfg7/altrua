@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import { listNGOs } from "~/shared/lib/api/list-ngo";
-import type { ApiError } from "~/shared/types/api-error";
-import type { Paginated, PaginationParams } from "~/shared/types/pagination";
-import type { NGO } from "../shared/types/ngo";
+import { listNGOs } from "~/lib/api/list-ngo";
+import type { ApiError } from "~/types/api-error";
+import type { Paginated, PaginationParams } from "~/types/pagination";
+import type { NGO } from "../types/ngo";
 
 export const NGO_LIST_QUERY_KEY = ["ngo", "list"];
 
