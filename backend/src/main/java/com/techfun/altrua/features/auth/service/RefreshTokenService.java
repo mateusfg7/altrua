@@ -115,6 +115,7 @@ public class RefreshTokenService {
         RefreshToken refreshToken = validate(token);
 
         refreshTokenRepository.delete(refreshToken);
+        refreshTokenRepository.flush();
 
         String newToken = jwtProvider.generateRefreshToken(new UserPrincipal(refreshToken.getUser()));
         Instant expiration = Instant.now().plusMillis(refreshTokenExpiration);
