@@ -1,0 +1,9 @@
+spring:
+    jpa:
+        hibernate:
+            ddl-auto: validate
+    flyway:
+        enabled: true
+
+jwt:
+    secret: "DhlZRT1r2rwMEnTue3FGvL90sr8eS6OySLw6yxTQXV3XHeKMjieS6Yz+hYGQh/z0qn4aGvOCyIwl5ZugFU1jA=="
