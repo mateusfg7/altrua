@@ -60,11 +60,13 @@ public final class SlugUtils {
      *         aleatório
      */
     public static String withSuffix(String slug) {
+        String cleanSlug = slug.replaceAll("-$", "");
+
         char[] suffix = new char[4];
         for (int i = 0; i < 4; i++) {
             suffix[i] = CHARS.charAt(RANDOM.nextInt(CHARS.length()));
         }
-        return slug + "-" + new String(suffix);
+        return cleanSlug + "-" + new String(suffix);
     }
 
 }

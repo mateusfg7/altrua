@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 /**
  * Objeto de Transferência de Dados (DTO) para a requisição de registro de uma
@@ -33,7 +34,7 @@ import jakarta.validation.constraints.Pattern;
 @Schema(description = "Dados de requisição para o registro de uma nova ONG")
 public record RegisterOngRequestDTO(
 
-        @Schema(description = "Nome oficial da organização", example = "Associação Amigos dos Animais", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O nome é obrigatório") String name,
+        @Schema(description = "Nome oficial da organização", example = "Associação Amigos dos Animais", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O nome é obrigatório") @Pattern(regexp = ".*[a-zA-Z0-9].*[a-zA-Z0-9].*[a-zA-Z0-9].*", message = "O nome deve conter pelo menos uma letra ou número") @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres") String name,
 
         @Schema(description = "CNPJ da organização (apenas os 14 dígitos numéricos)", example = "12345678000199") @Pattern(regexp = "\\d{14}", message = "O CNPJ deve conter exatamente 14 dígitos numéricos") String cnpj,
 

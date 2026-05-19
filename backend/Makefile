@@ -29,7 +29,8 @@ help:
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  BUILD & TESTES$(RESET)\n"
 	@printf "  $(GREEN)make build$(RESET)              $(DIM)Compila o projeto (sem rodar testes)$(RESET)\n"
-	@printf "  $(GREEN)make test$(RESET)               $(DIM)Executa os testes automatizados$(RESET)\n"
+	@printf "  $(GREEN)make test$(RESET)               $(DIM)Executa todos os testes (unitários + integração)$(RESET)\n"
+	@printf "  $(GREEN)make test-unit$(RESET)          $(DIM)Executa os testes unitários$(RESET)\n"
 	@printf "  $(GREEN)make clean$(RESET)              $(DIM)Remove arquivos de build gerados$(RESET)\n"
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  BANCO DE DADOS$(RESET)\n"
@@ -69,9 +70,14 @@ build:
 	@./mvnw clean package -DskipTests
 	@printf "$(GREEN)✅ Build concluído.$(RESET)\n"
 
-## Executa os testes automatizados
+## Executa todos os testes (unitários + integração)
 test:
-	@printf "$(CYAN)🧪 Executando testes...$(RESET)\n"
+	@printf "$(CYAN)🧪 Executando todos os testes...$(RESET)\n"
+	@./mvnw verify
+
+## Executa apenas os testes unitários
+test-unit:
+	@printf "$(CYAN)🧪 Executando testes unitários...$(RESET)\n"
 	@./mvnw test
 
 ## Sobe o banco e inicia a aplicação
