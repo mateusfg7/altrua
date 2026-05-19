@@ -116,16 +116,6 @@ public class User {
     }
 
     /**
-     * Método fluente para configuração opcional do avatar após a criação.
-     * 
-     * @return A própria instância de {@code User} para encadeamento.
-     */
-    public User withAvatar(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-        return this;
-    }
-
-    /**
      * Reconstrói a entidade com dados pré-existentes.
      * Uso exclusivo para mapeamento de persistência ou migração de dados.
      */
