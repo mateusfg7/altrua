@@ -52,11 +52,8 @@ jobs:
       - name: Make mvnw executable
         run: chmod +x ./mvnw
 
-      - name: Build (compile only)
-        run: ./mvnw clean package -DskipTests -B
-
-      - name: Run tests
-        run: ./mvnw test -B
+      - name: Build and test
+        run: ./mvnw verify -B
 
       - name: Upload Surefire test reports
         if: always()
