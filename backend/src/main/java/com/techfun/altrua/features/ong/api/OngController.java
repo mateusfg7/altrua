@@ -43,7 +43,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Tag(name = "Organizações", description = "Endpoints para registro, busca e gerenciamento de administradores de ONGs")
 @RestController
-@RequestMapping("/ongs")
+@RequestMapping("/ngos")
 @RequiredArgsConstructor
 public class OngController {
 
@@ -120,7 +120,7 @@ public class OngController {
             @ApiResponse(responseCode = "404", description = "ONG ou Usuário não encontrados"),
             @ApiResponse(responseCode = "409", description = "Conflito: Usuário já é administrador desta organização")
     })
-    @PostMapping("{ongId}/administradores")
+    @PostMapping("{ongId}/administrators")
     @PreAuthorize("@securityService.isOngCreator(#ongId)")
     public ResponseEntity<Void> promoteAdmin(
             @Parameter(description = "ID da ONG") @PathVariable("ongId") UUID ongId,
@@ -146,7 +146,7 @@ public class OngController {
             @ApiResponse(responseCode = "403", description = "Acesso negado: apenas o criador da ONG pode remover administradores"),
             @ApiResponse(responseCode = "404", description = "ONG ou administrador não encontrado no contexto desta organização")
     })
-    @DeleteMapping("{ongId}/administradores/{userId}")
+    @DeleteMapping("{ongId}/administrators/{userId}")
     @PreAuthorize("@securityService.isOngCreator(#ongId)")
     public ResponseEntity<Void> demoteAdmin(
             @Parameter(description = "ID da ONG") @PathVariable("ongId") UUID ongId,
