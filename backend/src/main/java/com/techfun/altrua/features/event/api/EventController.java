@@ -65,7 +65,7 @@ public class EventController {
             @ApiResponse(responseCode = "404", description = "ONG não encontrada"),
             @ApiResponse(responseCode = "409", description = "Conflito: Slug do evento já existe")
     })
-    @PostMapping("/ongs/{ongId}/eventos")
+    @PostMapping("/ngos/{ongId}/events")
     @PreAuthorize("@securityService.isOngAdmin(#ongId)")
     public ResponseEntity<EventResponseDTO> register(
             @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
@@ -94,7 +94,7 @@ public class EventController {
             @ApiResponse(responseCode = "403", description = "Usuário não tem permissão para gerenciar este evento"),
             @ApiResponse(responseCode = "404", description = "Evento não encontrado ou não pertence a esta ONG")
     })
-    @PostMapping("/ongs/{ongId}/eventos/{eventId}/encerrar")
+    @PostMapping("/ngos/{ongId}/events/{eventId}/finish")
     @PreAuthorize("@securityService.canManageEvent(#ongId, #eventId)")
     public ResponseEntity<Void> endEvent(
             @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
@@ -121,7 +121,7 @@ public class EventController {
             @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Parâmetros de paginação ou filtro inválidos")
     })
-    @GetMapping("/eventos")
+    @GetMapping("/events")
     public ResponseEntity<Page<EventListResponseDTO>> list(
             @ParameterObject EventFilterDTO filter,
             @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
