@@ -9,12 +9,15 @@ import { useNgoEventTagList } from "~/hooks/use-ngo-event-tag-list";
 import { cn } from "~/lib/utils";
 
 export function EventsSection() {
-  const [listLength, setLength] = useState(10)
+  const [listLength, setLength] = useState(10);
 
   const [tag, setTag] = useState<undefined | string>();
 
   const { data: tags } = useNgoEventTagList();
-  const { data: events, isFetching } = useNgoEventList({ tag, size: listLength });
+  const { data: events, isFetching } = useNgoEventList({
+    tag,
+    size: listLength,
+  });
 
   function toggleTag(newTag: string) {
     if (newTag === tag) {
@@ -69,7 +72,12 @@ export function EventsSection() {
         </div>
 
         <div className="mt-10 text-center">
-          <Button className="gap-2" size="lg" variant="outline" onClick={() => setLength(prev => prev + 5)}>
+          <Button
+            className="gap-2"
+            onClick={() => setLength((prev) => prev + 5)}
+            size="lg"
+            variant="outline"
+          >
             Carregar mais eventos
             <HugeiconsIcon className="size-4" icon={ArrowRight01Icon} />
           </Button>

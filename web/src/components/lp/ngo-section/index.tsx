@@ -1,6 +1,3 @@
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Button } from "~/components/ui/button";
 import { useNgoList } from "~/hooks/use-ngo-list";
 import { NGOCard } from "../../ngo-card";
 import { NGOCardSkeleton } from "./ngo-card-skeleton";
@@ -14,7 +11,7 @@ export function NGOSection() {
 
   return (
     <section className="bg-muted px-3 py-16" id="ongs">
-      <div className="mx-auto space-y-5 max-w-6xl">
+      <div className="mx-auto max-w-6xl space-y-5">
         <div>
           <h2 className="font-bold text-3xl tracking-tight md:text-4xl">
             ONGs em Destaque
@@ -25,13 +22,12 @@ export function NGOSection() {
           </p>
         </div>
 
-          <div className="grid w-full 3xl:grid-cols-4 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {isLoading && <NGOCardSkeleton />}
+        <div className="grid w-full 3xl:grid-cols-4 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {isLoading && <NGOCardSkeleton />}
 
-            {!isLoading &&
-              data?.content.map((ngo) => <NGOCard data={ngo} key={ngo.id} />)}
-          </div>
-        
+          {!isLoading &&
+            data?.content.map((ngo) => <NGOCard data={ngo} key={ngo.id} />)}
+        </div>
       </div>
     </section>
   );
