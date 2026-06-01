@@ -18,9 +18,9 @@ import jakarta.validation.constraints.Size;
  */
 @Schema(description = "Dados de requisição para o registro de um novo usuário")
 public record RegisterUserRequestDTO(
-        @Schema(description = "E-mail para cadastro e login", example = "usuario@altrua.org", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O e-mail é obrigatório") @Email(message = "O formato do e-mail é inválido") String email,
+                @Schema(description = "E-mail para cadastro e login", example = "usuario@altrua.org", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O e-mail é obrigatório") @Email(message = "O formato do e-mail é inválido") String email,
 
-        @Schema(description = "Senha de acesso à conta (mínimo de 8 caracteres)", example = "senha123", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "A senha é obrigatória") @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres") String password,
+                @Schema(description = "Senha de acesso à conta (mínimo de 8 caracteres)", example = "senha123", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "A senha é obrigatória") @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres") String password,
 
-        @Schema(description = "Nome completo do usuário", example = "Gabriel Henrique", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O nome é obrigatório") String name) {
+                @Schema(description = "Nome completo do usuário", example = "Gabriel Henrique", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O nome é obrigatório") @Size(min = 2, max = 100, message = "O nome deve ter no mínimo 2 caracteres") String name) {
 }
