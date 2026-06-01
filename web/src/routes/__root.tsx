@@ -6,6 +6,8 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { Toaster } from "~/components/ui/sonner";
+import { bootstrapAuth } from "~/lib/api/bootstrap";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 import appCss from "../styles.css?url";
@@ -95,6 +97,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       },
     ],
   }),
+
+  beforeLoad: async () => {
+    await bootstrapAuth();
+  },
   shellComponent: RootDocument,
 });
 
@@ -104,8 +110,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="wrap-anywhere font-sans antialiased">
+      <body className="wrap-anywhere scroll-smooth font-sans antialiased">
         <TanStackQueryProvider>
+          <Toaster />
+
           {children}
 
           <TanStackDevtools

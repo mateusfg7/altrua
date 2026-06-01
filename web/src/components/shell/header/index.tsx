@@ -6,11 +6,27 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
+
 import React from "react";
+import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { useProfile } from "~/hooks/use-profile";
+import { useAuthStore } from "~/store/auth.store";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  const clearTokens = useAuthStore((s) => s.clearTokens);
+
+  const { data: profile, refetch } = useProfile();
 
   const nav = [
     {
@@ -52,27 +68,59 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center justify-end gap-3 md:flex">
-          <Button asChild size="sm" variant="ghost">
-            <Link to="/sign-in">
-              <HugeiconsIcon icon={Login01Icon} />
-              Entrar
-            </Link>
-          </Button>
-          <Button size="sm">Cadastre-se</Button>
-        </div>
+        {!profile && (
+          <div className="hidden items-center justify-end gap-3 md:flex">
+            <Button asChild size="sm" variant="ghost">
+              <Link to="/sign-in">
+                <HugeiconsIcon icon={Login01Icon} />
+                Entrar
+              </Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/sign-up">Cadastre-se</Link>
+            </Button>
+          </div>
+        )}
 
-        <Button
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen((prev) => !prev)}
-          size="icon-lg"
-          variant="ghost"
-        >
-          <HugeiconsIcon
-            className="size-6"
-            icon={mobileMenuOpen ? Cancel01Icon : Menu09Icon}
-          />
-        </Button>
+        {profile && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="w-fit">
+              <Avatar className="">
+                <AvatarImage
+                  src={`https://api.dicebear.com/10.x/initial-face/svg?eyesVariant=variant04,variant05,variant06,variant07,variant08&backgroundColor=ffa3b5,ffb382,ffe08a,e2f299,a8f0b0,86eadf,7fd4f5,cfbeff,b6e3f4&seed=${profile.name}`}
+                />
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => {
+                    clearTokens();
+                    refetch();
+                  }}
+                  variant="destructive"
+                >
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
+        {
+          <Button
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            size="icon-lg"
+            variant="ghost"
+          >
+            <HugeiconsIcon
+              className="size-6"
+              icon={mobileMenuOpen ? Cancel01Icon : Menu09Icon}
+            />
+          </Button>
+        }
       </div>
 
       {mobileMenuOpen && (
