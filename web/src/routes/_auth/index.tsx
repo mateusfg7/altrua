@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { EventDetails } from "~/components/event-details";
 import { CtaSection } from "~/components/lp/cta-section";
 import { EventsSection } from "~/components/lp/event-section";
 import { HeroSection } from "~/components/lp/hero-section";
@@ -20,6 +21,7 @@ function RouteComponent() {
       <CtaSection />
 
       <OngDetails />
+      <EventDetails />
     </div>
   );
 }

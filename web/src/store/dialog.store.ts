@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import type { Ngo } from "~/types/ngo";
 
+import type { NgoEvent } from "~/types/ngo-event";
+
 type Dialog = null | "ong-details" | "event-details";
 
 type DialogStore = {
@@ -9,6 +11,9 @@ type DialogStore = {
 
   ong: null | Ngo;
   setOng: (o: null | Ngo) => void;
+
+  event: null | NgoEvent;
+  setEvent: (o: null | NgoEvent) => void;
 
   close: () => void;
 };
@@ -20,5 +25,8 @@ export const useDialogStore = create<DialogStore>((set) => ({
   ong: null,
   setOng: (ong) => set({ ong }),
 
-  close: () => set({ dialog: null, ong: null }),
+  event: null,
+  setEvent: (event) => set({ event }),
+
+  close: () => set({ dialog: null, ong: null, event: null }),
 }));

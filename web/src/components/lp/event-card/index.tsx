@@ -11,21 +11,32 @@ import { ptBR } from "date-fns/locale/pt-BR";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
+import { useDialogStore } from "~/store/dialog.store";
 import type { NgoEvent } from "~/types/ngo-event";
 
-export function EventCard({
-  title,
-  description,
-  acceptsVolunteers,
-  addressLabel,
-  coverUrl,
-  donationExternalLink,
-  donationInfo,
-  maxVolunteers,
-  startsAt,
-}: NgoEvent) {
+export function EventCard(data: NgoEvent) {
   const volunteersRegistered = 5;
   const ongName = "ONG Exemplo";
+
+  const setDialog = useDialogStore((s) => s.setDialog);
+  const setEvent = useDialogStore((s) => s.setEvent);
+
+  const {
+    acceptsVolunteers,
+    addressLabel,
+    coverUrl,
+    description,
+    donationExternalLink,
+    donationInfo,
+    maxVolunteers,
+    startsAt,
+    title,
+  } = data;
+
+  function open() {
+    setDialog("event-details");
+    setEvent(data);
+  }
 
   const progress =
     maxVolunteers && maxVolunteers > 0
@@ -110,7 +121,9 @@ export function EventCard({
           )}
 
           <div className="mt-4 flex items-center justify-end gap-3">
-            <Button variant="outline">Detalhes</Button>
+            <Button onClick={open} variant="outline">
+              Detalhes
+            </Button>
             <Button size="lg">Participar</Button>
           </div>
         </CardContent>
