@@ -1,6 +1,22 @@
+<div align="center">
+
 # 🤝 Altrua
 
-> Plataforma de cadastro de ONGs, eventos e voluntários.
+Plataforma de cadastro de ONGs, eventos e voluntários.
+
+<img src="screenshot.png" style="border-radius: 20px;">
+
+<br />
+
+![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.5-green?style=flat-square&logo=springboot)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?style=flat-square&logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker)
+![License](https://img.shields.io/badge/license-GPL--3.0-lightgrey?style=flat-square)
+
+<br />
+<br />
 
 <table>
   <tr>
@@ -21,14 +37,10 @@
   </tr>
 </table>
 
----
+<br />
+<br />
 
-![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.5-green?style=flat-square&logo=springboot)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?style=flat-square&logo=postgresql)
-![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker)
-![License](https://img.shields.io/badge/license-GPL--3.0-lightgrey?style=flat-square)
+</div>
 
 ---
 
