@@ -40,10 +40,10 @@ export function EventsSection() {
               estão acontecendo perto de você.
             </p>
           </div>
-          <Button className="gap-2" variant="ghost">
+          {/* <Button className="gap-2" variant="ghost">
             Ver todos os eventos
             <HugeiconsIcon className="size-4" icon={ArrowRight01Icon} />
-          </Button>
+          </Button> */}
         </div>
 
         <div className="mb-8 flex flex-wrap items-center gap-2">

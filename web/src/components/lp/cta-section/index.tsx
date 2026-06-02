@@ -4,6 +4,7 @@ import {
   UserIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "~/components/ui/button";
 
 export function CtaSection() {
@@ -25,9 +26,11 @@ export function CtaSection() {
               Doe seu tempo e habilidades para causas que você acredita.
               Encontre eventos perto de você e faça parte da mudança.
             </p>
-            <Button className="gap-2" size="lg" variant="secondary">
-              Criar conta gratuita
-              <HugeiconsIcon className="size-4" icon={ArrowRight01Icon} />
+            <Button asChild className="gap-2" size="lg" variant="secondary">
+              <Link to="/sign-up">
+                Criar conta gratuita
+                <HugeiconsIcon className="size-4" icon={ArrowRight01Icon} />
+              </Link>
             </Button>
           </div>
         </div>

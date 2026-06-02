@@ -32,12 +32,14 @@ export function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button className="gap-2" size="lg">
-              Explorar ONGs
-              <HugeiconsIcon className="h-4 w-4" icon={ArrowRight01Icon} />
+            <Button asChild className="gap-2" size="lg">
+              <a href="#ongs">
+                Explorar ONGs
+                <HugeiconsIcon className="h-4 w-4" icon={ArrowRight01Icon} />
+              </a>
             </Button>
-            <Button size="lg" variant="outline">
-              Ver Eventos
+            <Button asChild size="lg" variant="outline">
+              <a href="#eventos">Ver Eventos</a>
             </Button>
           </div>
         </div>

@@ -106,7 +106,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html className="scroll-smooth" lang="pt-BR" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

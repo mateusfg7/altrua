@@ -40,9 +40,7 @@ export function SignInForm() {
         { email, password },
         {
           onSuccess: (tokens) => {
-            toast.success("Login realizado com sucesso! Redirecionando...", {
-              description: JSON.stringify(tokens, null, 2),
-            });
+            toast.success("Login realizado com sucesso! Redirecionando...");
             setTokens(tokens);
             router.navigate({ to: "/" });
           },
