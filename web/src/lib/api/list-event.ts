@@ -6,6 +6,6 @@ export async function listEvents(
   pagination?: PaginationParams & NgoEventListFilters
 ) {
   return await apiClient
-    .get<Paginated<NgoEvent>>("/eventos", { params: pagination })
+    .get<Paginated<NgoEvent>>("/events", { params: pagination })
     .then((res) => res.data);
 }

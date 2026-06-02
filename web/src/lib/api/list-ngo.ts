@@ -6,6 +6,6 @@ export async function listNGOs(
   pagination?: PaginationParams
 ): Promise<Paginated<Ngo>> {
   return await apiClient
-    .get<Paginated<Ngo>>("/ongs", { params: pagination })
+    .get<Paginated<Ngo>>("/ngos", { params: pagination })
     .then((res) => res.data);
 }
