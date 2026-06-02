@@ -4,6 +4,7 @@ import { EventsSection } from "~/components/lp/event-section";
 import { HeroSection } from "~/components/lp/hero-section";
 import { HowItWorksSection } from "~/components/lp/how-it-works-section";
 import { NGOSection } from "~/components/lp/ngo-section";
+import { OngDetails } from "~/components/ong-details";
 
 export const Route = createFileRoute("/_auth/")({
   component: RouteComponent,
@@ -17,6 +18,8 @@ function RouteComponent() {
       <EventsSection />
       <HowItWorksSection />
       <CtaSection />
+
+      <OngDetails />
     </div>
   );
 }

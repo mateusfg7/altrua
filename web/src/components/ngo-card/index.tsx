@@ -8,9 +8,18 @@ import {
   CardFooter,
   CardHeader,
 } from "~/components/ui/card";
+import { useDialogStore } from "~/store/dialog.store";
 import type { Ngo } from "~/types/ngo";
 
 export function NGOCard({ data }: { data: Ngo }) {
+  const setDialog = useDialogStore((s) => s.setDialog);
+  const setNgo = useDialogStore((s) => s.setOng);
+
+  function handleOpen() {
+    setDialog("ong-details");
+    setNgo(data);
+  }
+
   const { name, description, bannerUrl, category, activeEventCount } = data;
   return (
     <Card className="group flex h-full flex-col overflow-hidden p-0 transition-all">
@@ -52,7 +61,7 @@ export function NGOCard({ data }: { data: Ngo }) {
       </CardContent>
 
       <CardFooter className="p-5 pt-0">
-        <Button className="w-full gap-2" variant="outline">
+        <Button className="w-full gap-2" onClick={handleOpen} variant="outline">
           Ver perfil
           <HugeiconsIcon className="size-4" icon={LinkSquare02Icon} />
         </Button>
