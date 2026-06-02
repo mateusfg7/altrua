@@ -10,9 +10,11 @@ Plataforma de cadastro de ONGs, eventos e voluntários.
 
 ![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square&logo=openjdk)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.5-green?style=flat-square&logo=springboot)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?style=flat-square&logo=postgresql)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue?style=flat-square&logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![React](https://img.shields.io/badge/Tanstack-Router-FFF?style=flat-square&logo=tanstack)
+![React](https://img.shields.io/badge/Shadcn-UI-000?style=flat-square&logo=shadcnui)
 ![License](https://img.shields.io/badge/license-GPL--3.0-lightgrey?style=flat-square)
 
 <br />
