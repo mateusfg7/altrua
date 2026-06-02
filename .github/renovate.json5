@@ -17,17 +17,14 @@
     {
       matchUpdateTypes: ['minor'],
       addLabels: ['deps:minor'],
-      automerge: true,
     },
     {
       matchUpdateTypes: ['patch'],
       addLabels: ['deps:patch'],
-      automerge: true,
     },
     {
       matchUpdateTypes: ['pin'],
       addLabels: ['deps:pin'],
-      automerge: true,
     },
   ],
 }
