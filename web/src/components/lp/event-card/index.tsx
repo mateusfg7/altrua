@@ -6,11 +6,15 @@ import {
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
+import { toast } from "sonner";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
+import { useVolunteerSubscription } from "~/hooks/use-volunteer-subscription";
+import { useAuthStore } from "~/store/auth.store";
 import { useDialogStore } from "~/store/dialog.store";
 import type { NgoEvent } from "~/types/ngo-event";
 
@@ -20,8 +24,13 @@ export function EventCard(data: NgoEvent) {
 
   const setDialog = useDialogStore((s) => s.setDialog);
   const setEvent = useDialogStore((s) => s.setEvent);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const navigate = useNavigate();
+  const { mutate: subscribe, isPending } = useVolunteerSubscription();
 
   const {
+    id,
+    ongId,
     acceptsVolunteers,
     addressLabel,
     coverUrl,
@@ -36,6 +45,27 @@ export function EventCard(data: NgoEvent) {
   function open() {
     setDialog("event-details");
     setEvent(data);
+  }
+
+  function handleSubscribe() {
+    if (!accessToken) {
+      navigate({ to: "/sign-in" });
+      return;
+    }
+
+    subscribe(
+      { ongId, eventId: id },
+      {
+        onSuccess: () => {
+          toast.success("Inscrição realizada com sucesso!");
+        },
+        onError: (error) => {
+          toast.error(
+            error.response?.data?.detail ?? "Ocorreu um erro ao se inscrever"
+          );
+        },
+      }
+    );
   }
 
   const progress =
@@ -124,7 +154,9 @@ export function EventCard(data: NgoEvent) {
             <Button onClick={open} variant="outline">
               Detalhes
             </Button>
-            <Button size="lg">Participar</Button>
+            <Button disabled={isPending} onClick={handleSubscribe} size="lg">
+              {isPending ? "Inscrevendo..." : "Participar"}
+            </Button>
           </div>
         </CardContent>
       </div>

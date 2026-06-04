@@ -1,5 +1,6 @@
 export type NgoEvent = {
   id: string;
+  ongId: string;
   title: string;
   description: string;
   slug: string;

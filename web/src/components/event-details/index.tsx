@@ -9,6 +9,10 @@ import {
   UserGroupIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { useVolunteerSubscription } from "~/hooks/use-volunteer-subscription";
+import { useAuthStore } from "~/store/auth.store";
 import { useDialogStore } from "~/store/dialog.store";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -29,9 +33,39 @@ export function EventDetails() {
   const dialog = useDialogStore((s) => s.dialog);
   const event = useDialogStore((s) => s.event);
   const close = useDialogStore((s) => s.close);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const navigate = useNavigate();
+  const { mutate: subscribe, isPending } = useVolunteerSubscription();
 
   if (!event) {
     return null;
+  }
+
+  function handleSubscribe() {
+    if (!event) {
+      return;
+    }
+
+    if (!accessToken) {
+      close();
+      navigate({ to: "/sign-in" });
+      return;
+    }
+
+    subscribe(
+      { ongId: event.ongId, eventId: event.id },
+      {
+        onSuccess: () => {
+          toast.success("Inscrição realizada com sucesso!");
+          close();
+        },
+        onError: (error) => {
+          toast.error(
+            error.response?.data?.detail ?? "Ocorreu um erro ao se inscrever"
+          );
+        },
+      }
+    );
   }
 
   const sameDay =
@@ -177,9 +211,13 @@ export function EventDetails() {
         {/* Actions */}
         <Separator />
         <div className="flex gap-2 px-6 py-4">
-          <Button className="flex-1 bg-emerald-700 text-white hover:bg-emerald-800">
+          <Button
+            className="flex-1 bg-emerald-700 text-white hover:bg-emerald-800"
+            disabled={isPending}
+            onClick={handleSubscribe}
+          >
             <HugeiconsIcon className="mr-2" icon={UserGroupIcon} size={15} />
-            Participar
+            {isPending ? "Inscrevendo..." : "Participar"}
           </Button>
 
           {event.donationExternalLink && (
