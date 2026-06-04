@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *                          momento.
  * @param maxVolunteers     Capacidade máxima de voluntários definida para o
  *                          evento.
+ * @param isEnrolled        Indica se o usuário atual está inscrito no evento.
  */
 @Schema(description = "Objeto de resposta resumido para listagem de eventos (Cards)")
 public record EventListResponseDTO(
@@ -56,6 +57,8 @@ public record EventListResponseDTO(
 
 		@Schema(description = "Número atual de voluntários confirmados", example = "32") Integer currentVolunteers,
 
-		@Schema(description = "Capacidade total de voluntários", example = "50", nullable = true) Integer maxVolunteers) {
+		@Schema(description = "Capacidade total de voluntários", example = "50", nullable = true) Integer maxVolunteers,
+
+		@Schema(description = "Indica se o usuário atual está inscrito no evento", example = "true") Boolean isEnrolled) {
 
 }
