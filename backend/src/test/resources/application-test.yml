@@ -1,12 +1,13 @@
 spring:
-    jpa:
-        hibernate:
-            ddl-auto: validate
-    flyway:
-        enabled: true
-    docker:
-        compose:
-            enabled: false
+  datasource:
+    url: "${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/altrua_test}"
+    username: "${SPRING_DATASOURCE_USERNAME:testuser}"
+    password: "${SPRING_DATASOURCE_PASSWORD:testpass}"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
 
 jwt:
-    secret: "DhlZRT1r2rwMEnTue3FGvL90sr8eS6OySLw6yxTQXV3XHeKMjieS6Yz+hYGQh/z0qn4aGvOCyIwl5ZugFU1jA=="
+  secret: ${JWT_SECRET:DhlZRT1r2rwMEnTue3FGvL90sr8eS6OySLw6yxTQXV3XHeKMjieS6Yz+hYGQh/z0qn4aGvOCyIwl5ZugFU1jA==}

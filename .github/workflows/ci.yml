@@ -11,6 +11,21 @@ jobs:
     name: Build & Test
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: altrua_test
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U testuser"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
@@ -35,7 +50,11 @@ jobs:
         run: chmod +x ./mvnw
 
       - name: Build and test
-        run: ./mvnw verify -B
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/altrua_test
+          SPRING_DATASOURCE_USERNAME: testuser
+          SPRING_DATASOURCE_PASSWORD: testpass
+        run: ./mvnw verify -B -Dspring.profiles.active=test
 
       - name: Upload Surefire test reports
         if: always()

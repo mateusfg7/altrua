@@ -22,6 +22,9 @@ spring:
         web:
             pageable:
                 serialization-mode: via-dto
+    docker:
+        compose:
+            enabled: false
 
 scalar:
     enabled: true
