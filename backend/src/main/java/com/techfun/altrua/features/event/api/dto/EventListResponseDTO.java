@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * </p>
  *
  * @param id                Identificador único do evento.
+ * @param ongId             Identificador único da ONG responsável pelo evento.
  * @param title             Título público do evento.
  * @param slug              Identificador textual para URLs amigáveis.
  * @param description       Descrição curta ou resumo do evento.
