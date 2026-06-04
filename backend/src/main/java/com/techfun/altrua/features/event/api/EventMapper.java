@@ -43,8 +43,8 @@ public interface EventMapper {
     /**
      * Converte uma entidade {@link Event} para um DTO resumido, ideal para
      * listagens em cards.
-     * Realiza o mapeamento de propriedades aninhadas (Nome da ONG) e integra dados
-     * calculados externamente.
+     * Realiza o mapeamento de propriedades aninhadas (Nome da ONG, ID da ONG) e
+     * integra dados calculados externamente.
      *
      * @param event                  A entidade de origem.
      * @param currentVolunteersCount Contador de voluntários processado pela camada
