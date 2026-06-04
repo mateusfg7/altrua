@@ -53,6 +53,7 @@ public interface EventMapper {
      *         exibição em massa.
      */
     @Mapping(target = "ongName", source = "event.ong.name")
+    @Mapping(target = "ongId", source = "event.ong.id")
     @Mapping(target = "currentVolunteers", source = "currentVolunteersCount")
     EventListResponseDTO toListDto(Event event, Integer currentVolunteersCount);
 
