@@ -3,7 +3,7 @@ import type { Ngo } from "~/types/ngo";
 
 import type { NgoEvent } from "~/types/ngo-event";
 
-type Dialog = null | "ong-details" | "event-details";
+type Dialog = null | "ong-details" | "event-details" | "create-ngo";
 
 type DialogStore = {
   dialog: Dialog;

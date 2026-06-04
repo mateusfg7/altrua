@@ -20,11 +20,13 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { useProfile } from "~/hooks/use-profile";
 import { useAuthStore } from "~/store/auth.store";
+import { useDialogStore } from "~/store/dialog.store";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const clearTokens = useAuthStore((s) => s.clearTokens);
+  const setDialog = useDialogStore((s) => s.setDialog);
 
   const { data: profile, refetch } = useProfile();
 
@@ -94,6 +96,9 @@ export function Header() {
             <DropdownMenuContent className="">
               <DropdownMenuGroup>
                 <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setDialog("create-ngo")}>
+                  Cadastrar ONG
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
                     clearTokens();

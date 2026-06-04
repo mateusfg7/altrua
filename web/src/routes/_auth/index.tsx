@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CreateNgoDialog } from "~/components/create-ngo-dialog";
 import { EventDetails } from "~/components/event-details";
 import { CtaSection } from "~/components/lp/cta-section";
 import { EventsSection } from "~/components/lp/event-section";
@@ -22,6 +23,7 @@ function RouteComponent() {
 
       <OngDetails />
       <EventDetails />
+      <CreateNgoDialog />
     </div>
   );
 }
