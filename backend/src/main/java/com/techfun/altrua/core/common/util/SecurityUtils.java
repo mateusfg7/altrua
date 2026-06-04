@@ -1,5 +1,6 @@
 package com.techfun.altrua.core.common.util;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -51,5 +52,30 @@ public final class SecurityUtils {
         }
 
         throw new AuthenticationServiceException("O objeto Principal no SecurityContext não é do tipo UserPrincipal");
+    }
+
+    /**
+     * Extrai o identificador do usuário autenticado do contexto de segurança,
+     * retornando um {@link Optional} vazio caso não haja sessão válida.
+     * <p>
+     * Indicado para endpoints públicos, onde a ausência de autenticação
+     * é um estado esperado e não deve lançar exceção.
+     * </p>
+     *
+     * @return {@link Optional} contendo o {@link UUID} do usuário logado,
+     *         ou {@link Optional#empty()} se não houver usuário autenticado
+     *         ou o principal for inválido.
+     */
+    public static Optional<UUID> getCurrentUserIdOptional() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                authentication instanceof AnonymousAuthenticationToken) {
+            return Optional.empty();
+        }
+        if (authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
+            return Optional.of(userPrincipal.getUser().getId());
+        }
+        return Optional.empty();
     }
 }

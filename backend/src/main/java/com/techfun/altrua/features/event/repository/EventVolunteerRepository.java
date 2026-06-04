@@ -35,7 +35,8 @@ public interface EventVolunteerRepository extends JpaRepository<EventVolunteer, 
      * @return Quantidade total de voluntários que atendem aos critérios de filtro.
      */
     @Query("SELECT COUNT(ev) FROM EventVolunteer ev WHERE ev.event.id = :eventId AND ev.status = :status")
-    public long countByEventIdAndStatus(@Param("eventId") UUID eventId, @Param("status") VolunteerStatusEnum status);
+    public long countByEventIdAndStatus(@Param("eventId") UUID eventId,
+            @Param("status") VolunteerStatusEnum status);
 
     /**
      * Recupera o vínculo de inscrição entre um evento e um usuário sem aplicar
@@ -46,6 +47,18 @@ public interface EventVolunteerRepository extends JpaRepository<EventVolunteer, 
      * @return Um Optional contendo a inscrição, se existente.
      */
     public Optional<EventVolunteer> findByEventIdAndUserId(UUID eventId, UUID userId);
+
+    /**
+     * Recupera os identificadores dos eventos em que um usuário está inscrito,
+     * filtrados por uma lista de eventos específica.
+     *
+     * @param userId   Identificador do usuário voluntário.
+     * @param eventIds Lista de identificadores de eventos a serem verificados.
+     * @return Uma lista de UUIDs dos eventos em que o usuário possui inscrição.
+     */
+    @Query("SELECT ev.event.id FROM EventVolunteer ev WHERE ev.event.id IN :eventIds AND ev.user.id = :userId")
+    List<UUID> findEventIdsByUserIdAndEventIds(@Param("userId") UUID userId,
+            @Param("eventIds") List<UUID> eventIds);
 
     /**
      * Recupera uma inscrição específica sob lock pessimista de escrita, validando o

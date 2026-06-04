@@ -1,5 +1,6 @@
 package com.techfun.altrua.features.event.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -131,21 +132,23 @@ public class EventService {
 
     /**
      * Recupera uma página de eventos filtrados e enriquecidos com a contagem de
-     * voluntários.
+     * voluntários confirmados e o status de inscrição do usuário autenticado.
      * <p>
-     * O método realiza a busca paginada baseada nos filtros fornecidos e, para
-     * otimizar a performance
-     * e evitar o problema de consultas N+1, recupera as contagens de voluntários
-     * confirmados em lote
-     * (batch) antes de mapear os resultados para o DTO.
+     * Para otimizar a performance e evitar o problema de consultas N+1, as
+     * contagens de voluntários confirmados e as inscrições do usuário são
+     * recuperadas em lote (batch) antes de mapear os resultados para o DTO.
+     * </p>
+     * <p>
+     * Caso o usuário não esteja autenticado, o campo {@code enrolled} será
+     * retornado como {@code false} para todos os eventos.
      * </p>
      *
      * @param filter   Objeto contendo os critérios de filtragem (ex: tags,
      *                 localização, status).
      * @param pageable Configurações de paginação e ordenação dos resultados.
      * @return Uma {@link Page} de {@link EventListResponseDTO} contendo os dados
-     *         para exibição em lista
-     *         e a contagem atualizada de participantes confirmados.
+     *         para exibição em lista, a contagem de participantes confirmados
+     *         e se o usuário autenticado está inscrito em cada evento.
      */
     public Page<EventListResponseDTO> listEvents(EventFilterDTO filter, Pageable pageable) {
         Page<Event> eventPage = eventRepository.findAll(EventSpecification.withFilter(filter), pageable);
@@ -156,6 +159,14 @@ public class EventService {
                 .countVolunteersByEventIdsAndStatus(eventIds, VolunteerStatusEnum.CONFIRMED).stream()
                 .collect(Collectors.toMap(row -> (UUID) row[0], row -> ((Long) row[1]).intValue()));
 
-        return eventPage.map(event -> eventMapper.toListDto(event, counts.getOrDefault(event.getId(), 0)));
+        Set<UUID> enrolledEventIds = SecurityUtils.getCurrentUserIdOptional()
+                .map(userId -> eventVolunteerRepository
+                        .findEventIdsByUserIdAndEventIds(userId, eventIds)
+                        .stream()
+                        .collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
+
+        return eventPage.map(event -> eventMapper.toListDto(event, counts.getOrDefault(event.getId(), 0),
+                enrolledEventIds.contains(event.getId())));
     }
 }

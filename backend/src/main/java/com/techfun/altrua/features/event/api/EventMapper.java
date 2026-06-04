@@ -49,13 +49,16 @@ public interface EventMapper {
      * @param event                  A entidade de origem.
      * @param currentVolunteersCount Contador de voluntários processado pela camada
      *                               de serviço.
+     * @param isEnrolled             Indicador de inscrição do usuário atual,
+     *                               processado pela camada de serviço.
      * @return {@link EventListResponseDTO} contendo os dados essenciais para
      *         exibição em massa.
      */
     @Mapping(target = "ongName", source = "event.ong.name")
     @Mapping(target = "ongId", source = "event.ong.id")
     @Mapping(target = "currentVolunteers", source = "currentVolunteersCount")
-    EventListResponseDTO toListDto(Event event, Integer currentVolunteersCount);
+    @Mapping(target = "isEnrolled", source = "isEnrolled")
+    EventListResponseDTO toListDto(Event event, Integer currentVolunteersCount, Boolean isEnrolled);
 
     /**
      * Cria uma nova instância da entidade {@link Event} a partir de dados de
