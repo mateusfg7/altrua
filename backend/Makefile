@@ -12,7 +12,7 @@ DIM    = \033[2m
 -include .env
 export
 
-.PHONY: help run build test dev clean docker-up docker-down logs setup migration \
+.PHONY: help run build test dev clean docker-up docker-down deploy deploy-down logs setup migration \
         db-clean db-reset db-migrate db-migrate-info db-migrate-repair db-migrate-validate
 
 ## Exibe esta mensagem de ajuda
@@ -24,7 +24,7 @@ help:
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  DESENVOLVIMENTO$(RESET)\n"
 	@printf "  $(GREEN)make setup$(RESET)              $(DIM)Configura o projeto pela primeira vez$(RESET)\n"
-	@printf "  $(GREEN)make dev$(RESET)                $(DIM)Sobe o banco e inicia a aplicação$(RESET)\n"
+	@printf "  $(GREEN)make dev$(RESET)                $(DIM)Sobe apenas o banco de dados (dev local)$(RESET)\n"
 	@printf "  $(GREEN)make run$(RESET)                $(DIM)Inicia apenas a aplicação$(RESET)\n"
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  BUILD & TESTES$(RESET)\n"
@@ -43,8 +43,10 @@ help:
 	@printf "  $(GREEN)make db-reset$(RESET)           $(DIM)Derruba tudo, recria e roda as migrations$(RESET)\n"
 	@printf "\n"
 	@printf "$(BOLD)$(WHITE)  DOCKER$(RESET)\n"
-	@printf "  $(GREEN)make docker-up$(RESET)          $(DIM)Sobe os containers em background$(RESET)\n"
-	@printf "  $(GREEN)make docker-down$(RESET)        $(DIM)Para e remove os containers$(RESET)\n"
+	@printf "  $(GREEN)make docker-up$(RESET)          $(DIM)Sobe o banco (dev) em background$(RESET)\n"
+	@printf "  $(GREEN)make docker-down$(RESET)        $(DIM)Para e remove os containers (dev)$(RESET)\n"
+	@printf "  $(GREEN)make deploy$(RESET)             $(DIM)Sobe stack de produção (Traefik + Banco + API)$(RESET)\n"
+	@printf "  $(GREEN)make deploy-down$(RESET)        $(DIM)Para a stack de produção$(RESET)\n"
 	@printf "  $(GREEN)make logs$(RESET)               $(DIM)Exibe os logs do PostgreSQL em tempo real$(RESET)\n"
 	@printf "\n"
 
@@ -80,8 +82,8 @@ test-unit:
 	@printf "$(CYAN)🧪 Executando testes unitários...$(RESET)\n"
 	@./mvnw test
 
-## Sobe o banco e inicia a aplicação
-dev: docker-up run
+## Sobe apenas o banco de dados para desenvolvimento local
+dev: docker-up
 
 ## Remove os arquivos de build
 clean:
@@ -95,11 +97,23 @@ docker-up:
 	@docker compose up -d
 	@printf "$(GREEN)✅ Containers no ar.$(RESET)\n"
 
-## Para e remove os containers Docker
+## Para e remove os containers Docker (dev)
 docker-down:
 	@printf "$(YELLOW)🛑 Parando containers...$(RESET)\n"
 	@docker compose down
 	@printf "$(GREEN)✅ Containers encerrados.$(RESET)\n"
+
+## Sobe a stack de produção (Traefik + Banco + API)
+deploy:
+	@printf "$(CYAN)🚀 Subindo stack de produção...$(RESET)\n"
+	@docker compose -f docker-compose.prod.yaml up -d --build
+	@printf "$(GREEN)✅ Stack de produção no ar.$(RESET)\n"
+
+## Para a stack de produção
+deploy-down:
+	@printf "$(YELLOW)🛑 Parando stack de produção...$(RESET)\n"
+	@docker compose -f docker-compose.prod.yaml down
+	@printf "$(GREEN)✅ Stack de produção encerrada.$(RESET)\n"
 
 ## Exibe os logs do PostgreSQL em tempo real
 logs:
