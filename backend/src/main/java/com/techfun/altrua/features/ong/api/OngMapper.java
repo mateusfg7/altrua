@@ -22,7 +22,7 @@ import com.techfun.altrua.features.ong.domain.model.Ong;
  * e os contratos da API permaneçam desacoplados.
  * </p>
  */
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.WARN, nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface OngMapper {
 
     /**
@@ -30,7 +30,7 @@ public interface OngMapper {
      * 
      * @param ong A entidade carregada do banco de dados.
      * @return {@link OngResponseDTO} contendo os dados públicos da organização.
-     * @note O campo 'activeEventCount' assume 0 por padrão caso não seja mapeado
+     * <p><b>Nota:</b></p> O campo 'activeEventCount' assume 0 por padrão caso não seja mapeado
      *       explicitamente.
      */
     @Mapping(target = "activeEventCount", defaultValue = "0L")
@@ -53,6 +53,7 @@ public interface OngMapper {
     @Mapping(target = "status", constant = "ACTIVE")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "administrators", ignore = true)
+    @Mapping(target = "activeEventCount", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
@@ -103,6 +104,6 @@ public interface OngMapper {
      */
     @Condition
     default boolean isNotEmpty(String value) {
-        return value != null && !value.trim().isBlank();
+        return value != null && !value.isBlank();
     }
 }
