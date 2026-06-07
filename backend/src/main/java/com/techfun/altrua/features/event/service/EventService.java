@@ -1,5 +1,6 @@
 package com.techfun.altrua.features.event.service;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
 import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
 import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
+import com.techfun.altrua.features.event.api.dto.UpdateEventRequestDTO;
 import com.techfun.altrua.features.event.domain.enums.VolunteerStatusEnum;
 import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.event.repository.EventRepository;
@@ -92,6 +94,8 @@ public class EventService {
             slug = SlugUtils.withSuffix(slug);
         }
 
+        validateEventDates(request.startsAt(), request.endsAt());
+
         try {
             Event event = eventMapper.toEntity(request, slug, ong, creator);
             event.getTags().addAll(managedTags);
@@ -107,6 +111,35 @@ public class EventService {
             log.error("Erro técnico inesperado ao cadastrar evento: {}", ex.getMessage());
             throw ex;
         }
+    }
+
+    /**
+     * Atualiza os dados de um evento existente.
+     * <p>
+     * O método mescla os novos dados fornecidos no DTO com a entidade persistida,
+     * valida se o novo intervalo de datas é coerente com o momento atual e reflete
+     * as modificações na base de dados.
+     * </p>
+     *
+     * @param eventId Identificador único do evento a ser atualizado.
+     * @param request DTO contendo as novas informações do evento.
+     * @return O DTO {@link EventResponseDTO} atualizado e mapeado.
+     * @throws ResourceNotFoundException Se o ID do evento fornecido não
+     *                                   corresponder a nenhum registro.
+     * @throws DomainException           Se as novas datas fornecidas violarem as
+     *                                   regras cronológicas de negócio.
+     */
+    @Transactional
+    public EventResponseDTO update(UUID eventId, UpdateEventRequestDTO request) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento"));
+
+        eventMapper.updateEntityFromDto(request, event);
+
+        validateEventDates(request.startsAt(), request.endsAt());
+
+        Event updatedEvent = eventRepository.save(event);
+        return eventMapper.toDto(updatedEvent);
     }
 
     /**
@@ -168,5 +201,30 @@ public class EventService {
 
         return eventPage.map(event -> eventMapper.toListDto(event, counts.getOrDefault(event.getId(), 0),
                 enrolledEventIds.contains(event.getId())));
+    }
+
+    /**
+     * Valida a consistência cronológica das datas informadas para o evento.
+     * <p>
+     * Garante que o evento não seja agendado para iniciar no passado e que a
+     * data de início preceda estritamente a data de término, caso ambas estejam
+     * preenchidas.
+     * </p>
+     *
+     * @param startsAt Instante de início do evento.
+     * @param endsAt   Instante de término do evento (pode ser nulo).
+     * @throws DomainException Se o início for retroativo ou posterior/igual ao
+     *                         término.
+     */
+    private void validateEventDates(Instant startsAt, Instant endsAt) {
+        Instant now = Instant.now();
+
+        if (startsAt != null && startsAt.isBefore(now)) {
+            throw new DomainException("A data de início do evento não pode ser no passado.");
+        }
+
+        if (startsAt != null && endsAt != null && !startsAt.isBefore(endsAt)) {
+            throw new DomainException("A data de início deve ser anterior à data de término.");
+        }
     }
 }

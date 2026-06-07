@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * DTO para o registro de novos eventos vinculados a uma ONG.
@@ -37,7 +38,7 @@ import jakarta.validation.constraints.NotNull;
 @Schema(description = "Dados necessários para o registro de um novo evento")
 public record RegisterEventRequestDTO(
 
-        @Schema(description = "Título descritivo do evento", example = "Mutirão de Limpeza de Praia", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O título é obrigatório") String title,
+        @Schema(description = "Título descritivo do evento", example = "Mutirão de Limpeza de Praia", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank(message = "O título é obrigatório") @Size(min = 2, max = 100, message = "O nome deve ter no mínimo 2 caracteres") String title,
 
         @Schema(description = "Descrição detalhada sobre as atividades do evento", example = "Coleta de resíduos sólidos na orla da Praia Central.") String description,
 
@@ -61,7 +62,7 @@ public record RegisterEventRequestDTO(
 
         @Schema(description = "Data e hora de início do evento (ISO 8601)", example = "2026-06-15T08:00:00Z", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull(message = "A data e hora de início são obrigatórias") Instant startsAt,
 
-        @Schema(description = "Data e hora de término prevista (ISO 8601)", example = "2026-06-15T12:00:00Z") Instant endsAt,
+        @Schema(description = "Data e hora de término prevista (ISO 8601)", example = "2026-06-15T12:00:00Z", requiredMode = Schema.RequiredMode.REQUIRED) @NotNull(message = "A data e hora de término são obrigatórias") Instant endsAt,
 
         @Schema(description = "Conjunto de nomes das tags para categorização", example = "[\"Meio Ambiente\", \"Limpeza\"]", requiredMode = Schema.RequiredMode.REQUIRED) @NotEmpty(message = "É obrigatório informar ao menos uma tag") Set<@NotBlank(message = "O nome da tag não pode estar em branco") String> tags) {
 }

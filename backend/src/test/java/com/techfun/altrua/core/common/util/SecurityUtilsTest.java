@@ -2,10 +2,12 @@ package com.techfun.altrua.core.common.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -65,6 +67,34 @@ class SecurityUtilsTest {
 
                 assertEquals(expectedId, result);
             }
+        }
+    }
+
+    /**
+     * Valida o retorno do Optional com o UUID correto quando o contexto está
+     * íntegro.
+     */
+    @Test
+    @DisplayName("deve retornar Optional com o UUID do usuário quando o principal é válido")
+    void shouldReturnOptionalWithUserIdWhenAllDataIsValid() {
+        UUID expectedId = UUID.randomUUID();
+
+        try (MockedStatic<SecurityContextHolder> mockedContext = mockStatic(SecurityContextHolder.class)) {
+            User user = BeanUtils.instantiateClass(User.class);
+            ReflectionTestUtils.setField(user, "id", expectedId);
+            UserPrincipal principal = new UserPrincipal(user);
+
+            Authentication auth = mock(Authentication.class);
+            SecurityContext context = mock(SecurityContext.class);
+
+            mockedContext.when(SecurityContextHolder::getContext).thenReturn(context);
+            when(context.getAuthentication()).thenReturn(auth);
+            when(auth.isAuthenticated()).thenReturn(true);
+            when(auth.getPrincipal()).thenReturn(principal);
+
+            java.util.Optional<UUID> result = SecurityUtils.getCurrentUserIdOptional();
+
+            assertEquals(expectedId, result.orElse(null));
         }
     }
 
@@ -147,6 +177,28 @@ class SecurityUtilsTest {
                 when(auth.isAuthenticated()).thenReturn(false);
 
                 assertThrows(InsufficientAuthenticationException.class, SecurityUtils::getCurrentUserId);
+            }
+        }
+
+        /**
+         * Garante o retorno de um Optional vazio em qualquer cenário de
+         * autenticação inválida, anônima ou com tipo de Principal incorreto.
+         */
+        @Test
+        @DisplayName("deve retornar Optional vazio quando as credenciais forem inválidas ou ausentes")
+        void shouldReturnEmptyOptionalWhenAuthenticationIsInvalid() {
+            try (MockedStatic<SecurityContextHolder> mockedContext = mockStatic(SecurityContextHolder.class)) {
+                SecurityContext context = mock(SecurityContext.class);
+                Authentication auth = mock(Authentication.class);
+
+                mockedContext.when(SecurityContextHolder::getContext).thenReturn(context);
+                when(context.getAuthentication()).thenReturn(auth);
+                when(auth.isAuthenticated()).thenReturn(true);
+                when(auth.getPrincipal()).thenReturn("usuario_invalido");
+
+                Optional<UUID> result = SecurityUtils.getCurrentUserIdOptional();
+
+                assertTrue(result.isEmpty());
             }
         }
     }

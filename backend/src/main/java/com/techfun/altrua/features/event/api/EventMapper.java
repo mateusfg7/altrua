@@ -4,14 +4,19 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Condition;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
 import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
+import com.techfun.altrua.features.event.api.dto.UpdateEventRequestDTO;
 import com.techfun.altrua.features.event.domain.model.Event;
 import com.techfun.altrua.features.ong.domain.model.Ong;
 import com.techfun.altrua.features.tag.domain.Tag;
@@ -26,7 +31,7 @@ import com.techfun.altrua.features.user.domain.model.User;
  * garantindo alta performance e segurança de tipos.
  * </p>
  */
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.WARN)
 public interface EventMapper {
 
     /**
@@ -101,6 +106,35 @@ public interface EventMapper {
     Event toEntity(RegisterEventRequestDTO dto, String slug, Ong ong, User creator);
 
     /**
+     * Atualiza os atributos de uma instância existente da entidade {@link Event}
+     * com base nos dados fornecidos.
+     * <p>
+     * O mapeamento ignora campos estruturais imutáveis (como identificadores,
+     * criador, ONG e metadados de auditoria) e aplica uma estratégia de mesclagem
+     * parcial (delta). Atributos com valor {@code null} no DTO de entrada serão
+     * explicitamente desconsiderados, preservando o valor atual já persistido
+     * na entidade alvo.
+     * </p>
+     *
+     * @param dto   DTO contendo as modificações parciais a serem aplicadas.
+     * @param event A instância da entidade {@link Event} já persistida que receberá
+     *              as atualizações in-place.
+     */
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "ong", ignore = true)
+    @Mapping(target = "createdByUser", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "acceptsVolunteers", ignore = true)
+    @Mapping(target = "maxVolunteers", ignore = true)
+    @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "slug", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(UpdateEventRequestDTO dto, @MappingTarget Event event);
+
+    /**
      * Lógica de suporte para sanitização do campo de voluntários.
      * Garante que o número máximo de voluntários seja persistido apenas se o evento
      * aceitá-los.
@@ -130,5 +164,24 @@ public interface EventMapper {
             return Collections.emptySet();
         }
         return tags.stream().map(Tag::getName).collect(Collectors.toSet());
+    }
+
+    /**
+     * Verificador de condição customizado para mapeamento de Strings.
+     * <p>
+     * Este método é utilizado automaticamente pelo MapStruct (devido à anotação
+     * {@link Condition}) antes de mapear qualquer campo do tipo String. Ele impede
+     * que valores vazios ou compostos apenas por espaços em branco sobrescrevam
+     * dados válidos no banco de dados.
+     * </p>
+     *
+     * @param value A string a ser validada.
+     * @return {@code true} se a string não for nula e possuir conteúdo real;
+     *         {@code false} caso contrário, abortando o mapeamento do campo
+     *         específico.
+     */
+    @Condition
+    default boolean isNotEmpty(String value) {
+        return value != null && !value.isBlank();
     }
 }
