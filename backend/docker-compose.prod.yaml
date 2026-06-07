@@ -1,33 +1,10 @@
 volumes:
   altrua_pg_data:
-  traefik_certs:
 
 networks:
   altrua_net:
 
 services:
-  traefik:
-    image: traefik:v3
-    command:
-      - "--providers.docker=true"
-      - "--providers.docker.exposedByDefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/certs/acme.json"
-      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - traefik_certs:/certs
-    networks:
-      - altrua_net
-    restart: unless-stopped
-
   postgres:
     image: postgres:18-alpine
     environment:
@@ -36,8 +13,16 @@ services:
       - POSTGRES_USER=${DB_USER}
     volumes:
       - altrua_pg_data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
     networks:
       - altrua_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   api:
@@ -53,13 +38,10 @@ services:
       - JWT_REFRESH_TOKEN_EXPIRATION=${JWT_REFRESH_TOKEN_EXPIRATION}
       - CORS_ORIGINS=${CORS_ORIGINS}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
     networks:
       - altrua_net
     restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`${API_DOMAIN}`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api.loadbalancer.server.port=8080"
