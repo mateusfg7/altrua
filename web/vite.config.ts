@@ -6,6 +6,8 @@ import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+const API_PREFIX = /^\/api/;
+
 const config = defineConfig({
   plugins: [
     devtools(),
@@ -15,6 +17,16 @@ const config = defineConfig({
     nitro(),
     viteReact(),
   ],
+  server: {
+    proxy: {
+      // Mirrors the vercel.json rewrite so `/api/*` works in local dev.
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(API_PREFIX, ""),
+      },
+    },
+  },
 });
 
 export default config;

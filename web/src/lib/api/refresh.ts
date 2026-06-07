@@ -1,5 +1,5 @@
 import axios from "axios";
-import { env } from "~/env";
+import { API_BASE_PATH } from "~/lib/api-client";
 import type { AuthTokens } from "~/types/auth-tokens";
 
 /**
@@ -7,6 +7,6 @@ import type { AuthTokens } from "~/types/auth-tokens";
  */
 export async function refreshTokens(token: string): Promise<AuthTokens> {
   return await axios
-    .post<AuthTokens>(`${env.VITE_API_URL}/auth/refresh`, { token })
+    .post<AuthTokens>(`${API_BASE_PATH}/auth/refresh`, { token })
     .then((res) => res.data);
 }

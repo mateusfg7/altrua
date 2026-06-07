@@ -1,10 +1,16 @@
 import axios, { type AxiosRequestConfig } from "axios";
-import { env } from "~/env";
 import { refreshTokens } from "~/lib/api/refresh";
 import { useAuthStore } from "~/store/auth.store";
 
+/**
+ * Same-origin base path. Requests to `/api/*` are proxied to the backend
+ * (see vercel.json rewrites in prod, vite.config.ts proxy in dev), which
+ * avoids mixed-content blocking when the page is served over HTTPS.
+ */
+export const API_BASE_PATH = "/api";
+
 export const apiClient = axios.create({
-  baseURL: env.VITE_API_URL,
+  baseURL: API_BASE_PATH,
 });
 
 // Attach access token to every request
