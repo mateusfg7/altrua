@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
 import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
 import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
 import com.techfun.altrua.features.event.api.dto.RegisterEventRequestDTO;
+import com.techfun.altrua.features.event.api.dto.UpdateEventRequestDTO;
 import com.techfun.altrua.features.event.service.EventService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,88 +45,119 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EventController {
 
-    private final EventService eventService;
+	private final EventService eventService;
 
-    /**
-     * Registra um novo evento vinculado a uma ONG.
-     * <p>
-     * A autorização é validada via {@code SecurityService}, garantindo que o
-     * usuário
-     * autenticado seja administrador da ONG informada.
-     * </p>
-     *
-     * @param ongId   UUID da ONG proprietária.
-     * @param request Dados para criação do evento.
-     * @return {@link EventResponseDTO} com o status 201 (Created).
-     */
-    @Operation(summary = "Registrar novo evento", description = "Cria um evento vinculado a uma ONG. Requer que o usuário seja administrador da ONG informada.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Evento criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos ou ausência de tags obrigatórias"),
-            @ApiResponse(responseCode = "403", description = "Usuário não possui permissão de administrador na ONG"),
-            @ApiResponse(responseCode = "404", description = "ONG não encontrada"),
-            @ApiResponse(responseCode = "409", description = "Conflito: Slug do evento já existe")
-    })
-    @PostMapping("/ngos/{ongId}/events")
-    @PreAuthorize("@securityService.isOngAdmin(#ongId)")
-    public ResponseEntity<EventResponseDTO> register(
-            @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
-            @RequestBody @Valid RegisterEventRequestDTO request) {
-        EventResponseDTO savedEvent = eventService.register(ongId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
-    }
+	/**
+	 * Registra um novo evento vinculado a uma ONG.
+	 * <p>
+	 * A autorização é validada via {@code SecurityService}, garantindo que o
+	 * usuário
+	 * autenticado seja administrador da ONG informada.
+	 * </p>
+	 *
+	 * @param ongId   UUID da ONG proprietária.
+	 * @param request Dados para criação do evento.
+	 * @return {@link EventResponseDTO} com o status 201 (Created).
+	 */
+	@Operation(summary = "Registrar novo evento", description = "Cria um evento vinculado a uma ONG. Requer que o usuário seja administrador da ONG informada.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "201", description = "Evento criado com sucesso"),
+			@ApiResponse(responseCode = "400", description = "Dados inválidos ou ausência de tags obrigatórias"),
+			@ApiResponse(responseCode = "403", description = "Usuário não possui permissão de administrador na ONG"),
+			@ApiResponse(responseCode = "404", description = "ONG não encontrada"),
+			@ApiResponse(responseCode = "409", description = "Conflito: Slug do evento já existe")
+	})
+	@PostMapping("/ngos/{ongId}/events")
+	@PreAuthorize("@securityService.isOngAdmin(#ongId)")
+	public ResponseEntity<EventResponseDTO> register(
+			@Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
+			@RequestBody @Valid RegisterEventRequestDTO request) {
+		EventResponseDTO savedEvent = eventService.register(ongId, request);
+		return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
+	}
 
-    /**
-     * Finaliza um evento específico.
-     * <p>
-     * O acesso é restrito a administradores da ONG proprietária. A validação de
-     * permissão
-     * e a integridade da relação entre ONG e Evento são realizadas na camada de
-     * segurança.
-     * </p>
-     *
-     * @param ongId   UUID da ONG proprietária para validação de integridade.
-     * @param eventId UUID do evento a ser encerrado.
-     * @return Status 204 (No Content) em caso de sucesso.
-     */
-    @Operation(summary = "Encerrar evento", description = "Finaliza um evento ativo. Requer permissão de gerenciamento sobre o evento específico.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Evento encerrado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Regra de negócio violada: o evento não pode ser encerrado no status atual"),
-            @ApiResponse(responseCode = "403", description = "Usuário não tem permissão para gerenciar este evento"),
-            @ApiResponse(responseCode = "404", description = "Evento não encontrado ou não pertence a esta ONG")
-    })
-    @PostMapping("/ngos/{ongId}/events/{eventId}/finish")
-    @PreAuthorize("@securityService.canManageEvent(#ongId, #eventId)")
-    public ResponseEntity<Void> endEvent(
-            @Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
-            @Parameter(description = "UUID do evento a ser encerrado") @PathVariable("eventId") UUID eventId) {
-        eventService.endEvent(eventId);
-        return ResponseEntity.noContent().build();
-    }
+	/**
+	 * Atualiza os dados de um evento existente vinculado a uma ONG.
+	 * <p>
+	 * A autorização é validada via {@code SecurityService}, garantindo que o
+	 * usuário autenticado possua privilégios de gerenciamento sobre o evento
+	 * específico dentro do escopo da ONG informada.
+	 * </p>
+	 *
+	 * @param ongId   UUID da ONG proprietária.
+	 * @param eventId UUID do evento a ser modificado.
+	 * @param request Dados parciais ou totais para atualização do evento.
+	 * @return {@link EventResponseDTO} com o status 200 (OK) e o recurso
+	 *         atualizado.
+	 */
+	@Operation(summary = "Atualizar evento", description = "Atualiza os dados de um evento existente. Requer permissão de gerenciamento sobre o evento específico.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Evento atualizado com sucesso"),
+			@ApiResponse(responseCode = "400", description = "Dados inválidos"),
+			@ApiResponse(responseCode = "403", description = "Usuário não tem permissão para gerenciar este evento"),
+			@ApiResponse(responseCode = "404", description = "Evento não encontrado")
+	})
+	@PatchMapping("/ngos/{ongId}/events/{eventId}")
+	@PreAuthorize("@securityService.canManageEvent(#ongId, #eventId)")
+	public ResponseEntity<EventResponseDTO> update(
+			@Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
+			@Parameter(description = "UUID do evento a ser atualizado") @PathVariable("eventId") UUID eventId,
+			@RequestBody @Valid UpdateEventRequestDTO request) {
+		EventResponseDTO updatedEvent = eventService.update(eventId, request);
+		return ResponseEntity.ok(updatedEvent);
+	}
 
-    /**
-     * Lista eventos de forma paginada com base em filtros dinâmicos.
-     * <p>
-     * Retorna apenas eventos que ainda não ocorreram (data de início no futuro).
-     * Os filtros de tag, status e disponibilidade de voluntariado são opcionais.
-     * </p>
-     *
-     * @param filter   DTO contendo os critérios de filtragem (tag, status,
-     *                 acceptsVolunteers).
-     * @param pageable Parâmetros de paginação e ordenação (padrão: 10 itens por
-     *                 página).
-     * @return {@link Page} contendo os eventos que atendem aos critérios.
-     */
-    @Operation(summary = "Listar eventos com filtros", description = "Recupera uma lista paginada de eventos futuros. Permite filtrar por tags, status e disponibilidade para voluntários.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Parâmetros de paginação ou filtro inválidos")
-    })
-    @GetMapping("/events")
-    public ResponseEntity<Page<EventListResponseDTO>> list(
-            @ParameterObject EventFilterDTO filter,
-            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(eventService.listEvents(filter, pageable));
-    }
+	/**
+	 * Finaliza um evento específico.
+	 * <p>
+	 * O acesso é restrito a administradores da ONG proprietária. A validação de
+	 * permissão
+	 * e a integridade da relação entre ONG e Evento são realizadas na camada de
+	 * segurança.
+	 * </p>
+	 *
+	 * @param ongId   UUID da ONG proprietária para validação de integridade.
+	 * @param eventId UUID do evento a ser encerrado.
+	 * @return Status 204 (No Content) em caso de sucesso.
+	 */
+	@Operation(summary = "Encerrar evento", description = "Finaliza um evento ativo. Requer permissão de gerenciamento sobre o evento específico.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "204", description = "Evento encerrado com sucesso"),
+			@ApiResponse(responseCode = "400", description = "Regra de negócio violada: o evento não pode ser encerrado no status atual"),
+			@ApiResponse(responseCode = "403", description = "Usuário não tem permissão para gerenciar este evento"),
+			@ApiResponse(responseCode = "404", description = "Evento não encontrado ou não pertence a esta ONG")
+	})
+	@PostMapping("/ngos/{ongId}/events/{eventId}/finish")
+	@PreAuthorize("@securityService.canManageEvent(#ongId, #eventId)")
+	public ResponseEntity<Void> endEvent(
+			@Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
+			@Parameter(description = "UUID do evento a ser encerrado") @PathVariable("eventId") UUID eventId) {
+		eventService.endEvent(eventId);
+		return ResponseEntity.noContent().build();
+	}
+
+	/**
+	 * Lista eventos de forma paginada com base em filtros dinâmicos.
+	 * <p>
+	 * Retorna apenas eventos que ainda não ocorreram (data de início no futuro).
+	 * Os filtros de tag, status e disponibilidade de voluntariado são opcionais.
+	 * </p>
+	 *
+	 * @param filter   DTO contendo os critérios de filtragem (tag, status,
+	 *                 acceptsVolunteers).
+	 * @param pageable Parâmetros de paginação e ordenação (padrão: 10 itens por
+	 *                 página).
+	 * @return {@link Page} contendo os eventos que atendem aos critérios.
+	 */
+	@Operation(summary = "Listar eventos com filtros", description = "Recupera uma lista paginada de eventos futuros. Permite filtrar por tags, status e disponibilidade para voluntários.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Lista recuperada com sucesso"),
+			@ApiResponse(responseCode = "400", description = "Parâmetros de paginação ou filtro inválidos")
+	})
+	@GetMapping("/events")
+	public ResponseEntity<Page<EventListResponseDTO>> list(
+			@ParameterObject EventFilterDTO filter,
+			@ParameterObject @PageableDefault(size = 10) Pageable pageable) {
+		return ResponseEntity.ok(eventService.listEvents(filter, pageable));
+	}
 }
