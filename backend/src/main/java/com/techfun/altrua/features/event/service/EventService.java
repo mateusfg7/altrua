@@ -164,13 +164,35 @@ public class EventService {
     }
 
     /**
+     * Recupera um evento específico pelo seu identificador, enriquecido com
+     * métricas de voluntariado.
+     * <p>
+     * Nota: Embora recupere um registro único, o método atualmente mapeia o
+     * resultado para um {@link EventListResponseDTO}. Caso o usuário não esteja
+     * autenticado, o status de inscrição será retornado como {@code false}.
+     * </p>
+     *
+     * @param eventId Identificador único do evento a ser recuperado.
+     * @return O DTO {@link EventListResponseDTO} contendo os dados do evento,
+     *         contador de participantes e o status de inscrição do usuário logado.
+     * @throws ResourceNotFoundException Se nenhum evento for encontrado com o ID
+     *                                   fornecido.
+     */
+    public EventListResponseDTO getById(UUID eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Evento"));
+
+        List<UUID> eventIds = List.of(eventId);
+
+        int volunteerCount = getVolunteerCounts(eventIds).getOrDefault(eventId, 0);
+        boolean isEnrolled = getEnrolledEventIdsForCurrentUser(eventIds).contains(eventId);
+
+        return eventMapper.toListDto(event, volunteerCount, isEnrolled);
+    }
+
+    /**
      * Recupera uma página de eventos filtrados e enriquecidos com a contagem de
      * voluntários confirmados e o status de inscrição do usuário autenticado.
-     * <p>
-     * Para otimizar a performance e evitar o problema de consultas N+1, as
-     * contagens de voluntários confirmados e as inscrições do usuário são
-     * recuperadas em lote (batch) antes de mapear os resultados para o DTO.
-     * </p>
      * <p>
      * Caso o usuário não esteja autenticado, o campo {@code enrolled} será
      * retornado como {@code false} para todos os eventos.
@@ -188,16 +210,8 @@ public class EventService {
 
         List<UUID> eventIds = eventPage.getContent().stream().map(Event::getId).toList();
 
-        Map<UUID, Integer> counts = eventVolunteerRepository
-                .countVolunteersByEventIdsAndStatus(eventIds, VolunteerStatusEnum.CONFIRMED).stream()
-                .collect(Collectors.toMap(row -> (UUID) row[0], row -> ((Long) row[1]).intValue()));
-
-        Set<UUID> enrolledEventIds = SecurityUtils.getCurrentUserIdOptional()
-                .map(userId -> eventVolunteerRepository
-                        .findEventIdsByUserIdAndEventIds(userId, eventIds)
-                        .stream()
-                        .collect(Collectors.toSet()))
-                .orElse(Collections.emptySet());
+        Map<UUID, Integer> counts = getVolunteerCounts(eventIds);
+        Set<UUID> enrolledEventIds = getEnrolledEventIdsForCurrentUser(eventIds);
 
         return eventPage.map(event -> eventMapper.toListDto(event, counts.getOrDefault(event.getId(), 0),
                 enrolledEventIds.contains(event.getId())));
@@ -226,5 +240,48 @@ public class EventService {
         if (startsAt != null && endsAt != null && !startsAt.isBefore(endsAt)) {
             throw new DomainException("A data de início deve ser anterior à data de término.");
         }
+    }
+
+    /**
+     * Recupera o total de voluntários confirmados para uma lista específica de IDs
+     * de eventos.
+     * <p>
+     * Realiza uma consulta agregada no banco de dados para evitar o problema de
+     * consultas N+1, agrupando os resultados por evento. Eventos que não possuem
+     * voluntários confirmados não serão incluídos nas chaves do mapa retornado.
+     * </p>
+     *
+     * @param eventIds Lista contendo os UUIDs dos eventos que serão consultados.
+     * @return Um {@link Map} onde a chave é o UUID do evento e o valor é a
+     *         quantidade de voluntários com o status
+     *         {@link VolunteerStatusEnum#CONFIRMED}.
+     */
+    private Map<UUID, Integer> getVolunteerCounts(List<UUID> eventIds) {
+        return eventVolunteerRepository
+                .countVolunteersByEventIdsAndStatus(eventIds, VolunteerStatusEnum.CONFIRMED).stream()
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> ((Long) row[1]).intValue()));
+    }
+
+    /**
+     * Identifica em quais eventos da lista fornecida o usuário autenticado está
+     * inscrito.
+     * <p>
+     * O método intercepta o ID do usuário logado através do contexto de segurança.
+     * Caso o usuário não esteja autenticado, a consulta ao banco de dados é omitida
+     * e um conjunto vazio é retornado imediatamente.
+     * </p>
+     *
+     * @param eventIds Lista contendo os UUIDs dos eventos para checagem de vínculo.
+     * @return Um {@link Set} contendo apenas os UUIDs dos eventos nos quais o
+     *         usuário atual possui uma inscrição ativa. Retorna um conjunto vazio
+     *         se o usuário for anônimo.
+     */
+    private Set<UUID> getEnrolledEventIdsForCurrentUser(List<UUID> eventIds) {
+        return SecurityUtils.getCurrentUserIdOptional()
+                .map(userId -> eventVolunteerRepository
+                        .findEventIdsByUserIdAndEventIds(userId, eventIds)
+                        .stream()
+                        .collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
     }
 }
