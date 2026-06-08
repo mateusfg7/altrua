@@ -197,6 +197,20 @@ public class OngService {
     }
 
     /**
+     * Recupera os dados de uma ONG cadastrada a partir do seu identificador único.
+     *
+     * @param ongId O {@link UUID} da ONG a ser buscada. Não deve ser nulo.
+     * @return Um {@link OngResponseDTO} contendo os dados da ONG encontrada.
+     * @throws ResourceNotFoundException Se nenhuma ONG for encontrada com o ID
+     *                                   fornecido.
+     */
+    public OngResponseDTO getById(UUID ongId) {
+        Ong ong = ongRepository.findById(ongId)
+                .orElseThrow(() -> new ResourceNotFoundException("ONG"));
+        return ongMapper.toDto(ong);
+    }
+
+    /**
      * Recupera uma página de ONGs filtradas de acordo com os critérios fornecidos.
      * <p>
      * O processo executa três etapas:

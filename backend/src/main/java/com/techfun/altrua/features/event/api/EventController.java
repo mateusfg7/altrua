@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.features.event.api.dto.EventFilterDTO;
 import com.techfun.altrua.features.event.api.dto.EventListResponseDTO;
 import com.techfun.altrua.features.event.api.dto.EventResponseDTO;
@@ -134,6 +135,37 @@ public class EventController {
 			@Parameter(description = "UUID do evento a ser encerrado") @PathVariable("eventId") UUID eventId) {
 		eventService.endEvent(eventId);
 		return ResponseEntity.noContent().build();
+	}
+
+	/**
+	 * Recupera os detalhes completos de um evento específico associado a uma ONG.
+	 * <p>
+	 * Este endpoint retorna as informações estáticas do evento combinadas com dados
+	 * dinâmicos do contexto atual, tais como o número de voluntários confirmados e
+	 * se o usuário autenticado está inscrito no evento em questão.
+	 * </p>
+	 *
+	 * @param ongId   Identificador único da ONG proprietária ou organizadora do
+	 *                evento.
+	 * @param eventId Identificador único do evento a ser recuperado.
+	 * @return Um {@link ResponseEntity} contendo o {@link EventDetailResponseDTO}
+	 *         com
+	 *         os detalhes e métricas do evento e o status HTTP 200 (OK).
+	 * @throws ResourceNotFoundException Se o evento ou a ONG não forem encontrados
+	 *                                   ou
+	 *                                   se o evento não pertencer à ONG informada.
+	 */
+	@Operation(summary = "Obter detalhes de um evento específico", description = "Recupera os dados completos de um evento pelo seu UUID, enriquecido com a contagem de voluntários e status de inscrição do usuário logado.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Detalhes do evento recuperados com sucesso"),
+			@ApiResponse(responseCode = "404", description = "Evento ou ONG não encontrados, ou o evento não pertence à ONG especificada")
+	})
+	@GetMapping("/ngos/{ongId}/events/{eventId}")
+	public ResponseEntity<EventListResponseDTO> getById(
+			@Parameter(description = "UUID da ONG proprietária") @PathVariable("ongId") UUID ongId,
+			@Parameter(description = "UUID do evento") @PathVariable("eventId") UUID eventId) {
+		EventListResponseDTO event = eventService.getById(eventId);
+		return ResponseEntity.ok(event);
 	}
 
 	/**
