@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.techfun.altrua.core.common.exceptions.ResourceNotFoundException;
 import com.techfun.altrua.features.ong.api.dto.OngFilterDTO;
 import com.techfun.altrua.features.ong.api.dto.OngResponseDTO;
 import com.techfun.altrua.features.ong.api.dto.PromoteAdminRequestDTO;
@@ -153,6 +154,31 @@ public class OngController {
             @Parameter(description = "ID do administrador a ser removido") @PathVariable("userId") UUID userId) {
         ongService.demoteAdministrator(ongId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Recupera os detalhes completos de uma ONG específica pelo seu identificador.
+     * <p>
+     * Este endpoint retorna as informações de cadastro e perfil da organização
+     * solicitada com base no seu UUID.
+     * </p>
+     *
+     * @param ongId Identificador único da ONG a ser recuperada.
+     * @return Um {@link ResponseEntity} contendo o {@link OngResponseDTO} com os
+     *         dados da ONG e o status HTTP 200 (OK).
+     * @throws ResourceNotFoundException Se nenhuma ONG for encontrada com o ID
+     *                                   fornecido.
+     */
+    @Operation(summary = "Obter detalhes de uma ONG específica", description = "Recupera os dados completos de perfil de uma organização cadastrada utilizando seu UUID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Dados da ONG recuperados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Nenhuma ONG encontrada com o ID informado")
+    })
+    @GetMapping("/{ongId}")
+    public ResponseEntity<OngResponseDTO> getById(
+            @Parameter(description = "UUID identificador da ONG") @PathVariable("ongId") UUID ongId) {
+        OngResponseDTO ong = ongService.getById(ongId);
+        return ResponseEntity.ok(ong);
     }
 
     /**
