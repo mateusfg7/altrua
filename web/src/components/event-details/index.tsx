@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/correctness/useImageSize: <explanation> */
+/** biome-ignore-all lint/correctness/useImageSize: image comes from external source */
 import {
   Calendar03Icon,
   Clock01Icon,
@@ -211,14 +211,16 @@ export function EventDetails() {
         {/* Actions */}
         <Separator />
         <div className="flex gap-2 px-6 py-4">
-          <Button
-            className="flex-1 bg-emerald-700 text-white hover:bg-emerald-800"
-            disabled={isPending}
-            onClick={handleSubscribe}
-          >
-            <HugeiconsIcon className="mr-2" icon={UserGroupIcon} size={15} />
-            {isPending ? "Inscrevendo..." : "Participar"}
-          </Button>
+          {event.acceptsVolunteers && !event.isEnrolled && (
+            <Button
+              className="flex-1 bg-emerald-700 text-white hover:bg-emerald-800"
+              disabled={isPending}
+              onClick={handleSubscribe}
+            >
+              <HugeiconsIcon className="mr-2" icon={UserGroupIcon} size={15} />
+              {isPending ? "Inscrevendo..." : "Participar"}
+            </Button>
+          )}
 
           {event.donationExternalLink && (
             <Button asChild className="flex-1" variant="outline">

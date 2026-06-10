@@ -8,27 +8,10 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@tanstack/react-router";
 
 import React from "react";
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { useProfile } from "~/hooks/use-profile";
-import { useAuthStore } from "~/store/auth.store";
-import { useDialogStore } from "~/store/dialog.store";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-
-  const clearTokens = useAuthStore((s) => s.clearTokens);
-  const setDialog = useDialogStore((s) => s.setDialog);
-
-  const { data: profile, refetch } = useProfile();
 
   // Landing page sections — only available to anonymous visitors. Authenticated
   // users see the feed instead, so these anchors have nowhere to scroll to.
@@ -60,79 +43,44 @@ export function Header() {
           <span className="font-bold text-xl tracking-tight">Altrua</span>
         </Link>
 
-        {!profile && (
-          <nav className="col-span-2 hidden items-center justify-center gap-6 md:flex">
-            {nav.map((item) => (
-              <a
-                className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
-                href={item.href}
-                key={item.name}
-              >
-                {item.name}
-              </a>
-            ))}
-          </nav>
-        )}
+        <nav className="col-span-2 hidden items-center justify-center gap-6 md:flex">
+          {nav.map((item) => (
+            <a
+              className="font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
+              href={item.href}
+              key={item.name}
+            >
+              {item.name}
+            </a>
+          ))}
+        </nav>
 
-        {!profile && (
-          <div className="hidden items-center justify-end gap-3 md:flex">
-            <Button asChild size="sm" variant="ghost">
-              <Link to="/sign-in">
-                <HugeiconsIcon icon={Login01Icon} />
-                Entrar
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/sign-up">Cadastre-se</Link>
-            </Button>
-          </div>
-        )}
-
-        {profile && (
-          <DropdownMenu>
-            <DropdownMenuTrigger className="w-fit md:col-start-4 md:justify-self-end">
-              <Avatar className="">
-                <AvatarImage
-                  src={`https://api.dicebear.com/10.x/initial-face/svg?eyesVariant=variant04,variant05,variant06,variant07,variant08&backgroundColor=ffa3b5,ffb382,ffe08a,e2f299,a8f0b0,86eadf,7fd4f5,cfbeff,b6e3f4&seed=${profile.name}`}
-                />
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => setDialog("create-ngo")}>
-                  Cadastrar ONG
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    clearTokens();
-                    refetch();
-                  }}
-                  variant="destructive"
-                >
-                  Sair
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-
-        {!profile && (
-          <Button
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
-            size="icon-lg"
-            variant="ghost"
-          >
-            <HugeiconsIcon
-              className="size-6"
-              icon={mobileMenuOpen ? Cancel01Icon : Menu09Icon}
-            />
+        <div className="hidden items-center justify-end gap-3 md:flex">
+          <Button asChild size="sm" variant="ghost">
+            <Link to="/sign-in">
+              <HugeiconsIcon icon={Login01Icon} />
+              Entrar
+            </Link>
           </Button>
-        )}
+          <Button asChild size="sm">
+            <Link to="/sign-up">Cadastre-se</Link>
+          </Button>
+        </div>
+
+        <Button
+          className="md:hidden"
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
+          size="icon-lg"
+          variant="ghost"
+        >
+          <HugeiconsIcon
+            className="size-6"
+            icon={mobileMenuOpen ? Cancel01Icon : Menu09Icon}
+          />
+        </Button>
       </div>
 
-      {!profile && mobileMenuOpen && (
+      {mobileMenuOpen && (
         <div className="mt-4 border-border border-t md:hidden">
           <nav className="container mx-auto flex flex-col gap-4 px-4 py-4">
             {nav.map((item) => (

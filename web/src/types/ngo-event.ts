@@ -16,6 +16,8 @@ export type NgoEvent = {
   startsAt: string;
   endsAt: string;
   tags: string[];
+  currentVolunteers: number;
+  isEnrolled: boolean;
 };
 
 export type NgoEventListFilters = {

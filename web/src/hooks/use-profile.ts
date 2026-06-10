@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { apiClient } from "~/lib/api-client";
 import { useAuthStore } from "~/store/auth.store";
@@ -15,14 +15,18 @@ async function fetchProfile(): Promise<UserProfile> {
   return await apiClient.get<UserProfile>("/users/me").then((res) => res.data);
 }
 
+export const profileQueryOptions = queryOptions({
+  queryKey: ["profile"],
+  queryFn: fetchProfile,
+  staleTime: 1000 * 60 * 5,
+  retry: false,
+});
+
 export function useProfile() {
   const accessToken = useAuthStore((s) => s.accessToken);
 
   return useQuery<UserProfile, AxiosError<ApiError>>({
-    queryKey: ["profile"],
-    queryFn: fetchProfile,
-    enabled: !!accessToken, // only runs when authenticated
-    staleTime: 1000 * 60 * 5, // 5 min
-    retry: false,
+    ...profileQueryOptions,
+    enabled: !!accessToken,
   });
 }

@@ -8,6 +8,7 @@ import {
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "~/components/ui/sonner";
 import { bootstrapAuth } from "~/lib/api/bootstrap";
+import { useAuthStore } from "~/store/auth.store";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
 import appCss from "../styles.css?url";
@@ -100,6 +101,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
   beforeLoad: async () => {
     await bootstrapAuth();
+    return { isAuthenticated: !!useAuthStore.getState().accessToken };
   },
   shellComponent: RootDocument,
 });

@@ -7,7 +7,7 @@ import { useAuthStore } from "~/store/auth.store";
  * (see vercel.json rewrites in prod, vite.config.ts proxy in dev), which
  * avoids mixed-content blocking when the page is served over HTTPS.
  */
-export const API_BASE_PATH = "/api";
+export const API_BASE_PATH = import.meta.env.VITE_API_BASE_PATH ?? "/api";
 
 export const apiClient = axios.create({
   baseURL: API_BASE_PATH,

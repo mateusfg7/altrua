@@ -2,18 +2,24 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Footer } from "~/components/shell/footer";
 import { Header } from "~/components/shell/header";
 import { AppSidebar } from "~/components/shell/sidebar";
+import { profileQueryOptions } from "~/hooks/use-profile";
 import { useAuthStore } from "~/store/auth.store";
 
 export const Route = createFileRoute("/_auth")({
+  beforeLoad: async ({ context }) => {
+    const accessToken = useAuthStore.getState().accessToken;
+    if (accessToken) {
+      await context.queryClient.ensureQueryData(profileQueryOptions);
+    }
+    return { isAuthenticated: !!accessToken };
+  },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const { isAuthenticated } = Route.useRouteContext();
 
-  // Authenticated users get the app shell: a fixed left sidebar instead of the
-  // marketing topbar/footer used on the public landing page.
-  if (accessToken) {
+  if (isAuthenticated) {
     return (
       <div className="flex min-h-dvh">
         <AppSidebar />

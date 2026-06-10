@@ -19,7 +19,6 @@ import { useDialogStore } from "~/store/dialog.store";
 import type { NgoEvent } from "~/types/ngo-event";
 
 export function EventCard(data: NgoEvent) {
-  const volunteersRegistered = 5;
   const ongName = "ONG Exemplo";
 
   const setDialog = useDialogStore((s) => s.setDialog);
@@ -37,7 +36,9 @@ export function EventCard(data: NgoEvent) {
     description,
     donationExternalLink,
     donationInfo,
+    isEnrolled,
     maxVolunteers,
+    currentVolunteers,
     startsAt,
     title,
   } = data;
@@ -70,7 +71,7 @@ export function EventCard(data: NgoEvent) {
 
   const progress =
     maxVolunteers && maxVolunteers > 0
-      ? Math.min((volunteersRegistered / maxVolunteers) * 100, 100)
+      ? Math.min((currentVolunteers / maxVolunteers) * 100, 100)
       : 0;
 
   return (
@@ -138,7 +139,7 @@ export function EventCard(data: NgoEvent) {
               <div className="mb-2 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Voluntários</span>
                 <span className="font-medium">
-                  {volunteersRegistered}/{maxVolunteers}
+                  {currentVolunteers}/{maxVolunteers}
                 </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
@@ -154,9 +155,11 @@ export function EventCard(data: NgoEvent) {
             <Button onClick={open} variant="outline">
               Detalhes
             </Button>
-            <Button disabled={isPending} onClick={handleSubscribe} size="lg">
-              {isPending ? "Inscrevendo..." : "Participar"}
-            </Button>
+            {acceptsVolunteers && !isEnrolled && (
+              <Button disabled={isPending} onClick={handleSubscribe} size="lg">
+                {isPending ? "Inscrevendo..." : "Participar"}
+              </Button>
+            )}
           </div>
         </CardContent>
       </div>
