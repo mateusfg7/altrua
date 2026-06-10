@@ -134,7 +134,7 @@ export function EventCard(data: NgoEvent) {
             </div>
           </div>
 
-          {acceptsVolunteers && (
+          {acceptsVolunteers && maxVolunteers && (
             <div className="mt-4">
               <div className="mb-2 flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Voluntários</span>

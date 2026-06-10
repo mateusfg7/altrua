@@ -15,7 +15,7 @@ export function useVolunteerSubscription() {
   return useMutation<void, AxiosError<ApiError>, SubscribeVolunteerParams>({
     mutationFn: subscribeVolunteer,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: NGO_EVENT_LIST_QUERY_KEY });
+      queryClient.refetchQueries({ queryKey: NGO_EVENT_LIST_QUERY_KEY });
     },
   });
 }
